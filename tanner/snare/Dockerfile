@@ -22,7 +22,7 @@ RUN apk --no-cache -U upgrade && \
 		py3-wheel && \
 #
 # Setup Snare 
-    git clone https://github.com/mushorg/snare /opt/snare && \
+    git clone https://github.com/Veiglin/dtu-thesis-snare.git /opt/snare && \
     cd /opt/snare/ && \
 	git checkout 08c69b7165354ea2040b6170c37d92ff3c304f96 && \
     cp /root/dist/requirements.txt . && \
