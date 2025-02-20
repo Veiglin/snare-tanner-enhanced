@@ -115,3 +115,5 @@ services:
     image: "dtagdevsec/snare:24.04"
     depends_on:
      - tanner
+    volumes:
+     - $HOME/credentials.xlsx:/opt/snare/files/credentials.xlsx

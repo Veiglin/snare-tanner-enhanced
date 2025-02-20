@@ -23,6 +23,10 @@
         "hash": "f9eaec4d8924194bf391b918d7bd3442",
         "content_type": "text/css"
     },
+    "/secretdirectory": {
+        "hash": "secretdirectory",
+        "content_type": "text/html"
+    },
     "/stylesheets/responsive.css?1528612569": {
         "hash": "0591e833dd5a0b05f79c1fea3d7de35d",
         "content_type": "text/css"
