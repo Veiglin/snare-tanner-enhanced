@@ -27,6 +27,10 @@
         "hash": "secretdirectory",
         "content_type": "text/html"
     },
+    "/files/credentials.xlsx" : {
+        "hash": "credentialsfile",
+        "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
     "/stylesheets/responsive.css?1528612569": {
         "hash": "0591e833dd5a0b05f79c1fea3d7de35d",
         "content_type": "text/css"
