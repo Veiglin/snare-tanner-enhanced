@@ -147,4 +147,3 @@ def check_privileges(path):
             raise PermissionError(f"Failed to create path: {os.path.abspath(path)}")
     if not os.access(path, os.W_OK):
         raise PermissionError(f"Failed to access path: {os.path.abspath(path)}")
-
