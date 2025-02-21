@@ -77,7 +77,9 @@ services:
 
 # Tanner Service
   tanner:
-    build: ./tanner
+    build: 
+      context: ../
+      dockerfile: docker/tanner/Dockerfile
     container_name: tanner
     restart: always
     stop_signal: SIGKILL
