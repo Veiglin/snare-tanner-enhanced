@@ -1,10 +1,10 @@
 FROM alpine:3.19
 #
 # Include dist
-COPY dist/ /root/dist/
+COPY docker/snare/dist/ /root/dist/
 #
 # Include snare
-COPY ../../snare/ /opt/snare/
+COPY snare/ /opt/snare/
 #
 # Install packages
 RUN apk --no-cache -U upgrade && \
