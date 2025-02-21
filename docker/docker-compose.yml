@@ -101,7 +101,9 @@ services:
 
 # Snare Service
   snare:
-    build: ./snare
+    build: 
+      context: ../
+      dockerfile: docker/snare/Dockerfile
     container_name: snare
     restart: always
     stop_signal: SIGKILL
