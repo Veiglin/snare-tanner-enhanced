@@ -3,6 +3,9 @@ FROM alpine:3.19
 # Include dist
 COPY dist/ /root/dist/
 #
+# Include snare
+COPY ../../snare/ /opt/snare/
+#
 # Install packages
 RUN apk --no-cache -U upgrade && \
     apk --no-cache -U add \
@@ -22,9 +25,7 @@ RUN apk --no-cache -U upgrade && \
 		py3-wheel && \
 #
 # Setup Snare 
-    git clone https://github.com/Veiglin/dtu-thesis-snare.git /opt/snare && \
     cd /opt/snare/ && \
-	git checkout 08c69b7165354ea2040b6170c37d92ff3c304f96 && \
     cp /root/dist/requirements.txt . && \
     pip3 install --break-system-packages --no-cache-dir -r requirements.txt && \
     python3 setup.py install && \
