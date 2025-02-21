@@ -51,4 +51,4 @@ RUN apk --no-cache -U upgrade && \
 # Start snare
 STOPSIGNAL SIGKILL
 USER snare:snare
-CMD snare --tanner tanner --debug true --auto-update false --host-ip 0.0.0.0 --port 80 --page-dir 6
+CMD snare --tanner tanner --debug true --auto-update false --host-ip 0.0.0.0 --port 80 --page-dir Cloned_Page
