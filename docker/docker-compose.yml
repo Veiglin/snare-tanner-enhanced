@@ -35,7 +35,9 @@ services:
 
 # Tanner API Service
   tanner_api:
-    build: ./tanner
+    build:
+      context: ../
+      dockerfile: docker/tanner/Dockerfile
     container_name: tanner_api
     restart: always
     stop_signal: SIGKILL
@@ -77,7 +79,9 @@ services:
 
 # Tanner Service
   tanner:
-    build: ./tanner
+    build: 
+      context: ../
+      dockerfile: docker/tanner/Dockerfile
     container_name: tanner
     restart: always
     stop_signal: SIGKILL
