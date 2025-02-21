@@ -32,9 +32,7 @@ RUN apk --no-cache -U upgrade && \
 		python3-dev && \ 
 #
 # Setup Tanner
-	git clone https://github.com/Veiglin/dtu-thesis-tanner.git /opt/tanner && \
     cd /opt/tanner/ && \
-    git checkout 245d628f4023e5462c7035e760a6b5eed0a33fbe && \
     cp /root/dist/config.yaml /opt/tanner/tanner/data && \
     cp /root/dist/requirements.txt . && \
     pip3 install --no-cache-dir -r requirements.txt && \
