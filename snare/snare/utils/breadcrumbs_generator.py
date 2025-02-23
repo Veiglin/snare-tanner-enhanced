@@ -51,8 +51,6 @@ class BreadcrumbsGenerator:
 
             print_color("Added robots.txt as breadcrumb with hash '{}'".format(hash_name))
 
-        elif self.breadcrumb in ['error_logs']:
-            
         else:
             print_color("Breadcrumb type '{}' is not supported yet.".format(self.breadcrumb), "WARNING")
 
