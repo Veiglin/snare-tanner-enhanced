@@ -196,7 +196,7 @@ if __name__ == '__main__':
     #  check if breadcrumbs defined in parsed args
     if args.breadcrumbs:
         # Initialize and generate breadcrumbs
-        breadcrumbs = BreadcrumbsGenerator(args.page_dir, meta_info, args.breadcrumbs)
+        breadcrumbs = BreadcrumbsGenerator(full_page_path, meta_info, args.breadcrumbs)
         breadcrumbs.generate_breadcrumbs()
     
     loop = asyncio.get_event_loop()

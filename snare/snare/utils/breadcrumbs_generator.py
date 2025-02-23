@@ -1,5 +1,9 @@
 import os
 import hashlib
+import logging
+import json
+
+from snare.utils.snare_helpers import check_privileges, print_color
 
 class BreadcrumbsGenerator:
     def __init__(self, page_dir, meta, breadcrumb='robots'):
@@ -21,10 +25,7 @@ class BreadcrumbsGenerator:
         """
         if self.breadcrumb in ['robots', 'robots.txt']:
             # Determine the path for robots.txt in the cloned pages directory.
-            robots_path = os.path.join(self.page_dir, "robots.txt")
-
-            # Ensure the directory exists
-            os.makedirs(self.page_dir, exist_ok=True)
+            robots_path = os.path.join(self.page_dir, "robots")
             
             # If the robots.txt file does not exist, create it with default content.
             if not os.path.exists(robots_path):
@@ -34,9 +35,8 @@ class BreadcrumbsGenerator:
             
             # Use the _make_filename_for_robots method to compute the MD5 hash.
             #file_name, hash_name = self._make_filename_for_robots()
-            file_name = "/robots.txt"
-
-            hash_name = 'test_hash'  # Placeholder for the hash value.
+            file_name = "/robots.txt"  # Placeholder for the file name.
+            hash_name = 'robots'  # Placeholder for the hash value.
             
             # Update the meta dictionary with the robots.txt entry.
             self.meta[file_name] = {
@@ -44,21 +44,12 @@ class BreadcrumbsGenerator:
                 "content_type": "text/plain"
             }
 
-            print("Breadcrumbs: Added robots.txt with hash {}".format(hash_name))
+            # Save the updated meta dictionary to meta.json
+            meta_json_path = os.path.join(self.page_dir, "meta.json")
+            with open(meta_json_path, "w") as meta_file:
+                json.dump(self.meta, meta_file, indent=4)
+
+            print_color("Added robots.txt as breadcrumb with hash '{}'".format(hash_name))
         else:
-            print("Breadcrumb type '{}' is not supported yet.".format(self.breadcrumb))
+            print_color("Breadcrumb type '{}' is not supported yet.".format(self.breadcrumb), "WARNING")
 
-    def _make_filename_for_robots(self):
-        """
-        Mimics the provided _make_filename method for generating an MD5 hash.
-        In this case, it computes the MD5 hash for '/robots.txt'.
-        """
-        file_name = "/robots.txt"
-        #if not file_name.startswith("/"):
-        #    file_name = "/" + file_name
-
-        # For robots.txt, we do not need to check for the special case of "/" since it's predefined.
-        m = hashlib.md5()
-        m.update(file_name.encode("utf-8"))
-        hash_name = m.hexdigest()
-        return file_name, hash_name

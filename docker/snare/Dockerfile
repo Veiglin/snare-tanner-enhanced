@@ -27,7 +27,7 @@ RUN apk -U upgrade && \
 # Setup Snare 
     cd /opt/snare/ && \
     cp /root/dist/requirements.txt . && \
-    pip3 install --break-system-packages --no-cache-dir -r requirements.txt && \
+    pip3 install --break-system-packages -r requirements.txt && \
     python3 setup.py install && \
     cd / && \
     rm -rf /opt/snare && \
