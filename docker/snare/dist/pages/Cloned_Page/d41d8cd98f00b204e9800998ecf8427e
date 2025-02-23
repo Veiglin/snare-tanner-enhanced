@@ -1,6 +1,0 @@
-User-agent: *
-Disallow: /admin/
-Disallow: /private/
-Disallow: /config/
-Disallow: /hidden/
-Disallow: /secret/

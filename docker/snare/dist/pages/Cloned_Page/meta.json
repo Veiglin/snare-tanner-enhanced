@@ -1,8 +1,4 @@
 {
-    "/robots.txt": {
-        "hash": "d41d8cd98f00b204e9800998ecf8427e",
-        "content_type": "text/plain"
-    },
     "/index.html": {
         "hash": "d1546d731a9f30cc80127d57142a482b",
         "content_type": "text/html"
