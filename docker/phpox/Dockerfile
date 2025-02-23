@@ -1,8 +1,8 @@
 FROM alpine:3.20
 #
 # Install packages
-RUN apk --no-cache -U upgrade && \
-    apk --no-cache -U add \
+RUN apk -U upgrade && \
+    apk -U add \
 		build-base \
 		file \
 		git \

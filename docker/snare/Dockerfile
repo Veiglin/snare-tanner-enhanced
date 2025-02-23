@@ -7,8 +7,8 @@ COPY docker/snare/dist/ /root/dist/
 COPY snare/ /opt/snare/
 #
 # Install packages
-RUN apk --no-cache -U upgrade && \
-    apk --no-cache -U add \
+RUN apk -U upgrade && \
+    apk -U add \
 		build-base \
 		git \
 		linux-headers \
