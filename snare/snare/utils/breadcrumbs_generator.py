@@ -23,7 +23,7 @@ class BreadcrumbsGenerator:
         Generates breadcrumbs for the given type. For now, it creates/updates a robots.txt file.
         The file's MD5 hash is computed and added to the meta dictionary.
         """
-        if self.breadcrumb in ['robots', 'robots.txt']:
+        if self.breadcrumb in ['robots']:
             # Determine the path for robots.txt in the cloned pages directory.
             robots_path = os.path.join(self.page_dir, "robots")
             
@@ -50,6 +50,19 @@ class BreadcrumbsGenerator:
                 json.dump(self.meta, meta_file, indent=4)
 
             print_color("Added robots.txt as breadcrumb with hash '{}'".format(hash_name))
+
+        elif self.breadcrumb in ['error_logs']:
+            
         else:
             print_color("Breadcrumb type '{}' is not supported yet.".format(self.breadcrumb), "WARNING")
 
+
+    def _make_filename(self, path):
+        # Compute the MD5 hash of the content
+        with open(path, "r") as f:
+            content = f.read()
+        m = hashlib.md5()  
+        m.update(content.encode("utf-8"))
+        hash_name = m.hexdigest()
+
+        return hash_name
