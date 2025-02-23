@@ -193,12 +193,11 @@ if __name__ == '__main__':
     else:
         snare_helpers.add_meta_tag(args.page_dir, meta_info[args.index_page]['hash'], config, base_path)
     
-    # check if breadcrumbs defined in parsed args
-    #if args.breadcrumbs:
-    #    breadcrumbs = BreadcrumbsGenerator(args.page_dir, meta_info, args.breadcrumbs)
-    #    breadcrumbs.generate_breadcrumbs()
-    #    with open(os.path.join(full_page_path, 'meta.json'), 'w') as meta:
-    #        json.dump(meta_info, meta, indent=4)
+    #  check if breadcrumbs defined in parsed args
+    if args.breadcrumbs:
+        # Initialize and generate breadcrumbs
+        breadcrumbs = BreadcrumbsGenerator(args.page_dir, meta_info, args.breadcrumbs)
+        breadcrumbs.generate_breadcrumbs()
     
     loop = asyncio.get_event_loop()
     loop.run_until_complete(check_tanner())
