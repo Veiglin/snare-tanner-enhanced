@@ -5,17 +5,19 @@ import json
 from snare.utils.snare_helpers import print_color
 
 class BreadcrumbsGenerator:
-    def __init__(self, page_dir, meta, breadcrumb):
+    def __init__(self, page_dir, meta, breadcrumb, html_comments_abs_url = None):
         """
         Initializes the breadcrumbs generator.
         
         :param page_dir: The directory where cloned pages are stored.
         :param meta: The meta dictionary (parsed from meta.json).
         :param breadcrumb: The type of breadcrumb to generate.
+        :param html_comments_abs_url: The absolute URL of the HTML comments page.
         """
         self.page_dir = page_dir
         self.meta = meta
         self.breadcrumb = breadcrumb
+        self.html_comments_abs_url = html_comments_abs_url
     
     def generate_breadcrumbs(self):
         """
@@ -26,6 +28,8 @@ class BreadcrumbsGenerator:
                 self.generate_robots_breadcrumb()
             elif breadcrumb == '404_page':
                 self.generate_404_breadcrumb()
+            elif breadcrumb == 'html_comments' and self.html_comments_abs_url:
+                self.generate_html_comments_breadcrumb(self.html_comments_abs_url)
             else:
                 print_color("Breadcrumb type '{}' is not supported yet.".format(breadcrumb), "WARNING")
 
@@ -85,6 +89,36 @@ class BreadcrumbsGenerator:
             f.write(html_content)
 
         print_color("Breacrumbing: Updated 404 page with message '{}'".format(msg))
+
+    def generate_html_comments_breadcrumb(self, html_comments_abs_url):
+        """
+        Generates a breadcrumb for the HTML comments page.
+        
+        :param html_comments_abs_url: The absolute URL of the HTML comments page.
+        """
+        # find the hash of the html comments page in the meta dictionary
+        for key, val in self.meta.items():
+            if html_comments_abs_url in key:
+                hash_name = val["hash"]
+                break
+        
+        # go to the hash file name and change the content of the html file
+        html_path = os.path.join(self.page_dir, hash_name)
+        with open(html_path, "r") as f:
+            html_content = f.read()
+            # check if the html breadcrumb comments already exists
+            if "This is a breadcrumb comment" in html_content:
+                print_color("Breadcrumbing: HTML comments page already has a custom message.")
+                return None
+            # change the content of the html adding a comments as breadcrumb
+            msg = "<!-- This is a breadcrumb comment -->"
+            html_content = html_content.replace("</body>", msg + "</body>")
+
+        # save the new content in the hash file
+        with open(html_path, "w") as f:
+            f.write(html_content)
+
+        print_color("Breacrumbing: Updated HTML page  '{}' with the comment '{}' for breadcrumbing".format(html_comments_abs_url, msg))
 
     @staticmethod
     def make_filename(file_name):
