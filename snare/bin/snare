@@ -148,6 +148,7 @@ if __name__ == '__main__':
     parser.add_argument("--no-dorks", help="disable the use of dorks", type=str_to_bool,  default=True)
     parser.add_argument("--path", help="path to save the page to be cloned", required=False, default='/opt/')
     parser.add_argument("--breadcrumbs", help="breadcrumbs to be added to the cloned page", nargs='+', default=None)
+    parser.add_argument("--html-comments-abs-url", help="absolute URL for generating HTML comments", default=None)
 
     args = parser.parse_args()
     base_path = os.path.join(args.path, 'snare')
@@ -196,7 +197,7 @@ if __name__ == '__main__':
     #  check if breadcrumbs defined in parsed args
     if args.breadcrumbs:
         # Initialize and generate breadcrumbs
-        breadcrumbs = BreadcrumbsGenerator(full_page_path, meta_info, args.breadcrumbs)
+        breadcrumbs = BreadcrumbsGenerator(full_page_path, meta_info, args.breadcrumbs, args.html_comments_abs_url)
         breadcrumbs.generate_breadcrumbs()
     
     loop = asyncio.get_event_loop()

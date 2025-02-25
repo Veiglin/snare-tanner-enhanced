@@ -29,7 +29,7 @@ class BreadcrumbsGenerator:
             elif breadcrumb == '404_page':
                 self.generate_404_breadcrumb()
             elif breadcrumb == 'html_comments' and self.html_comments_abs_url:
-                self.generate_html_comments_breadcrumb(self.html_comments_abs_url)
+                self.generate_html_comments_breadcrumb()
             else:
                 print_color("Breadcrumb type '{}' is not supported yet.".format(breadcrumb), "WARNING")
 
@@ -90,7 +90,7 @@ class BreadcrumbsGenerator:
 
         print_color("Breacrumbing: Updated 404 page with message '{}'".format(msg))
 
-    def generate_html_comments_breadcrumb(self, html_comments_abs_url):
+    def generate_html_comments_breadcrumb(self):
         """
         Generates a breadcrumb for the HTML comments page.
         
@@ -98,7 +98,7 @@ class BreadcrumbsGenerator:
         """
         # find the hash of the html comments page in the meta dictionary
         for key, val in self.meta.items():
-            if html_comments_abs_url in key:
+            if self.html_comments_abs_url in key:
                 hash_name = val["hash"]
                 break
         
@@ -118,7 +118,7 @@ class BreadcrumbsGenerator:
         with open(html_path, "w") as f:
             f.write(html_content)
 
-        print_color("Breacrumbing: Updated HTML page  '{}' with the comment '{}' for breadcrumbing".format(html_comments_abs_url, msg))
+        print_color("Breadcrumbing: Updated HTML page '{}' with the comment '{}' for breadcrumbing".format(self.html_comments_abs_url, msg))
 
     @staticmethod
     def make_filename(file_name):
