@@ -7,8 +7,8 @@ COPY docker/tanner/dist/ /root/dist/
 COPY tanner/ /opt/tanner/
 #
 # Install packages
-RUN apk --no-cache -U upgrade && \
-    apk --no-cache -U add \
+RUN apk -U upgrade && \
+    apk -U add \
 		build-base \
 		git \
 		libcap \
@@ -38,7 +38,7 @@ RUN apk --no-cache -U upgrade && \
 	cd /opt/tanner/ && \
     cp /root/dist/config.yaml /opt/tanner/tanner/data && \
     cp /root/dist/requirements.txt . && \
-    pip3 install --no-cache-dir -r requirements.txt && \
+    pip3 install -r requirements.txt && \
     python3 setup.py install && \
     rm -rf .coveragerc \
            .git \

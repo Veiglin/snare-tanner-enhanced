@@ -7,8 +7,8 @@ COPY docker/snare/dist/ /root/dist/
 COPY snare/ /opt/snare/
 #
 # Install packages
-RUN apk --no-cache -U upgrade && \
-    apk --no-cache -U add \
+RUN apk -U upgrade && \
+    apk -U add \
 		build-base \
 		git \
 		linux-headers \
@@ -27,7 +27,7 @@ RUN apk --no-cache -U upgrade && \
 # Setup Snare 
     cd /opt/snare/ && \
     cp /root/dist/requirements.txt . && \
-    pip3 install --break-system-packages --no-cache-dir -r requirements.txt && \
+    pip3 install --break-system-packages -r requirements.txt && \
     python3 setup.py install && \
     cd / && \
     rm -rf /opt/snare && \
@@ -52,4 +52,4 @@ RUN apk --no-cache -U upgrade && \
 # Start snare
 STOPSIGNAL SIGKILL
 USER snare:snare
-CMD snare --tanner tanner --debug true --auto-update false --host-ip 0.0.0.0 --port 80 --page-dir Cloned_Page
+CMD snare --tanner tanner --debug true --auto-update false --host-ip 0.0.0.0 --port 80 --page-dir Cloned_Page --breadcrumbs robots 404_page html_comments --html-comments-abs-url /login
