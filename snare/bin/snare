@@ -147,7 +147,7 @@ if __name__ == '__main__':
     parser.add_argument("--server-header", help="set server-header", default=None)
     parser.add_argument("--no-dorks", help="disable the use of dorks", type=str_to_bool,  default=True)
     parser.add_argument("--path", help="path to save the page to be cloned", required=False, default='/opt/')
-    parser.add_argument("--breadcrumbs", help="breadcrumbs to be added to the cloned page", default=None)
+    parser.add_argument("--breadcrumbs", help="breadcrumbs to be added to the cloned page", nargs='+', default=None)
 
     args = parser.parse_args()
     base_path = os.path.join(args.path, 'snare')
