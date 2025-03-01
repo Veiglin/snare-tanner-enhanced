@@ -123,3 +123,4 @@ services:
      - tanner
     volumes:
      - $HOME/credentials.xlsx:/opt/snare/files/credentials.xlsx
+     - ./snare/dist/honeytokens:/opt/snare/honeytokens
