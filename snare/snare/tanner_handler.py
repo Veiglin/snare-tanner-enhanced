@@ -54,6 +54,7 @@ class TannerHandler:
                     json=data,
                     timeout=10.0,
                 )
+                self.logger.info("TEST TEST TEST request received: {} and {}".format(r, data))
                 try:
                     event_result = await r.json()
                 except (
@@ -90,6 +91,9 @@ class TannerHandler:
         p = re.compile("/+")
         # Substituting all occurrences of the pattern with single forward slash
         requested_name = p.sub("/", requested_name)
+
+        self.logger.info("Requested name: %s", requested_name)
+        self.logger.info("Detection: %s", detection)
 
         if detection["type"] == 1:
             possible_requests = [requested_name]
