@@ -35,15 +35,17 @@ class HoneyToken:
         #print(vars(self.session))
         ip = self.session.ip
         user_agent = self.session.user_agent
+        path = self.session.paths[0]['path'] 
         info = self.find_location(ip)
 
-        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        subject = "Honeytoken Alert: Potential Intruder"
+        now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+        subject = "Honeytoken was Triggered"
         message_body = (
             f"<html>"
             f"<body>"
-            f"<h1>ALERT - Honeytoken Triggered!</h1>"
-            f"<p><strong>Date and Time:</strong> {now}</p>"
+            f"<h3>A Honeytoken was Triggered</h3>"
+            f"<p><strong>Honeytoken Path:</strong> {path}</p>"
+            f"<p><strong>Date and Time:</strong> {now} UTC</p>"
             f"<p><strong>IP Address:</strong> {ip}</p>"
             f"<p><strong>Location:</strong> {info.get('country', 'Unknown')}, "
             f"{info.get('city', 'Unknown')}, {info.get('zip_code', 'Unknown')}</p>"
