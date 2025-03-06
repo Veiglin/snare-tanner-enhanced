@@ -46,8 +46,8 @@ class HoneyToken:
             f"<p><strong>Honeytoken Path:</strong> {path}</p>"
             f"<p><strong>Date and Time:</strong> {now} UTC</p>"
             f"<p><strong>IP Address:</strong> {ip}</p>"
-            f"<p><strong>Location:</strong> {info.get('country', 'Unknown')}, "
-            f"Ci{info.get('city', 'Unknown')}, {info.get('zip_code', 'Unknown')}</p>"
+            f"<p><strong>Location:</strong><br> Country: {info.get('country')}<br>"
+            f"Region: {info.get('region')}<br> City: {info.get('city')}<br> Zip Code: {info.get('zip_code')}</p>"
             f"<p><strong>User Agent:</strong> {user_agent}</p>"
             f"<p><strong>Known Tor Exit Node:</strong> {'Yes' if tor_exit_node else 'No'}</p>"
             f"</body>"
@@ -106,10 +106,11 @@ class HoneyToken:
             )
         except geoip2.errors.AddressNotFoundError:
             info = {
-                "country": "NA",
-                "country_code": "NA",
-                "city": "NA",
-                "zip_code": "NA"
+                "country": "Unknown",
+                "country_code": "Unknown",
+                "city": "Unknown",
+                "region": "Unknown",
+                "zip_code": "Unknown"
             }
         return info
 
