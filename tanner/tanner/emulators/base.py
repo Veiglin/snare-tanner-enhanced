@@ -18,7 +18,7 @@ from tanner.emulators import (
     template_injection,
 )  # noqa
 from tanner.utils import patterns
-
+from tanner.alerting import honeytoken
 
 class BaseHandler:
     def __init__(self, base_dir, db_name, loop=None):
@@ -144,6 +144,12 @@ class BaseHandler:
             detection = {"name": "wp-content", "order": 1}
         elif re.match(patterns.INDEX, path):
             detection = {"name": "index", "order": 1}
+        # check honeytoken detection
+        if (TannerConfig.get("HONEYTOKEN", "enabled") is True) and (TannerConfig.get("HONEYTOKEN", "absolute_path") == data["path"]):
+            # trigger honeytoken detection by sending a mail to the configured mail reciepient with ip address and geo location
+            ht = honeytoken.HoneyToken(session=session)
+            await ht.trigger_token_alert()
+
         # check attacks against get parameters
         possible_get_detection = await self.get_emulation_result(session, get_data, self.get_emulators)
         if possible_get_detection and detection["order"] < possible_get_detection["order"]:

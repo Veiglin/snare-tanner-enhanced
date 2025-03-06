@@ -90,3 +90,10 @@ REMOTE_DOCKERFILE:
 
 SESSIONS: 
   delete_timeout: 300
+
+HONEYTOKEN:
+  enabled: True
+  absolute_path: /example.pdf
+  mail_recipient: nicolaiveiglin@gmail.com
+  mail_sender: DoNotReply@42db0869-cd0d-42f2-94c4-957ecdf4b5db.azurecomm.net
+  connection_string: endpoint=https://honeytoken-communication-service.europe.communication.azure.com/;accesskey=7Zg2gbRpQw1SstLA2m31YeFDKCDCaXLjoviswrbizC2pGLsygGL6JQQJ99BCACULyCpIwaC6AAAAAZCSC5cT
