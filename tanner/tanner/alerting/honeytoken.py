@@ -1,5 +1,6 @@
 import datetime
 import logging
+import requests
 import geoip2
 from geoip2.database import Reader
 
@@ -30,13 +31,11 @@ class HoneyToken:
         and sending an alert email asynchronously.
         """
 
-        # Extract client details
-        #print(self.session.)
-        #print(vars(self.session))
         ip = self.session.ip
         user_agent = self.session.user_agent
         path = self.session.paths[0]['path'] 
         info = self.find_location(ip)
+        tor_exit_node = self.is_tor_exit_node(ip)
 
         now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         subject = "Honeytoken was Triggered"
@@ -48,8 +47,9 @@ class HoneyToken:
             f"<p><strong>Date and Time:</strong> {now} UTC</p>"
             f"<p><strong>IP Address:</strong> {ip}</p>"
             f"<p><strong>Location:</strong> {info.get('country', 'Unknown')}, "
-            f"{info.get('city', 'Unknown')}, {info.get('zip_code', 'Unknown')}</p>"
+            f"Ci{info.get('city', 'Unknown')}, {info.get('zip_code', 'Unknown')}</p>"
             f"<p><strong>User Agent:</strong> {user_agent}</p>"
+            f"<p><strong>Known Tor Exit Node:</strong> {'Yes' if tor_exit_node else 'No'}</p>"
             f"</body>"
             f"</html>"
         )
@@ -77,6 +77,21 @@ class HoneyToken:
 
         self.logger.info(f"Honeytoken alert email sent with status: {result}")
 
+    def is_tor_exit_node(self, ip):
+        """
+        Check if the given IP address is a known Tor exit node.
+        """
+        try:
+            response = requests.get(f"https://check.torproject.org/exit-addresses")
+            if response.status_code == 200:
+                exit_nodes = response.text
+                return ip in exit_nodes
+            else:
+                return False
+        except requests.RequestException as e:
+            self.logger.info(f"Error checking Tor exit nodes: {e}")
+            return False
+        
     @staticmethod
     def find_location(ip):
         reader = Reader(TannerConfig.get("DATA", "geo_db"))
@@ -86,6 +101,7 @@ class HoneyToken:
                 country=location.country.name,
                 country_code=location.country.iso_code,
                 city=location.city.name,
+                region=location.subdivisions.most_specific.name,
                 zip_code=location.postal.code,
             )
         except geoip2.errors.AddressNotFoundError:
@@ -96,3 +112,4 @@ class HoneyToken:
                 "zip_code": "NA"
             }
         return info
+
