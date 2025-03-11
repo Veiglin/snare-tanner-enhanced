@@ -9,3 +9,4 @@ aiodocker
 azure-communication-email
 geoip2
 azure-keyvault-secrets
+azure-identity
