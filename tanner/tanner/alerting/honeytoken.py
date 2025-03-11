@@ -2,6 +2,7 @@ import datetime
 import logging
 import requests
 import geoip2
+import base64
 from geoip2.database import Reader
 
 from tanner.config import TannerConfig
@@ -31,12 +32,14 @@ class HoneyToken:
         and sending an alert email asynchronously.
         """
 
-        ip = self.session.ip
+        #ip = self.session.ip
+        ip = "217.71.0.90"
         user_agent = self.session.user_agent
         path = self.session.paths[0]['path'] 
-        info = self.find_location(ip)
+        info, geo_map_url = self.find_location(ip)
         tor_exit_node = self.is_tor_exit_node(ip)
-
+        if geo_map_url:
+            map_image_base64 = self.get_base64_encoded_image(geo_map_url)
         now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         subject = "Honeytoken was Triggered"
         message_body = (
@@ -46,10 +49,12 @@ class HoneyToken:
             f"<p><strong>Honeytoken Path:</strong> {path}</p>"
             f"<p><strong>Date and Time:</strong> {now} UTC</p>"
             f"<p><strong>IP Address:</strong> {ip}</p>"
-            f"<p><strong>Location:</strong><br> Country: {info.get('country')}<br>"
-            f"Region: {info.get('region')}<br> City: {info.get('city')}<br> Zip Code: {info.get('zip_code')}</p>"
             f"<p><strong>User Agent:</strong> {user_agent}</p>"
             f"<p><strong>Known Tor Exit Node:</strong> {'Yes' if tor_exit_node else 'No'}</p>"
+            f"<p><strong>Location:</strong><br> Country: {info.get('country')}<br>"
+            f"Region: {info.get('region')}<br> City: {info.get('city')}<br> Zip Code: {info.get('zip_code')}</p>"
+            f"<p><strong>Geo Info:</strong> {info.get('latitude')},{info.get('longitude')}</p>"
+            f"<img src='data:image/png;base64,{map_image_base64}' alt='Map with location'></img>"
             f"</body>"
             f"</html>"
         )
@@ -103,14 +108,28 @@ class HoneyToken:
                 city=location.city.name,
                 region=location.subdivisions.most_specific.name,
                 zip_code=location.postal.code,
+                latitude=location.location.latitude,
+                longitude=location.location.longitude
             )
+
+            # get static map picture
+            geo_map = f"https://atlas.microsoft.com/map/static/png?api-version=1.0&center={info['longitude']},{info['latitude']}&zoom=6&width=600&height=400&subscription-key={TannerConfig.get('HONEYTOKEN','maps_subscription_key')}&pins=default||{info['longitude']} {info['latitude']}&tilesetId=microsoft.base.road&language=en-US"
         except geoip2.errors.AddressNotFoundError:
             info = {
                 "country": "Unknown",
                 "country_code": "Unknown",
                 "city": "Unknown",
                 "region": "Unknown",
-                "zip_code": "Unknown"
+                "zip_code": "Unknown",
+                "latitude": "Unknown",
+                "longitude": "Unknown"
             }
-        return info
+            geo_map = None
+        return info, geo_map
 
+    @staticmethod
+    def get_base64_encoded_image(url):
+        response = requests.get(url)
+        if response.status_code == 200:
+            return base64.b64encode(response.content).decode('utf-8')
+        return None
