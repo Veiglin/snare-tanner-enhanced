@@ -90,3 +90,11 @@ REMOTE_DOCKERFILE:
 
 SESSIONS: 
   delete_timeout: 300
+
+HONEYTOKEN:
+  enabled: True
+  absolute_path: ["/example.pdf", "/images/bullet_orange.png"]
+  mail_recipient:   
+  mail_sender: DoNotReply@mail.smartgadgetstore.live
+  connection_string: endpoint=https://honeytoken-communication-service.europe.communication.azure.com/;accesskey=  
+  maps_subscription_key:  
