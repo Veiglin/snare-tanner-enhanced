@@ -31,8 +31,7 @@ class HoneyToken:
         and sending an alert email asynchronously.
         """
 
-        #ip = self.session.ip
-        ip = "193.19.204.185"
+        ip = self.session.ip
         user_agent = self.session.user_agent
         path = self.session.paths[0]['path'] 
         info, geo_map_url = self.find_location(ip)
@@ -70,11 +69,7 @@ class HoneyToken:
                 "html": message_body,
             },
             "recipients": {
-                "to": [
-                    {
-                        "address": f"<{self.to_addr}>",
-                    }
-                ]
+                "to": [{"address": f"<{addr}>"} for addr in self.to_addr],
             },
             "senderAddress": f"<{self.from_addr}>",
         }
