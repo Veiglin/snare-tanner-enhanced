@@ -1,9 +1,7 @@
 import datetime
 import logging
 import requests
-import geoip2
 import base64
-from geoip2.database import Reader
 import json
 
 from tanner.config import TannerConfig
@@ -33,7 +31,8 @@ class HoneyToken:
         and sending an alert email asynchronously.
         """
 
-        ip = self.session.ip
+        #ip = self.session.ip
+        ip = "193.19.204.185"
         user_agent = self.session.user_agent
         path = self.session.paths[0]['path'] 
         info, geo_map_url = self.find_location(ip)
@@ -52,10 +51,13 @@ class HoneyToken:
             f"<p><strong>Date and Time:</strong> {now} UTC</p>"
             f"<p><strong>IP Address:</strong> {ip}</p>"
             f"<p><strong>User Agent:</strong> {user_agent}</p>"
-            f"<p><strong>Known Tor Exit Node:</strong> {'Yes' if tor_exit_node else 'No'}</p>"
+            f"<p><strong>ISP name:</strong> {info.get('isp')}</p>"
+            f"<p><strong>Mobile connenction:</strong> {'Yes' if info.get('mobile') else 'No'}</p>"
+            f"<p><strong>Known Tor Exit Node from the TOR Project:</strong> {'Yes' if tor_exit_node else 'No'}</p>"
+            f"<p><strong>Proxy, VPN or Tor Exit Address:</strong> {'Yes' if info.get('proxy') else 'No'}</p>"
             f"<p><strong>Location:</strong><br> Country: {info.get('country')}<br>"
-            f"Region: {info.get('region')}<br> City: {info.get('city')}<br> Zip Code: {info.get('zip_code')}</p>"
-            f"<p><strong>Geo Info:</strong> {info.get('latitude')},{info.get('longitude')}</p>"
+            f"Region: {info.get('regionName')}<br> City: {info.get('city')}<br> Zip Code: {info.get('zip')}</p>"
+            f"<p><strong>Geo Info:</strong> {info.get('lat')},{info.get('lon')}</p>"
             f"<img src='data:image/png;base64,{map_image_base64}' alt='Map with location'></img>"
             f"</body>"
             f"</html>"
@@ -100,35 +102,21 @@ class HoneyToken:
             self.logger.info(f"Error checking Tor exit nodes: {e}")
             return False
         
-    @staticmethod
-    def find_location(ip):
-        reader = Reader(TannerConfig.get("DATA", "geo_db"))
-        try:
-            location = reader.city(ip)
-            info = dict(
-                country=location.country.name,
-                country_code=location.country.iso_code,
-                city=location.city.name,
-                region=location.subdivisions.most_specific.name,
-                zip_code=location.postal.code,
-                latitude=location.location.latitude,
-                longitude=location.location.longitude
-            )
-
-            # get static map picture
-            geo_map = f"https://atlas.microsoft.com/map/static/png?api-version=1.0&center={info['longitude']},{info['latitude']}&zoom=6&width=600&height=400&subscription-key={TannerConfig.get('HONEYTOKEN','maps_subscription_key')}&pins=default||{info['longitude']} {info['latitude']}&tilesetId=microsoft.base.road&language=en-US"
-        except geoip2.errors.AddressNotFoundError:
-            info = {
-                "country": "Unknown",
-                "country_code": "Unknown",
-                "city": "Unknown",
-                "region": "Unknown",
-                "zip_code": "Unknown",
-                "latitude": "Unknown",
-                "longitude": "Unknown"
-            }
-            geo_map = None
-        return info, geo_map
+    def find_location(self, ip):
+        url = f"http://ip-api.com/json/{ip}?fields=status,country,regionName,city,zip,lat,lon,isp,mobile,proxy"
+        response = requests.get(url)
+        if response.status_code == 200:
+            info = response.json()
+            self.logger.info(f"Location info for IP {ip}: {info}")
+            if info.get('status') == 'success' and 'lon' in info and 'lat' in info:
+                # get static map picture
+                geo_map = f"https://atlas.microsoft.com/map/static/png?api-version=1.0&center={info['lon']},{info['lat']}&zoom=9&width=600&height=400&subscription-key={TannerConfig.get('HONEYTOKEN','maps_subscription_key')}&pins=default||{info['lon']} {info['lat']}&tilesetId=microsoft.base.road&language=en-US"
+            else:
+                geo_map = None
+            return info, geo_map
+        else:
+            self.logger.error(f"Error retrieving location for IP {ip}: {response.status_code}")
+            return {}, None
 
     @staticmethod
     def get_base64_encoded_image(url):
