@@ -93,7 +93,7 @@ SESSIONS:
 
 HONEYTOKEN:
   enabled: True
-  absolute_path: ["/example.pdf"]
+  absolute_path: ["/example.pdf", "/images/bullet_orange.png"]
   mail_recipient: nicolaiveiglin@gmail.com
   mail_sender: DoNotReply@mail.smartgadgetstore.live
   connection_string: endpoint=https://honeytoken-communication-service.europe.communication.azure.com/;accesskey=7Zg2gbRpQw1SstLA2m31YeFDKCDCaXLjoviswrbizC2pGLsygGL6JQQJ99BCACULyCpIwaC6AAAAAZCSC5cT

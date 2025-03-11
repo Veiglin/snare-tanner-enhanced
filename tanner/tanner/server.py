@@ -23,7 +23,9 @@ class TannerServer:
         self.session_manager = session_manager.SessionManager()
         self.delete_timeout = TannerConfig.get("SESSIONS", "delete_timeout")
         
-        self.honeytoken_paths = TannerConfig.get("HONEYTOKEN", "absolute_paths", fallback=[])
+        if TannerConfig.get("HONEYTOKEN", "enabled") is True:
+            self.honeytoken_paths = TannerConfig.get("HONEYTOKEN", "absolute_path")
+        
         self.dorks = dorks_manager.DorksManager()
         self.base_handler = base.BaseHandler(base_dir, db_name)
         self.logger = logging.getLogger(__name__)
