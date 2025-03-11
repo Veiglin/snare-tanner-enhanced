@@ -19,7 +19,6 @@ from tanner.emulators import (
 )  # noqa
 from tanner.utils import patterns
 
-
 class BaseHandler:
     def __init__(self, base_dir, db_name, loop=None):
         self.emulator_enabled = {
