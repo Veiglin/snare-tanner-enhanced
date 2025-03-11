@@ -56,6 +56,10 @@ class HttpRequestHandler:
             request.path_qs, event_result["response"]["message"]["detection"]
         )
 
+        self.logger.info("Response content: {0}".format(content))
+        self.logger.info("Response headers: {0}".format(headers))
+        self.logger.info("Response status code: {0}".format(status_code))
+
         if self.run_args.server_header:
             headers["Server"] = self.run_args.server_header
 
