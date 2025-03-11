@@ -93,6 +93,8 @@ services:
     networks:
      - tanner_local
     image: "dtagdevsec/tanner:24.04"
+    environment:
+      - KEY_VAULT_NAME=azure-resources-secrets
     command: tanner
     read_only: true
     volumes:
