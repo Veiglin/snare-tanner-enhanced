@@ -36,9 +36,7 @@ class HoneyToken:
         
         self.communication_service_key = client.get_secret("communication-service-key").value
         self.maps_subscription_key = client.get_secret("maps-subscription-key").value
-        
-        self.connection_string = TannerConfig.get("HONEYTOKEN", "connection_string")
-
+        self.connection_string = f"{TannerConfig.get("HONEYTOKEN", "connection_string")}accesskey={self.communication_service_key}"
 
     async def trigger_token_alert(self):
         """
