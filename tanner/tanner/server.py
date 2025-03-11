@@ -13,6 +13,7 @@ from tanner.reporting.log_local import Reporting as local_report
 from tanner.reporting.log_mongodb import Reporting as mongo_report
 from tanner.reporting.log_hpfeeds import Reporting as hpfeeds_report
 from tanner import __version__ as tanner_version
+from tanner.alerting import honeytoken
 
 class TannerServer:
     def __init__(self):
@@ -55,6 +56,11 @@ class TannerServer:
             session, _ = await self.session_manager.add_or_update_session(data, self.redis_client)
             self.logger.info("Requested path %s", path)
             await self.dorks.extract_path(path, self.redis_client)
+            # check honeytoken detection
+            if (TannerConfig.get("HONEYTOKEN", "enabled") is True) and (TannerConfig.get("HONEYTOKEN", "absolute_path") == data["path"]):
+                # trigger honeytoken detection by sending a mail to the configured mail reciepient with ip address and geo location
+                ht = honeytoken.HoneyToken(session=session)
+                await ht.trigger_token_alert()
             detection = await self.base_handler.handle(data, session)
             session.set_attack_type(path, detection["name"])
 
