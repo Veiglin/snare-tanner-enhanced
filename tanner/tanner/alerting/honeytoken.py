@@ -5,6 +5,9 @@ import geoip2
 import base64
 from geoip2.database import Reader
 import json
+import os
+from azure.keyvault.secrets import SecretClient
+from azure.identity import DefaultAzureCredential
 
 from tanner.config import TannerConfig
 from azure.communication.email import EmailClient
@@ -23,8 +26,18 @@ class HoneyToken:
         self.session = session
         self.from_addr = TannerConfig.get("HONEYTOKEN", "mail_sender")
         self.to_addr = TannerConfig.get("HONEYTOKEN", "mail_recipient")
-        self.connection_string = TannerConfig.get("HONEYTOKEN", "connection_string")
         self.logger = logging.getLogger(__name__)
+
+        # Retrieve secrets from Azure Key Vault
+        key_vault_name = os.environ["KEY_VAULT_NAME"]
+        kv_uri = f"https://{key_vault_name}.vault.azure.net"
+        credential = DefaultAzureCredential()
+        client = SecretClient(vault_url=kv_uri, credential=credential)
+        
+        self.communication_service_key = client.get_secret("communication-service-key").value
+        self.maps_subscription_key = client.get_secret("maps-subscription-key").value
+        
+        self.connection_string = TannerConfig.get("HONEYTOKEN", "connection_string")
 
 
     async def trigger_token_alert(self):
@@ -100,8 +113,7 @@ class HoneyToken:
             self.logger.info(f"Error checking Tor exit nodes: {e}")
             return False
         
-    @staticmethod
-    def find_location(ip):
+    def find_location(self, ip):
         reader = Reader(TannerConfig.get("DATA", "geo_db"))
         try:
             location = reader.city(ip)
@@ -116,7 +128,7 @@ class HoneyToken:
             )
 
             # get static map picture
-            geo_map = f"https://atlas.microsoft.com/map/static/png?api-version=1.0&center={info['longitude']},{info['latitude']}&zoom=6&width=600&height=400&subscription-key={TannerConfig.get('HONEYTOKEN','maps_subscription_key')}&pins=default||{info['longitude']} {info['latitude']}&tilesetId=microsoft.base.road&language=en-US"
+            geo_map = f"https://atlas.microsoft.com/map/static/png?api-version=1.0&center={info['longitude']},{info['latitude']}&zoom=6&width=600&height=400&subscription-key={self.maps_subscription_key}&pins=default||{info['longitude']} {info['latitude']}&tilesetId=microsoft.base.road&language=en-US"
         except geoip2.errors.AddressNotFoundError:
             info = {
                 "country": "Unknown",
