@@ -4,6 +4,7 @@ import requests
 import geoip2
 import base64
 from geoip2.database import Reader
+import json
 
 from tanner.config import TannerConfig
 from azure.communication.email import EmailClient
@@ -23,7 +24,7 @@ class HoneyToken:
         self.from_addr = TannerConfig.get("HONEYTOKEN", "mail_sender")
         self.to_addr = TannerConfig.get("HONEYTOKEN", "mail_recipient")
         self.connection_string = TannerConfig.get("HONEYTOKEN", "connection_string")
-        self.logger = logging.getLogger("tanner.honeytoken.Honeytoken")
+        self.logger = logging.getLogger(__name__)
 
 
     async def trigger_token_alert(self):
@@ -39,6 +40,8 @@ class HoneyToken:
         tor_exit_node = self.is_tor_exit_node(ip)
         if geo_map_url:
             map_image_base64 = self.get_base64_encoded_image(geo_map_url)
+        else:
+            map_image_base64 = None
         now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         subject = "Honeytoken was Triggered"
         message_body = (
@@ -73,6 +76,7 @@ class HoneyToken:
             },
             "senderAddress": f"<{self.from_addr}>",
         }
+        self.logger.info(f"Sending honeytoken alert email: {json.dumps(message, indent=2)}")
 
         # Send the email using Azure Communication Services EmailClient
         email_client = EmailClient.from_connection_string(self.connection_string)
