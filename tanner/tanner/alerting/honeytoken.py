@@ -57,7 +57,7 @@ class HoneyToken:
             f"<p><strong>Proxy, VPN or Tor Exit Address:</strong> {'Yes' if info.get('proxy') else 'No'}</p>"
             f"<p><strong>Location:</strong><br> Country: {info.get('country')}<br>"
             f"Region: {info.get('regionName')}<br> City: {info.get('city')}<br> Zip Code: {info.get('zip')}</p>"
-            f"<p><strong>Geo Info:</strong> {info.get('lat')},{info.get('lon')}</p>"
+            f"<p><strong>Geo Info:</strong><br>Latitude: {info.get('lat')}<br>Longitude: {info.get('lon')}</p>"
             f"<img src='data:image/png;base64,{map_image_base64}' alt='Map with location'></img>"
             f"</body>"
             f"</html>"
