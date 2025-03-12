@@ -14,16 +14,15 @@ class HoneyToken:
     """
 
     def __init__(self, 
-                 session):
+                 data):
         """
         Initialize the HoneyToken instance with SMTP settings and email addresses.
         """
-        self.session = session
+        self.data = data
         self.from_addr = TannerConfig.get("HONEYTOKEN", "mail_sender")
         self.to_addr = TannerConfig.get("HONEYTOKEN", "mail_recipient")
         self.connection_string = TannerConfig.get("HONEYTOKEN", "connection_string")
         self.logger = logging.getLogger(__name__)
-
 
     async def trigger_token_alert(self):
         """
@@ -31,9 +30,9 @@ class HoneyToken:
         and sending an alert email asynchronously.
         """
 
-        ip = self.session.ip
-        user_agent = self.session.user_agent
-        path = self.session.paths[0]['path'] 
+        ip = self.data["peer"]["ip"]
+        user_agent = self.data["headers"]["user-agent"]
+        path = self.data["path"]
         info, geo_map_url = self.find_location(ip)
         tor_exit_node = self.is_tor_exit_node(ip)
         if geo_map_url:
