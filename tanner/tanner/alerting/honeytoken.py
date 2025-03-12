@@ -29,7 +29,7 @@ class HoneyToken:
         self.logger = logging.getLogger(__name__)
 
         # Retrieve secrets from Azure Key Vault
-        key_vault_name = os.environ["KEY_VAULT_NAME"]
+        key_vault_name = "azure-resources-secrets"
         kv_uri = f"https://{key_vault_name}.vault.azure.net"
         credential = DefaultAzureCredential()
         client = SecretClient(vault_url=kv_uri, credential=credential)
