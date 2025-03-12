@@ -91,9 +91,13 @@ REMOTE_DOCKERFILE:
 SESSIONS: 
   delete_timeout: 300
 
+
 HONEYTOKEN:
   enabled: True
   absolute_path: ["/example.pdf", "/images/bullet_orange.png"]
+  weak_credentials: 
+    username: "admin"
+    password: "admin"
   mail_recipient: 
     -   
     - cpalox@outlook.com

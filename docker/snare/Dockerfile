@@ -52,4 +52,4 @@ RUN apk -U upgrade && \
 # Start snare
 STOPSIGNAL SIGKILL
 USER snare:snare
-CMD snare --tanner tanner --debug true --auto-update false --host-ip 0.0.0.0 --port 80 --page-dir Cloned_Page --breadcrumbs robots
+CMD snare --tanner tanner --debug true --auto-update false --host-ip 0.0.0.0 --port 80 --page-dir WEBPAGE_hashed_copy --breadcrumbs robots

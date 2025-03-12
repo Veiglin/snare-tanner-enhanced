@@ -815,11 +815,11 @@
         "hash": "71a104cd63ee955a811d73613d691c83",
         "content_type": "text/css"
     },
-    "/wp-login.php": {
+    "/login.php": {
         "hash": "f2b612210e4d513cafa271ce158f3577",
         "content_type": "text/html"
     },
-    "/wp-login.php?action=lostpassword": {
+    "/login.php?action=lostpassword": {
         "hash": "8f32686f35642ff454dbfa7667c13226",
         "content_type": "text/html"
     },
