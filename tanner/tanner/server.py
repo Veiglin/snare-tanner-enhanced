@@ -52,6 +52,7 @@ class TannerServer:
         try:
             data = json.loads(data.decode("utf-8"))
             path = yarl.URL(data["path"]).human_repr()
+
         except (TypeError, ValueError, KeyError) as error:
             self.logger.exception("error parsing request: %s", data)
             response_msg = self._make_response(msg=type(error).__name__)
