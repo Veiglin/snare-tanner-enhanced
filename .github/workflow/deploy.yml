@@ -1,0 +1,50 @@
+name: Deploy Code and Run Docker on Azure VM
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+  inputs:
+      tag:
+        description: 'Tag to deploy'
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Start Azure VM
+        run: |
+          az vm start --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_VM_NAME }}
+      
+      - name: Set Tag Name
+        id: set-tag
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "TAG_NAME=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+          else
+            echo "TAG_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          fi
+
+      - name: Transfer Files to Azure VM
+        run: |
+          scp -o StrictHostKeyChecking=no -r . ${{ secrets.AZURE_VM_USERNAME }}@${{ secrets.AZURE_VM_IP }}:/home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/
+
+      - name: Deploy Application
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USERNAME }}@${{ secrets.AZURE_VM_IP }} << 'EOF'
+            cd /home/azureuser/thesis_honeypot//${{ env.TAG_NAME }}/docker
+            docker-compose up -d --build
+          EOF
