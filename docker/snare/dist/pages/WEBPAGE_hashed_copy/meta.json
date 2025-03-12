@@ -448,7 +448,7 @@
         "hash": "5a2bce9d53f443761357fef4f5674ca7"
     },
     "/example.pdf": {
-        "hash": "5EECD3E6F26242732F4C8FBDD5538FF9",
-        "content_type": "application/pdf"
+        "content_type": "application/pdf",
+        "hash": "5EECD3E6F26242732F4C8FBDD5538FF9"
     }
 }
