@@ -61,9 +61,9 @@ class TannerServer:
             self.logger.info("Requested path %s", path)
             await self.dorks.extract_path(path, self.redis_client)
             # check honeytoken detection
-            if (TannerConfig.get("HONEYTOKEN", "enabled") is True) and (data["path"] in self.honeytoken_paths):
+            if (TannerConfig.get("HONEYTOKEN", "enabled") is True) and (path in self.honeytoken_paths):
                 # trigger honeytoken detection by sending a mail to the configured mail reciepient with ip address and geo location
-                ht = honeytoken.HoneyToken(session=session)
+                ht = honeytoken.HoneyToken(data=data)
                 await ht.trigger_token_alert()
             detection = await self.base_handler.handle(data, session)
             session.set_attack_type(path, detection["name"])
