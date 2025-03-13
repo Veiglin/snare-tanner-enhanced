@@ -83,8 +83,6 @@ jobs:
     steps:
       - name: Check if Web Application is Running
         run: |
-          sleep 10
-
           if curl -s --head http://smartgadgetstore.live | grep "200 OK" > /dev/null; then
             echo "Web application is up and running."
           else
