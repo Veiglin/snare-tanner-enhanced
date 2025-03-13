@@ -1,4 +1,4 @@
-name: Deploy Code and Run Docker on Azure VM
+name: CI/CD - Start and Deploy Honeypot on Azure VM
 
 on:
   push:
