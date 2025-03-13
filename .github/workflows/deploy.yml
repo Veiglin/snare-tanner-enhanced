@@ -42,6 +42,7 @@ jobs:
           else
             echo "TAG_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
             echo "::set-output name=tag_name::${TAG_NAME}"
+          fi
     outputs:
       tag_name: ${{ steps.set-tag.outputs.tag_name }}
   
