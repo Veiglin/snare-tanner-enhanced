@@ -58,7 +58,7 @@ jobs:
         run: |
           # Create a temporary private key file for the SCP command
           echo "${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}" > /tmp/private_key.pem
-          chmod 600 private_key.pem
+          chmod 600 /tmp/private_key.pem
 
           # Use SCP to copy files
           scp -v -o StrictHostKeyChecking=no -i /tmp/private_key.pem -r . azureuser@${{ secrets.AZURE_VM_IP }}:/home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/
