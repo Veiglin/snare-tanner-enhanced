@@ -67,7 +67,7 @@ jobs:
           host: ${{ secrets.AZURE_VM_IP }}
           username: ${{ secrets.AZURE_VM_USERNAME }}
           key: ${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}
-          source: "."
+          source: "./*"
           target: "/home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}"
   
       - name: Deploy Application
