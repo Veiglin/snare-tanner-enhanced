@@ -19,12 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.ref }}
-
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -60,7 +54,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.ref }}
-          
+
       - name: Transfer Files to Azure VM via SCP
         run: |
           # Create a temporary private key file for the SCP command
