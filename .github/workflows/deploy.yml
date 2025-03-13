@@ -55,6 +55,12 @@ jobs:
     env:
       TAG_NAME: ${{ needs.start-vm.outputs.tag_name }}
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+          
       - name: Transfer Files to Azure VM via SCP
         run: |
           # Create a temporary private key file for the SCP command
