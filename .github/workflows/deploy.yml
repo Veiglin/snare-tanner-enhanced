@@ -46,6 +46,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: start-vm
     steps:
+      - name: Create Target Directory on Azure VM
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.AZURE_VM_IP }}
+          username: ${{ secrets.AZURE_VM_USERNAME }}
+          key: ${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p /home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}
+
       - name: Transfer Files to Azure VM
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -53,7 +62,7 @@ jobs:
           username: ${{ secrets.AZURE_VM_USERNAME }}
           key: ${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}
           source: "."
-          target: "/home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/"
+          target: "/home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}"
   
       - name: Deploy Application
         uses: appleboy/ssh-action@v1.2.2
