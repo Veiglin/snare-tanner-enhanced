@@ -62,12 +62,13 @@ jobs:
             mkdir -p /home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}
 
       - name: Transfer Files to Azure VM
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.AZURE_VM_IP }}
           username: ${{ secrets.AZURE_VM_USERNAME }}
           key: ${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}
-          source: "/*"
+          source: "./*"
+          overwrite: false
           target: "/home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}"
   
       - name: Deploy Application
