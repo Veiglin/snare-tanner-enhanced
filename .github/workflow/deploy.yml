@@ -6,9 +6,9 @@ on:
       - '*'
   workflow_dispatch:
   inputs:
-      tag:
-        description: 'Tag to deploy'
-        required: true
+    tag:
+      description: 'Tag to deploy'
+      required: true
 
 jobs:
   deploy:
