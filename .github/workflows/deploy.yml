@@ -59,4 +59,4 @@ jobs:
           password: ${{ secrets.AZURE_VM_PASSWORD }}
           script: |
             cd /home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/docker
-            docker-compose up -d --build
+            sudo docker compose up -d --build
