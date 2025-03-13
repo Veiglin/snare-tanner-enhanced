@@ -52,7 +52,7 @@ jobs:
           target: "/home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/"
   
       - name: Deploy Application
-        uses: appleboy/ssh-action@v0.1.0
+        uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.AZURE_VM_IP }}
           username: ${{ secrets.AZURE_VM_USERNAME }}
