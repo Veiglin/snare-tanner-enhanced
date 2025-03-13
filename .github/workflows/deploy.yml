@@ -59,7 +59,7 @@ jobs:
           chmod 600 private_key.pem
 
           # Use SCP to copy files
-          scp -i private_key.pem -r ./ azureuser@${{ secrets.AZURE_VM_IP }}:/home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/
+          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./ azureuser@${{ secrets.AZURE_VM_IP }}:/home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/
 
           # Clean up the private key file
           rm private_key.pem
