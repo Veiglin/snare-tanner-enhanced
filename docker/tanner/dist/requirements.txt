@@ -8,3 +8,4 @@ pylibinjection
 aiodocker
 azure-communication-email
 geoip2
+pyjwt
