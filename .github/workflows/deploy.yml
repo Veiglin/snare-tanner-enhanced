@@ -1,4 +1,4 @@
-name: CI/CD - Start and Deploy Honeypot on Azure VM
+name: CI/CD - Restart and Deploy Honeypot on Azure VM
 
 on:
   push:
@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 jobs:
-  start-vm:
+  restart-vm:
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -45,9 +45,9 @@ jobs:
   
   deploy-honeypot:
     runs-on: ubuntu-latest
-    needs: start-vm
+    needs: restart-vm
     env:
-      TAG_NAME: ${{ needs.start-vm.outputs.tag_name }}
+      TAG_NAME: ${{ needs.restart-vm.outputs.tag_name }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
