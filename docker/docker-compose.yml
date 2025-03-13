@@ -7,7 +7,7 @@ services:
   tanner_redis:
     build: ./redis
     container_name: tanner_redis
-    restart: always
+    restart: on-failure
     stop_signal: SIGKILL
     tty: true
 #    cpu_count: 1
@@ -21,7 +21,7 @@ services:
   tanner_phpox:
     build: ./phpox
     container_name: tanner_phpox
-    restart: always
+    restart: on-failure
     stop_signal: SIGKILL
     tmpfs:
      - /tmp:uid=2000,gid=2000
@@ -39,7 +39,7 @@ services:
       context: ../
       dockerfile: docker/tanner/Dockerfile
     container_name: tanner_api
-    restart: always
+    restart: on-failure
     stop_signal: SIGKILL
     tmpfs:
      - /tmp/tanner:uid=2000,gid=2000
@@ -83,7 +83,7 @@ services:
       context: ../
       dockerfile: docker/tanner/Dockerfile
     container_name: tanner
-    restart: always
+    restart: on-failure
     stop_signal: SIGKILL
     tmpfs:
      - /tmp/tanner:uid=2000,gid=2000
@@ -109,7 +109,7 @@ services:
       context: ../
       dockerfile: docker/snare/Dockerfile
     container_name: snare
-    restart: always
+    restart: on-failure
     stop_signal: SIGKILL
     tty: true
 #    cpu_count: 1
