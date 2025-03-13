@@ -76,3 +76,14 @@ jobs:
           script: |
             cd /home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/docker
             sudo docker compose up -d --build
+      
+      - name: Check if Web Application is Running
+        run: |
+          sleep 20
+
+          if curl -s --head http://smartgadgetstore.live | grep "200 OK" > /dev/null; then
+            echo "Web application is up and running."
+          else
+            echo "Web application is not running."
+            exit 1
+          fi
