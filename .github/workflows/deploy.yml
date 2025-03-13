@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 jobs:
-  build-and-deploy:
+  start-vm:
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -41,13 +41,17 @@ jobs:
           else
             echo "TAG_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
           fi
-
+  
+  deploy-honeypot:
+    runs-on: ubuntu-latest
+    needs: start-vm
+    steps:
       - name: Transfer Files to Azure VM
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.AZURE_VM_IP }}
           username: ${{ secrets.AZURE_VM_USERNAME }}
-          password: ${{ secrets.AZURE_VM_PASSWORD }}
+          key: ${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}
           source: "."
           target: "/home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/"
   
@@ -56,7 +60,7 @@ jobs:
         with:
           host: ${{ secrets.AZURE_VM_IP }}
           username: ${{ secrets.AZURE_VM_USERNAME }}
-          password: ${{ secrets.AZURE_VM_PASSWORD }}
+          key: ${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}
           script: |
             cd /home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/docker
             sudo docker compose up -d --build
