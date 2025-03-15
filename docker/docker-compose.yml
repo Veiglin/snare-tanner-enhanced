@@ -55,6 +55,8 @@ services:
     command: tannerapi 
     depends_on:
      - tanner_redis
+    ports:
+     - "8092:8092"
 
 # Tanner WEB Service
 #  tanner_web:
