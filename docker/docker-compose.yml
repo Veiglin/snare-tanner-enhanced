@@ -62,7 +62,7 @@ services:
 #  tanner_web:
 #    build: ./tanner
 #    container_name: tanner_web
-#    restart: always
+#    restart: on-failure
 #    stop_signal: SIGKILL
 #    tmpfs:
 #     - /tmp/tanner:uid=2000,gid=2000
