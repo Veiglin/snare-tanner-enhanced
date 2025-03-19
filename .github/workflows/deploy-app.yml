@@ -1,0 +1,37 @@
+name: Deploy Web App to Azure App Service (Docker)
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Log in to Azure Container Registry (ACR)
+      uses: azure/docker-login@v2
+      with:
+        login-server: ${{ secrets.AZURE_LOGIN_SERVER }}
+        username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+        password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+
+    - run: |
+        docker build -f docker/tanner/Dockerfile -t ${{ secrets.AZURE_LOGIN_SERVER }}/tanner_web:${{ github.sha }} .
+        docker push ${{ secrets.AZURE_LOGIN_SERVER }}/tanner_web:${{ github.sha }}
+
+    - name: 'Deploy to Azure Container Instances'
+      uses: 'azure/aci-deploy@v1'
+      with:
+        resource-group: contoso
+        dns-name-label: tanner-web-container
+        image: ${{ secrets.AZURE_LOGIN_SERVER }}/tanner_web:${{ github.sha }}
+        cpu: 1   # Optional
+        memory: 0.1   # Optional
+        registry-username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+        registry-password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+        name: tanner-web-container
+        location: 'west us'
