@@ -1,4 +1,4 @@
-name: CI/CD - Restart and Deploy Honeypot on Azure VM
+name: Restart and Deploy Honeypot on Azure VM
 
 on:
   push:
@@ -76,4 +76,3 @@ jobs:
           script: |
             cd /home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/docker
             sudo docker compose up -d --build
-      
