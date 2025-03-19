@@ -3,6 +3,9 @@ name: Deploy Web App to Azure App Service (Docker)
 on:
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   build-and-deploy:
