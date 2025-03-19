@@ -10,7 +10,7 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
+    environment: production
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
