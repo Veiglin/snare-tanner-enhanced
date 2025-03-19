@@ -12,6 +12,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Login to Azure
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
     - name: Log in to Azure Container Registry (ACR)
       uses: azure/docker-login@v2
       with:
@@ -20,13 +27,13 @@ jobs:
         password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
 
     - run: |
-        docker build -f docker/tanner/Dockerfile -t ${{ secrets.AZURE_LOGIN_SERVER }}/tanner_web:${{ github.sha }} .
+        docker build -f docker/tanner/Dockerfile -t ${{ secrets.AZURE_LOGIN_SERVER }}/tanner_web:${{ github.sha }}
         docker push ${{ secrets.AZURE_LOGIN_SERVER }}/tanner_web:${{ github.sha }}
 
     - name: 'Deploy to Azure Container Instances'
       uses: 'azure/aci-deploy@v1'
       with:
-        resource-group: contoso
+        resource-group: honeypot-machine_group
         dns-name-label: tanner-web-container
         image: ${{ secrets.AZURE_LOGIN_SERVER }}/tanner_web:${{ github.sha }}
         cpu: 1   # Optional
@@ -34,4 +41,4 @@ jobs:
         registry-username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
         registry-password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
         name: tanner-web-container
-        location: 'west us'
+        location: 'northeurope'
