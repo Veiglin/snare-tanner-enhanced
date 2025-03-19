@@ -81,7 +81,7 @@ class ApiServer:
         resp = await handler(request)
         auth_key = request.query.get("key")
         try:
-            decoded = jwt.decode(auth_key, TannerConfig.get("API", "auth_signature"), algorithm="HS256")
+            decoded = jwt.decode(auth_key, TannerConfig.get("API", "auth_signature"), algorithms="HS256")
         except (DecodeError, InvalidSignatureError):
             return web.Response(body="401: Unauthorized")
         return resp
