@@ -30,7 +30,7 @@ jobs:
         password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
 
     - run: |
-        docker build -f docker/tanner/Dockerfile -t ${{ secrets.AZURE_LOGIN_SERVER }}/tanner_web:${{ github.sha }}
+        docker build -f docker/tanner/Dockerfile -t ${{ secrets.AZURE_LOGIN_SERVER }}/tanner_web:${{ github.sha }} .
         docker push ${{ secrets.AZURE_LOGIN_SERVER }}/tanner_web:${{ github.sha }}
 
     - name: 'Deploy to Azure Container Instances'
