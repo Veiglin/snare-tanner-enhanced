@@ -18,8 +18,8 @@ WEB:
 API: 
   host: tanner_api
   port: 8092
-  auth: False
-  auth_signature: tanner_api_auth
+  auth: True
+  auth_signature: "  "
 
 PHPOX: 
   host: tanner_phpox
@@ -90,7 +90,6 @@ REMOTE_DOCKERFILE:
 
 SESSIONS: 
   delete_timeout: 300
-
 
 HONEYTOKEN:
   enabled: True
