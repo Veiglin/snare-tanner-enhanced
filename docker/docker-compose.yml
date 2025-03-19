@@ -59,25 +59,27 @@ services:
      - "8092:8092"
 
 # Tanner WEB Service
-#  tanner_web:
-#    build: ./tanner
-#    container_name: tanner_web
-#    restart: on-failure
-#    stop_signal: SIGKILL
-#    tmpfs:
-#     - /tmp/tanner:uid=2000,gid=2000
-#    tty: true
-#    networks:
-#     - tanner_local
-#    ports:
-#     - "127.0.0.1:8091:8091"
-#    image: "dtagdevsec/tanner:24.04"
-#    command: tannerweb
-#    read_only: true
-#    volumes:
-#     - /data/tanner/log:/var/log/tanner
-#    depends_on:
-#     - tanner_redis
+  tanner_web:
+    build:
+      context: ../
+      dockerfile: docker/tanner/Dockerfile
+    container_name: tanner_web
+    restart: on-failure
+    stop_signal: SIGKILL
+    tmpfs:
+     - /tmp/tanner:uid=2000,gid=2000
+    tty: true
+    networks:
+     - tanner_local
+    ports:
+     - "127.0.0.1:8091:8091"
+    image: "dtagdevsec/tanner:24.04"
+    command: tannerweb
+    read_only: true
+    volumes:
+     - $HOME/tpotce/data/tanner/log:/var/log/tanner
+    depends_on:
+     - tanner_redis
 
 # Tanner Service
   tanner:
@@ -102,7 +104,7 @@ services:
      - $HOME/tpotce/data/tanner/files:/opt/tanner/files
     depends_on:
      - tanner_api
-#     - tanner_web
+     - tanner_web
      - tanner_phpox
 
 # Snare Service
