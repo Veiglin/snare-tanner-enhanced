@@ -56,8 +56,8 @@ RUN apk -U upgrade && \
 # Setup configs, user, groups
     addgroup -g 2000 tanner && \
     adduser -S -s /bin/ash -u 2000 -D -g 2000 tanner && \
-    mkdir /var/log/tanner && \
-    chown -R tanner:tanner /opt/tanner /var/log/tanner && \
+    mkdir /var/log/tanner /tmp/tanner && \
+    chown -R tanner:tanner /opt/tanner /var/log/tanner /tmp/tanner && \
 #
 # Clean up
     apk del --purge \
