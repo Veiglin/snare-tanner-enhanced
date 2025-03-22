@@ -58,7 +58,6 @@ RUN apk -U upgrade && \
     adduser -S -s /bin/ash -u 2000 -D -g 2000 tanner && \
     mkdir -p /var/log/tanner /tmp/tanner && \
     chown -R tanner:tanner /opt/tanner /var/log/tanner /tmp/tanner && \
-    chmod 755 /tmp/tanner  && \
 # Clean up
     apk del --purge \
             build-base \
