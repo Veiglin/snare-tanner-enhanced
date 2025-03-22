@@ -87,7 +87,6 @@ services:
       context: ../
       dockerfile: docker/tanner/Dockerfile
     container_name: tanner
-    user: "2000:2000"
     restart: on-failure
     stop_signal: SIGKILL
     tty: true
@@ -99,7 +98,6 @@ services:
     command: tanner
     read_only: true
     volumes:
-     - $HOME/web-honeypot/data/tanner/log:/tmp/tanner
      - $HOME/web-honeypot/data/tanner/data:/var/log/tanner
      - $HOME/web-honeypot/data/tanner/files:/opt/tanner/files
     depends_on:

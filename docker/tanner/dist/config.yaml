@@ -63,8 +63,8 @@ DOCKER:
   host_image: busybox:latest
 
 LOGGER: 
-  log_debug: /tmp/tanner/tanner.log
-  log_err: /tmp/tanner/tanner.err
+  log_debug: /var/log/tanner/tanner.log
+  log_err: /var/log/tanner/tanner.err
 
 MONGO:
   enabled: False
