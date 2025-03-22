@@ -96,7 +96,6 @@ services:
      - tanner_local
     image: "dtagdevsec/tanner:24.04"
     command: tanner
-    read_only: true
     volumes:
      - $HOME/web-honeypot/data/tanner/log:/tmp/tanner
      - $HOME/web-honeypot/data/tanner/data:/var/log/tanner
