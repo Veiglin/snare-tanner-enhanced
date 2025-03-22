@@ -55,23 +55,6 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.ref }}
 
-      - name: Stop and Remove All Running Docker Containers
-        run: |
-          # Check if there are running containers and stop them
-          running_containers=$(sudo docker ps -q)
-          if [ -n "$running_containers" ]; then
-            sudo docker stop $running_containers
-          fi
-            
-          # Remove all containers (running or stopped)
-          all_containers=$(sudo docker ps -aq)
-          if [ -n "$all_containers" ]; then
-            sudo docker rm $all_containers
-          fi
-  
-          sudo docker rmi $(sudo docker images -q) || true
-          sudo docker volume prune -f
-
       - name: Transfer Files to Azure VM via SCP
         run: |
           # Create a temporary private key file for the SCP command
@@ -91,5 +74,13 @@ jobs:
           username: ${{ secrets.AZURE_VM_USERNAME }}
           key: ${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}
           script: |
+            sudo docker stop $(sudo docker ps -q)
+          
+            sudo docker rm $(sudo docker ps -aq)
+
+            sudo docker rmi $(sudo docker images -q)
+
+            sudo docker volume prune -f
+
             cd /home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/docker
             sudo docker compose up -d --build
