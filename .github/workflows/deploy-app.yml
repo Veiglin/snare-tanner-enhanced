@@ -54,6 +54,6 @@ jobs:
           CONTAINER_NAME=log_collector
           SFTP_HOST=${{ secrets.AZURE_VM_IP }}
           SFTP_PORT=${{ secrets.AZURE_SFTP_PORT }}
-          SFTP_USERNAME=${{ secrets.SFTP_USERNAME }}
+          SFTP_USERNAME=${{ secrets.AZURE_VM_USERNAME }}
           SSH_PRIVATE_KEY_PATH=private_key.pem
           LOG_FILES=${{ secrets.LOG_FILES }}
