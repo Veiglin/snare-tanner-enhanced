@@ -18,7 +18,7 @@ WEB:
 API: 
   host: tanner_api
   port: 8092
-  auth: True
+  auth: False
   auth_signature: "a8B3d9E1f6G2h4I7j0K5l8M2n3O6p1Q9"
 
 PHPOX: 

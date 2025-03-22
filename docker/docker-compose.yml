@@ -34,52 +34,52 @@ services:
     read_only: true
 
 # Tanner API Service
-  tanner_api:
-    build:
-      context: ../
-      dockerfile: docker/tanner/Dockerfile
-    container_name: tanner_api
-    restart: on-failure
-    stop_signal: SIGKILL
-    tmpfs:
-     - /tmp/tanner:uid=2000,gid=2000
-    tty: true
-#    cpu_count: 1
-#    cpus: 0.25
-    networks:
-     - tanner_local
-    image: "dtagdevsec/tanner:24.04"
-    read_only: true
-    volumes:
-     - $HOME/tpotce/data/tanner/log:/var/log/tanner
-    command: tannerapi 
-    depends_on:
-     - tanner_redis
-    ports:
-     - "8092:8092"
-
-# Tanner WEB Service
-  tanner_web:
-    build:
-      context: ../
-      dockerfile: docker/tanner/Dockerfile
-    container_name: tanner_web
-    restart: on-failure
-    stop_signal: SIGKILL
-    tmpfs:
-     - /tmp/tanner:uid=2000,gid=2000
-    tty: true
-    networks:
-     - tanner_local
-    ports:
-     - "127.0.0.1:8091:8091"
-    image: "dtagdevsec/tanner:24.04"
-    command: tannerweb
-    read_only: true
-    volumes:
-     - $HOME/tpotce/data/tanner/log:/var/log/tanner
-    depends_on:
-     - tanner_redis
+#  tanner_api:
+#    build:
+#      context: ../
+#      dockerfile: docker/tanner/Dockerfile
+#    container_name: tanner_api
+#    restart: on-failure
+#    stop_signal: SIGKILL
+#    tmpfs:
+#     - /tmp/tanner:uid=2000,gid=2000
+#    tty: true
+##    cpu_count: 1
+##    cpus: 0.25
+#    networks:
+#     - tanner_local
+#    image: "dtagdevsec/tanner:24.04"
+#    read_only: true
+#    volumes:
+#     - $HOME/tpotce/data/tanner/log:/var/log/tanner
+#    command: tannerapi 
+#    depends_on:
+#     - tanner_redis
+#    ports:
+#     - "8092:8092"
+#
+## Tanner WEB Service
+#  tanner_web:
+#    build:
+#      context: ../
+#      dockerfile: docker/tanner/Dockerfile
+#    container_name: tanner_web
+#    restart: on-failure
+#    stop_signal: SIGKILL
+#    tmpfs:
+#     - /tmp/tanner:uid=2000,gid=2000
+#    tty: true
+#    networks:
+#     - tanner_local
+#    ports:
+#     - "127.0.0.1:8091:8091"
+#    image: "dtagdevsec/tanner:24.04"
+#    command: tannerweb
+#    read_only: true
+#    volumes:
+#     - $HOME/tpotce/data/tanner/log:/var/log/tanner
+#    depends_on:
+#     - tanner_redis
 
 # Tanner Service
   tanner:
@@ -89,8 +89,6 @@ services:
     container_name: tanner
     restart: on-failure
     stop_signal: SIGKILL
-    tmpfs:
-     - /tmp/tanner:uid=2000,gid=2000
     tty: true
 #    cpu_count: 1
 #    cpus: 0.25
@@ -100,11 +98,12 @@ services:
     command: tanner
     read_only: true
     volumes:
-     - $HOME/tpotce/data/tanner/log:/var/log/tanner
-     - $HOME/tpotce/data/tanner/files:/opt/tanner/files
+     - $HOME/web-honeypot/data/tanner/log:/tmp/tanner
+     - $HOME/web-honeypot/data/tanner/data:/var/log/tanner
+     - $HOME/web-honeypot/data/tanner/files:/opt/tanner/files
     depends_on:
-     - tanner_api
-     - tanner_web
+   #  - tanner_api
+   #  - tanner_web
      - tanner_phpox
 
 # Snare Service
@@ -126,5 +125,6 @@ services:
     depends_on:
      - tanner
     volumes:
+     - $HOME/tpotce/data/snare/log:/var/log/snare
      - $HOME/credentials.xlsx:/opt/snare/files/credentials.xlsx
      - ./snare/dist/honeytokens:/opt/snare/honeytokens

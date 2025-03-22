@@ -1,4 +1,4 @@
-name: Deploy Web App to Azure App Service (Docker)
+name: Build and Deploy to Azure Container Apps
 
 on:
   workflow_dispatch:
@@ -15,6 +15,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Set up SSH key
+      run: |
+        echo "${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}" > private_key.pem
+        chmod 600 private_key.pem
+
     - name: Login to Azure
       uses: azure/login@v2
       with:
@@ -22,26 +27,33 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: Log in to Azure Container Registry (ACR)
-      uses: azure/docker-login@v2
-      with:
-        login-server: ${{ secrets.AZURE_LOGIN_SERVER }}
-        username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
-        password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
-    - run: |
-        docker build -f docker/tanner/Dockerfile -t ${{ secrets.AZURE_LOGIN_SERVER }}/tanner_web:${{ github.sha }} .
-        docker push ${{ secrets.AZURE_LOGIN_SERVER }}/tanner_web:${{ github.sha }}
-
-    - name: 'Deploy to Azure Container Instances'
-      uses: 'azure/aci-deploy@v1'
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
       with:
-        resource-group: honeypot-machine_group
-        dns-name-label: tanner-web-container
-        image: ${{ secrets.AZURE_LOGIN_SERVER }}/tanner_web:${{ github.sha }}
-        cpu: 1   # Optional
-        memory: 1   # Optional
+        context: .
+        push: true
+        tags: ${{ secrets.AZURE_LOGIN_SERVER }}.azurecr.io/log_collector:latest
+        file: ./Dockerfile
+
+    - name: Deploy to Azure Container Apps
+      uses: azure/aci-deploy@v1
+      with:
+        resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
+        dns-name-label: log-collector-app
+        location: 'northeurope'
+        name: log-collector-app
+        image: ${{ secrets.AZURE_LOGIN_SERVER }}.azurecr.io/log_collector:latest
+        registry-login-server: ${{ secrets.AZURE_LOGIN_SERVER }}.azurecr.io
         registry-username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
         registry-password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
-        name: tanner-web-container
-        location: 'northeurope'
+        environment-variables: |
+          AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+          CONTAINER_NAME=log_collector
+          SFTP_HOST=${{ secrets.AZURE_VM_IP }}
+          SFTP_PORT=${{ secrets.AZURE_SFTP_PORT }}
+          SFTP_USERNAME=${{ secrets.SFTP_USERNAME }}
+          SSH_PRIVATE_KEY_PATH=private_key.pem
+          LOG_FILES=${{ secrets.LOG_FILES }}

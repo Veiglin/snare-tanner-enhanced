@@ -8,7 +8,7 @@
 
   # SFTP server configuration
   SFTP_HOST = os.getenv('SFTP_HOST')
-  SFTP_PORT = int(os.getenv('SFTP_PORT', 22))
+  SFTP_PORT = int(os.getenv('SFTP_PORT'))
   SFTP_USERNAME = os.getenv('SFTP_USERNAME')
   SSH_PRIVATE_KEY_PATH = os.getenv('SSH_PRIVATE_KEY_PATH')
   LOG_FILES = os.getenv('LOG_FILES').split(',')
