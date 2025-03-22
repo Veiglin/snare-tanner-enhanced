@@ -57,12 +57,19 @@ jobs:
 
       - name: Stop and Remove All Running Docker Containers
         run: |
-          # List all running containers and stop them
-          sudo docker stop $(sudo docker ps -q)
-          # Remove all stopped containers
-          sudo docker rm $(sudo docker ps -aq)
-          # Optionally, remove all unused images and volumes to free up space
-          sudo docker rmi $(sudo docker images -q)
+          # Check if there are running containers and stop them
+          running_containers=$(sudo docker ps -q)
+          if [ -n "$running_containers" ]; then
+            sudo docker stop $running_containers
+          fi
+            
+          # Remove all containers (running or stopped)
+          all_containers=$(sudo docker ps -aq)
+          if [ -n "$all_containers" ]; then
+            sudo docker rm $all_containers
+          fi
+  
+          sudo docker rmi $(sudo docker images -q) || true
           sudo docker volume prune -f
 
       - name: Transfer Files to Azure VM via SCP
