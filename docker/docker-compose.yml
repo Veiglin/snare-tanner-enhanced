@@ -87,6 +87,7 @@ services:
       context: ../
       dockerfile: docker/tanner/Dockerfile
     container_name: tanner
+    user: "2000:2000"
     restart: on-failure
     stop_signal: SIGKILL
     tty: true
@@ -125,6 +126,6 @@ services:
     depends_on:
      - tanner
     volumes:
-     - $HOME/tpotce/data/snare/log:/var/log/snare
+     - $HOME/web-honeypot/data/snare/log:/var/log/snare
      - $HOME/credentials.xlsx:/opt/snare/files/credentials.xlsx
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
