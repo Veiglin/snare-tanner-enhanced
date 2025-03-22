@@ -87,7 +87,7 @@ services:
       context: ../
       dockerfile: docker/tanner/Dockerfile
     container_name: tanner
-    restart: on-failure
+    restart: "no"
     stop_signal: SIGKILL
     tty: true
 #    cpu_count: 1
@@ -97,6 +97,7 @@ services:
     image: "dtagdevsec/tanner:24.04"
     command: tanner
     volumes:
+     - /tmp/tanner:/tmp/tanner
      - $HOME/web-honeypot/data/tanner/log:/tmp/tanner
      - $HOME/web-honeypot/data/tanner/data:/var/log/tanner
      - $HOME/web-honeypot/data/tanner/files:/opt/tanner/files
@@ -111,7 +112,7 @@ services:
       context: ../
       dockerfile: docker/snare/Dockerfile
     container_name: snare
-    restart: on-failure
+    restart: "no"
     stop_signal: SIGKILL
     tty: true
 #    cpu_count: 1
