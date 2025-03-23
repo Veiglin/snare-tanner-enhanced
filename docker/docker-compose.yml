@@ -50,8 +50,8 @@ services:
     command: tanner
     privileged: true
     volumes:
-     - $HOME/web-honeypot/data/tanner/data:/var/log/tanner:rw
-     - $HOME/web-honeypot/data/tanner/files:/opt/tanner/files
+     - /home/azureuser/web-honeypot/data/tanner/data:/var/log/tanner:rw
+     - /home/azureuser/web-honeypot/data/tanner/files:/opt/tanner/files
     depends_on:
      - tanner_phpox
 
