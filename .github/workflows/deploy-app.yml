@@ -33,11 +33,10 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
-        context: ./docker/tanner  # Update this path to the directory containing your Dockerfile
+        context: .  # Update this path to the root directory of your repository
         push: true
         tags: ${{ secrets.AZURE_LOGIN_SERVER }}.azurecr.io/log_collector:latest
         file: ./docker/tanner/Dockerfile  # Update this path to the location of your Dockerfile
-
 
     - name: Deploy to Azure Container Apps
       uses: azure/aci-deploy@v1
