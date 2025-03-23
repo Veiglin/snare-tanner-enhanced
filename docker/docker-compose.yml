@@ -49,6 +49,7 @@ services:
     image: "dtagdevsec/tanner:24.04"
     command: tanner
     read_only: true
+    privileged: true
     volumes:
      - $HOME/web-honeypot/data/tanner/data:/var/log/tanner
      - $HOME/web-honeypot/data/tanner/files:/opt/tanner/files
