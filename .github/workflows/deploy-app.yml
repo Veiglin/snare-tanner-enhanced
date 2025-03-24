@@ -22,37 +22,27 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
-    - name: Write SSH private key to file
-      run: |
-        echo "${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}" > private_key.pem
-        chmod 600 private_key.pem
+    - name: Set up SSH agent
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: |
+          ${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}
     
-    - name: Log in to Azure Container Registry (ACR)
-      uses: azure/docker-login@v2
+    - name: Build and Deploy to Azure Container Apps
+      uses: azure/container-apps-deploy-action@v1
       with:
-        login-server: ${{ secrets.AZURE_LOGIN_SERVER }}
-        username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
-        password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
-
-    - run: |
-        docker build -f docker/tanner/Dockerfile -t ${{ secrets.AZURE_LOGIN_SERVER }}/log_collector:${{ github.sha }} .
-        docker push ${{ secrets.AZURE_LOGIN_SERVER }}/log_collector:${{ github.sha }}
-
-    - name: Deploy to Azure Container Apps
-      uses: azure/aci-deploy@v1
-      with:
-        resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
-        dns-name-label: log-collector-app
-        location: 'northeurope'
-        name: log-collector-app
-        image: ${{ secrets.AZURE_LOGIN_SERVER }}/log_collector:${{ github.sha }}
-        registry-username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
-        registry-password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
-        environment-variables: |
+        acrName: honeypot
+        containerAppName: log-collector-app
+        resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
+        imageToDeploy: ${{ secrets.AZURE_LOGIN_SERVER }}/log_collector:${{ github.sha }}
+        dockerfilePath: docker/logging/Dockerfile
+        environmentVariables: |
           AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
           CONTAINER_NAME=log_collector
           SFTP_HOST=${{ secrets.AZURE_VM_IP }}
           SFTP_PORT=${{ secrets.AZURE_SFTP_PORT }}
           SFTP_USERNAME=${{ secrets.AZURE_VM_USERNAME }}
-          SSH_PRIVATE_KEY_PATH=private_key.pem
+          SSH_AUTH_SOCK=${SSH_AUTH_SOCK}
           LOG_FILES=${{ secrets.LOG_FILES }}
+        ingress: internal
+        targetPort: 5000
