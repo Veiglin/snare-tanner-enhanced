@@ -44,5 +44,5 @@ jobs:
           SFTP_USERNAME=${{ secrets.AZURE_VM_USERNAME }}
           SSH_AUTH_SOCK=${SSH_AUTH_SOCK}
           LOG_FILES=${{ secrets.LOG_FILES }}
-        ingress: internal
+        ingress: disabled
         targetPort: 5000
