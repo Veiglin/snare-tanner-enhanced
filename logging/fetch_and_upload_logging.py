@@ -10,11 +10,16 @@ CONTAINER_NAME = os.getenv('CONTAINER_NAME')
 SFTP_HOST = os.getenv('SFTP_HOST')
 SFTP_PORT = int(os.getenv('SFTP_PORT'))
 SFTP_USERNAME = os.getenv('SFTP_USERNAME')
-SSH_PRIVATE_KEY_PATH = os.getenv('SSH_PRIVATE_KEY_PATH')
 LOG_FILES = os.getenv('LOG_FILES').split(',')
 
 def fetch_logs_via_sftp():
-    private_key = paramiko.RSAKey.from_private_key_file(SSH_PRIVATE_KEY_PATH)
+    # Connect to the SSH agent
+    agent = paramiko.Agent()
+    keys = agent.get_keys()
+    if len(keys) == 0:
+        raise Exception("No SSH keys found in agent")
+    # Use the first available key from the agent
+    private_key = keys[0]
     transport = paramiko.Transport((SFTP_HOST, SFTP_PORT))
     transport.connect(username=SFTP_USERNAME, pkey=private_key)
     sftp = paramiko.SFTPClient.from_transport(transport)
