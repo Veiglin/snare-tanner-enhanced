@@ -1,6 +1,6 @@
 aiohttp
 aiomysql
-aiohttp-jinja2==1.5.1
+aiohttp-jinja2==1.6
 docker<2.6
 mimesis<3.0.0
 yarl
