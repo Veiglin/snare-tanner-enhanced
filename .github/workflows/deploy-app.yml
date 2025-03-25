@@ -36,8 +36,7 @@ jobs:
         acrPassword: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
         containerAppName: log-collector-app
         resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
-        imageToDeploy: ${{ secrets.AZURE_LOGIN_SERVER }}/log_collector:${{ github.sha }}
-        dockerfilePath: docker/logging/Dockerfile
+        appSourcePath: docker/logging/Dockerfile
         location: northeurope
         environmentVariables: |
           AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
