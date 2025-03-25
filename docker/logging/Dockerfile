@@ -4,7 +4,7 @@ FROM python:3.9-slim
 RUN pip install azure-storage-blob paramiko
 
 # Copy application code
-COPY fetch_and_upload_logs.py /app/fetch_and_upload_logs.py
+COPY logging/fetch_and_upload_logs.py /app/fetch_and_upload_logs.py
 
 # Set the working directory
 WORKDIR /app
