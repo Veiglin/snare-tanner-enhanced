@@ -50,8 +50,8 @@ services:
     command: tanner
     privileged: true
     volumes:
-     - $HOME/log/tanner:/var/log/tanner:rw
-     - $HOME/files/tanner:/opt/tanner/files
+     - /home/azureuser/log/tanner:/var/log/tanner:rw
+     - /home/azureuser/files/tanner:/opt/tanner/files
     depends_on:
      - tanner_phpox
 
@@ -74,6 +74,6 @@ services:
     depends_on:
      - tanner
     volumes:
-     - $HOME/log/snare:/var/log/snare
+     - /home/azureuser/log/snare:/var/log/snare
      - $HOME/credentials.xlsx:/opt/snare/files/credentials.xlsx
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
