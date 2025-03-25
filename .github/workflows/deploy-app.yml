@@ -38,7 +38,7 @@ jobs:
         resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
         imageToDeploy: ${{ secrets.AZURE_LOGIN_SERVER }}/log_collector:${{ github.sha }}
         dockerfilePath: docker/logging/Dockerfile
-        location: North Europe
+        location: northeurope
         environmentVariables: |
           AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
           CONTAINER_NAME=log_collector
