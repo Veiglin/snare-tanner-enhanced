@@ -58,6 +58,5 @@ jobs:
                      LOG_FILES=${{ secrets.LOG_FILES }} \
           --ingress disabled \
           --registry-server ${{ secrets.AZURE_LOGIN_SERVER }} \
-          --registry-username ${{ secrets.AZURE_REGISTRY_USERNAME }} \
-          --registry-password ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+          --registry-identity ${{ secrets.AZURE_USER_ASSIGNED_ID }}
       
