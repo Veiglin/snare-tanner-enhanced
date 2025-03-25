@@ -37,24 +37,11 @@ jobs:
         ssh-private-key: |
           ${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}
     
-    - name: Update Azure CLI Container Apps Extension
+    - name: Create Container App Environment
       run: |
-        az extension update --name containerapp
-    
-    - name: Build and Deploy to Azure Container Apps
-      uses: azure/container-apps-deploy-action@v2
-      with:
-        acrName: honeypot
-        containerAppName: log-collector-app
-        resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
-        imageToDeploy: ${{ secrets.AZURE_LOGIN_SERVER }}/log_collector:${{ github.sha }}
-        location: northeurope
-        environmentVariables: |
-          AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
-          CONTAINER_NAME=log_collector
-          SFTP_HOST=${{ secrets.AZURE_VM_IP }}
-          SFTP_PORT=${{ secrets.AZURE_SFTP_PORT }}
-          SFTP_USERNAME=${{ secrets.AZURE_VM_USERNAME }}
-          SSH_AUTH_SOCK=${SSH_AUTH_SOCK}
-          LOG_FILES=${{ secrets.LOG_FILES }}
-        ingress: disabled
+        az extension add --name containerapp --upgrade
+        az containerapp env create -n log-collector-app-env -g ${{ secrets.AZURE_RESOURCE_GROUP }} -l northeurope
+  
+    - name: Deploy to Azure Container Apps
+      run: |
+          az containerapp create -n log-collector-app -g ${{ secrets.AZURE_RESOURCE_GROUP }} --environment log-collector-app-env --image ${{ secrets.AZURE_LOGIN_SERVER }}/log_collector:${{ github.sha }} --env-vars AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }} CONTAINER_NAME=log_collector SFTP_HOST=${{ secrets.AZURE_VM_IP }} SFTP_PORT=${{ secrets.AZURE_SFTP_PORT }} SFTP_USERNAME=${{ secrets.AZURE_VM_USERNAME }} SSH_AUTH_SOCK=${SSH_AUTH_SOCK} LOG_FILES=${{ secrets.LOG_FILES }} --ingress disabled
