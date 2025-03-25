@@ -48,4 +48,3 @@ jobs:
           SSH_AUTH_SOCK=${SSH_AUTH_SOCK}
           LOG_FILES=${{ secrets.LOG_FILES }}
         ingress: disabled
-        targetPort: 5000
