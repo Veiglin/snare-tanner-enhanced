@@ -37,6 +37,10 @@ jobs:
         ssh-private-key: |
           ${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}
     
+    - name: Update Azure CLI Container Apps Extension
+      run: |
+        az extension update --name containerapp --yes
+    
     - name: Build and Deploy to Azure Container Apps
       uses: azure/container-apps-deploy-action@v2
       with:
