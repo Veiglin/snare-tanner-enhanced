@@ -39,7 +39,7 @@ jobs:
     
     - name: Update Azure CLI Container Apps Extension
       run: |
-        az extension update --name containerapp --yes
+        az extension update --name containerapp
     
     - name: Build and Deploy to Azure Container Apps
       uses: azure/container-apps-deploy-action@v2
