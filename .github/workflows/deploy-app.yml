@@ -58,5 +58,6 @@ jobs:
                      LOG_FILES=${{ secrets.LOG_FILES }} \
           --ingress disabled \
           --registry-server ${{ secrets.AZURE_LOGIN_SERVER }} \
-          --user-assigned 3e66a901-83d5-41bd-b575-5a9a1a3f43dd
+          --user-assigned /subscriptions/4528c1f3-361f-4639-91e6-dc5a314e9471/resourceGroups/honeypot-machine_group/providers/Microsoft.ManagedIdentity/userAssignedIdentities/honeypot-managed-user
+
       
