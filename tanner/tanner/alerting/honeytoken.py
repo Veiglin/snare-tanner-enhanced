@@ -41,10 +41,48 @@ class HoneyToken:
             map_image_base64 = None
         now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         subject = "Honeytoken was Triggered"
+        # message_body = (
+        #     f"<html>"
+        #     f"<body>"
+        #     f"<h3>A Honeytoken was Triggered</h3>"
+        #     f"<p><strong>Honeytoken Path:</strong> {path}</p>"
+        #     f"<p><strong>Date and Time:</strong> {now} UTC</p>"
+        #     f"<p><strong>IP Address:</strong> {ip}</p>"
+        #     f"<p><strong>User Agent:</strong> {user_agent}</p>"
+        #     f"<p><strong>ISP name:</strong> {info.get('isp')}</p>"
+        #     f"<p><strong>Mobile connenction:</strong> {'Yes' if info.get('mobile') else 'No'}</p>"
+        #     f"<p><strong>Known Tor Exit Node from the TOR Project:</strong> {'Yes' if tor_exit_node else 'No'}</p>"
+        #     f"<p><strong>Proxy, VPN or Tor Exit Address:</strong> {'Yes' if info.get('proxy') else 'No'}</p>"
+        #     f"<p><strong>Location:</strong><br> Country: {info.get('country')}<br>"
+        #     f"Region: {info.get('regionName')}<br> City: {info.get('city')}<br> Zip Code: {info.get('zip')}</p>"
+        #     f"<p><strong>Geo Info:</strong><br>Latitude: {info.get('lat')}<br>Longitude: {info.get('lon')}</p>"
+        #     f"<img src='data:image/png;base64,{map_image_base64}' alt='Map with location'></img>"
+        #     f"</body>"
+        #     f"</html>"
+
+
+        # Check if the honeytoken was triggered due to weak credentials
+        trigger_reason = self.data.get("honeytoken_trigger_reason", None)
+        used_credentials = self.data.get("used_credentials", None)
+
+        # Start constructing the email message
         message_body = (
             f"<html>"
             f"<body>"
-            f"<h3>A Honeytoken was Triggered</h3>"
+        )
+
+        # If it was a weak credential login attempt, include that information
+        if trigger_reason and used_credentials:
+            message_body += (
+                f"<h3>{trigger_reason} with {used_credentials}</h3>"
+            )
+        else :
+            message_body += (
+                f"<h3>A Honeytoken was Triggered</h3>"
+            )
+
+        # Continue with the rest of the email content
+        message_body += (
             f"<p><strong>Honeytoken Path:</strong> {path}</p>"
             f"<p><strong>Date and Time:</strong> {now} UTC</p>"
             f"<p><strong>IP Address:</strong> {ip}</p>"
@@ -60,6 +98,14 @@ class HoneyToken:
             f"</body>"
             f"</html>"
         )
+
+        # Finish email body
+        message_body += (
+            f"<img src='data:image/png;base64,{map_image_base64}' alt='Map with location'></img>"
+            f"</body>"
+            f"</html>"
+        )
+        
 
         # Create the email message
         message = {
