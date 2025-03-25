@@ -25,6 +25,12 @@ class TannerServer:
         
         if TannerConfig.get("HONEYTOKEN", "enabled") is True:
             self.honeytoken_paths = TannerConfig.get("HONEYTOKEN", "absolute_path")
+            # Retrieve weak credentials as a dictionary first
+            weak_credentials = TannerConfig.get("HONEYTOKEN", "weak_credentials")
+
+            # Extract username and password from the dictionary
+            self.weak_username = weak_credentials.get("username", "")
+            self.weak_password = weak_credentials.get("password", "")
         
         self.dorks = dorks_manager.DorksManager()
         self.base_handler = base.BaseHandler(base_dir, db_name)
@@ -65,9 +71,22 @@ class TannerServer:
                 # trigger honeytoken detection by sending a mail to the configured mail reciepient with ip address and geo location
                 ht = honeytoken.HoneyToken(data=data)
                 await ht.trigger_token_alert()
+
+            # Honeytoken weak credentials detection
+            post_data = data.get("post_data", {})
+            attempted_username = post_data.get("log", "")
+            attempted_password = post_data.get("pwd", "")
+
+            if attempted_username == self.weak_username and attempted_password == self.weak_password:
+                self.logger.warning("Honeytoken triggered due to weak credentials attempt")
+                # Add reason and credentials used to the data before passing to HoneyToken
+                data["honeytoken_trigger_reason"] = "Weak credential login attempt"
+                data["used_credentials"] = f"Username: {attempted_username}, Password: {attempted_password}"
+                ht = honeytoken.HoneyToken(data=data)
+                await ht.trigger_token_alert()
+
             detection = await self.base_handler.handle(data, session)
             session.set_attack_type(path, detection["name"])
-
             response_msg = self._make_response(msg=dict(detection=detection, sess_uuid=session.get_uuid()))
             self.logger.info("TANNER response %s", response_msg)
 
