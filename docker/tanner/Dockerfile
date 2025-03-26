@@ -56,9 +56,10 @@ RUN apk -U upgrade && \
 # Setup configs, user, groups
     addgroup -g 2000 tanner && \
     adduser -S -s /bin/ash -u 2000 -D -g 2000 tanner && \
-    mkdir /var/log/tanner && \
+    mkdir -p /var/log/tanner && \
+    touch /var/log/tanner/tanner.err && \
     chown -R tanner:tanner /opt/tanner /var/log/tanner && \
-#
+    chmod -R 755 /var/log/tanner && \
 # Clean up
     apk del --purge \
             build-base \
@@ -76,6 +77,6 @@ RUN apk -U upgrade && \
 #
 # Start tanner
 STOPSIGNAL SIGKILL
-USER tanner:tanner
+USER tanner
 WORKDIR /opt/tanner
 CMD tanner 

@@ -18,7 +18,7 @@ WEB:
 API: 
   host: tanner_api
   port: 8092
-  auth: True
+  auth: False
   auth_signature: "  "
 
 PHPOX: 
@@ -63,8 +63,8 @@ DOCKER:
   host_image: busybox:latest
 
 LOGGER: 
-  log_debug: /tmp/tanner/tanner.log
-  log_err: /tmp/tanner/tanner.err
+  log_debug: /var/log/tanner/tanner.log
+  log_err: /var/log/tanner/tanner.err
 
 MONGO:
   enabled: False
