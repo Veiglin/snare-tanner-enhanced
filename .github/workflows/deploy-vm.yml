@@ -74,13 +74,25 @@ jobs:
           username: ${{ secrets.AZURE_VM_USERNAME }}
           key: ${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}
           script: |
+            # Stop and remove all Docker containers and images
             sudo docker stop $(sudo docker ps -q)
-          
             sudo docker rm $(sudo docker ps -aq)
-
             sudo docker rmi $(sudo docker images -q)
-
             sudo docker volume prune -f
 
+            # Ensure log files exist as files before starting Docker
+            sudo mkdir -p /home/azureuser/log/snare
+            sudo mkdir -p /home/azureuser/log/tanner
+            sudo touch /home/azureuser/log/snare/snare.log
+            sudo touch /home/azureuser/log/snare/snare.err
+            sudo touch /home/azureuser/log/tanner/tanner.log
+            sudo touch /home/azureuser/log/tanner/tanner.err
+            sudo touch /home/azureuser/log/tanner/tanner_report.json
+            sudo chown -R 2000:2000 /home/azureuser/log/snare
+            sudo chown -R 2000:2000 /home/azureuser/log/tanner
+            sudo chmod -R 755 /home/azureuser/log/snare
+            sudo chmod -R 755 /home/azureuser/log/tanner
+            
+            # Start the Docker containers
             cd /home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/docker
             sudo docker compose up -d --build

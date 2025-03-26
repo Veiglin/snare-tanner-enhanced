@@ -50,7 +50,7 @@ services:
     command: tanner
     privileged: true
     volumes:
-     - $HOME/log/tanner:/var/log/tanner:rw
+     - /home/azureuser/log/tanner:/var/log/tanner:rw
      - $HOME/files/tanner:/opt/tanner/files
     depends_on:
      - tanner_phpox
