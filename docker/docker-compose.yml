@@ -10,8 +10,6 @@ services:
     restart: on-failure
     stop_signal: SIGKILL
     tty: true
-#    cpu_count: 1
-#    cpus: 0.25
     networks:
      - tanner_local
     image: "dtagdevsec/redis:24.04"
@@ -26,8 +24,6 @@ services:
     tmpfs:
      - /tmp:uid=2000,gid=2000
     tty: true
-#    cpu_count: 1
-#    cpus: 0.25
     networks:
      - tanner_local
     image: "dtagdevsec/phpox:24.04"
@@ -42,8 +38,6 @@ services:
     restart: on-failure
     stop_signal: SIGKILL
     tty: true
-#    cpu_count: 1
-#    cpus: 0.25
     networks:
      - tanner_local
     image: "dtagdevsec/tanner:24.04"
@@ -64,8 +58,6 @@ services:
     restart: on-failure
     stop_signal: SIGKILL
     tty: true
-#    cpu_count: 1
-#    cpus: 0.25
     networks:
      - tanner_local
     ports:
@@ -79,3 +71,4 @@ services:
      - /home/azureuser/log/snare:/var/log/snare
      - /home/azureuser/credentials.xlsx:/opt/snare/files/credentials.xlsx
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
+     - /etc/letsencrypt:/etc/letsencrypt:ro
