@@ -118,7 +118,8 @@ class HoneyToken:
             },
             "senderAddress": f"<{self.from_addr}>",
         }
-        self.logger.info(f"Sending honeytoken alert email: {json.dumps(message, indent=2)}")
+
+        self.logger.info(f"Sending honeytoken alert email with subject: '{subject}' to recipients: {self.to_addr} from sender: {self.from_addr}")
 
         # Send the email using Azure Communication Services EmailClient
         email_client = EmailClient.from_connection_string(self.connection_string)
