@@ -97,7 +97,7 @@ class HttpRequestHandler:
             keyfile='/etc/letsencrypt/live/smartgadgetstore.live/privkey.pem'
         )
 
-        site = web.TCPSite(self.runner, self.run_args.host_ip, self.run_args.port)
+        site = web.TCPSite(self.runner, self.run_args.host_ip, self.run_args.port, ssl_context=ssl_context)
 
         await site.start()
         names = sorted(str(s.name) for s in self.runner.sites)
