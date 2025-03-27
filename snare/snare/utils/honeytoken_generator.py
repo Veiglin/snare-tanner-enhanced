@@ -1,23 +1,31 @@
 import os
+import re
 import json
+import time
 import random
-import requests
 import hashlib
+import requests
 
 from snare.utils.snare_helpers import print_color
 
-class HoneytokenFileGenerator:
-    def __init__(self, page_dir):
-        """
-        Initializes the honeytoken generator.
 
-        :param page_dir: The directory where meta.json and honeytoken files will be stored.
-        """
+class HoneytokensGenerator:
+    def __init__(self, page_dir, log_dir, meta, hf_token, logger=print_color):
         self.page_dir = page_dir
-        self.meta_json_path = os.path.join(page_dir, "meta.json")
+        self.log_dir = log_dir
+        self.meta = meta
+        self.hf_token = hf_token
+        self.logger = logger
+        self.marker = "__honeypot_honeytokens_marker__"
+        self.model = "mistralai/Mistral-7B-Instruct-v0.1"
 
-        # File extensions and their content types
-        self.file_types = {
+        os.makedirs(self.page_dir, exist_ok=True)
+        os.makedirs(self.log_dir, exist_ok=True)
+
+        self.meta_path = os.path.join(self.page_dir, "meta.json")
+        self.log_path = os.path.join(self.log_dir, "Honeytokens.txt")
+
+        self.content_types = {
             ".pdf": "application/pdf",
             ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             ".xls": "application/vnd.ms-excel",
@@ -28,86 +36,144 @@ class HoneytokenFileGenerator:
             ".tar.gz": "application/gzip"
         }
 
-        # Prompts tailored by extension type
-        self.file_prompts = {
-            ".pdf": "that might contain exported reports, secrets, or documents",
-            ".docx": "that could contain sensitive contracts, internal policies, or meeting notes",
-            ".xls": "that might hold financial spreadsheets, salary data, or budgets",
-            ".db": "for a database file that could store users, credentials, or internal logs",
-            ".sql": "for an SQL dump of a database",
-            ".zip": "for a zipped archive of internal tools, backups, or config files",
-            ".bak": "that looks like a backup of important data",
-            ".tar.gz": "for a compressed file containing logs or private server configs"
-        }
-
-        # Load or initialize meta.json
-        if os.path.exists(self.meta_json_path):
-            with open(self.meta_json_path, "r") as f:
-                self.meta = json.load(f)
-        else:
-            self.meta = {}
-
-    def pick_random_extension(self):
-        return random.choice(list(self.file_types.keys()))
-
-    def generate_filename_base(self, extension):
-        context = self.file_prompts.get(extension, "")
-        prompt = f"Generate a single realistic and suspicious-looking base filename (no extension) {context}. Use underscores instead of spaces."
-        response = requests.post(
-            "http://localhost:11434/api/generate",
-            json={"model": "mistral", "prompt": prompt}
+    def generate(self):
+        prompt = (
+            "You are generating bait filenames for a website called SmartGadgetStore.live, which sells smart gadgets and electronics online. "
+            "Generate 5 realistic, code-friendly filenames (no spaces or special characters) that might contain sensitive internal data. "
+            "Examples include inventory backups, customer exports, admin data, supplier lists, or device configuration dumps. "
+            "Use believable extensions like .pdf, .db, .sql, .zip, or .bak. "
+            f"Ensure all filenames look authentic and vary slightly each time.\n"
+            f"# Session ID: {random.randint(1000,9999)}_{int(time.time())}"
         )
-        raw_output = response.json().get("response", "").strip()
-        return raw_output.split("\n")[0].strip("-•* ").strip().replace(" ", "_")
 
-    @staticmethod
-    def make_filename(file_name):
-        m = hashlib.md5()
-        m.update(file_name.encode("utf-8"))
-        return m.hexdigest().upper()
+        response = requests.post(
+            f"https://api-inference.huggingface.co/models/{self.model}",
+            headers={"Authorization": f"Bearer {self.hf_token}"},
+            json={
+                "inputs": prompt,
+                "parameters": {
+                    "temperature": 0.9,
+                    "do_sample": True,
+                    "top_p": 0.95,
+                    "top_k": 50,
+                    "max_new_tokens": 100
+                }
+            }
+        )
 
-    def update_meta_json(self, filename, hash_val, content_type):
-        file_entry = f"/{filename}"
-        self.meta[file_entry] = {
-            "content_type": content_type,
-            "hash": hash_val
-        }
+        if response.status_code != 200:
+            self.logger(f"❌ Hugging Face API failed: {response.status_code} — {response.text}", "FAIL")
+            return
 
-        with open(self.meta_json_path, "w") as f:
-            json.dump(self.meta, f, indent=4)
+        result = response.json()
+        text = result[0]["generated_text"] if isinstance(result, list) and "generated_text" in result[0] else ""
+        filenames = self._extract_clean_filenames(text)
 
-    def create_dummy_file(self, hash_val, extension):
-        filename = hash_val + extension
-        filepath = os.path.join(self.page_dir, filename)
-        with open(filepath, "wb") as f:
-            f.write(b"This is a honeypot file. Access is monitored.\n")
-        return filepath
+        self.logger("🧠 Raw LLM Response:\n" + text.strip(), "INFO")
+        self.logger("📂 Cleaned Filenames:\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
 
-    def create_honeytoken(self):
-        ext = self.pick_random_extension()
-        base_name = self.generate_filename_base(ext)
-        full_name = base_name + ext
-        hash_val = self.make_filename(full_name)
-        content_type = self.file_types[ext]
+        self._create_honeytokens(filenames)
+        self._write_honeytoken_log()
 
-        # Create the dummy file in the same dir
-        dummy_path = self.create_dummy_file(hash_val, ext)
-        print_color(f"Honeytoken: Created dummy file at '{dummy_path}'", "SUCCESS")
+    def _extract_clean_filenames(self, text):
+        lines = text.strip().split("\n")
+        cleaned = []
 
-        # Update meta.json
-        self.update_meta_json(full_name, hash_val, content_type)
-        print_color(f"Honeytoken: Registered '{full_name}' → '{hash_val}' (type: {content_type})", "INFO")
+        for line in lines:
+            line = re.sub(r"^[-*\s#\d\.\)]*\s*", "", line)
+            line = re.sub(r"^.*?:\s*", "", line)
+            line = line.replace(" ", "_")
+            line = re.sub(r"[^a-zA-Z0-9_\.\-]", "", line)
+            if re.match(r".+\.(pdf|docx|xls|db|sql|zip|bak|tar\.gz)$", line):
+                cleaned.append(line)
 
+        return cleaned
 
-# --- Example usage ---
-if __name__ == "__main__":
-    generator = HoneytokenFileGenerator(
-        page_dir="docker/snare/dist/pages/WEBPAGE_hashed_copy"  # Update if path changes
-    )
-    generator.create_honeytoken()
+    def _md5_hash(self, text):
+        return hashlib.md5(text.encode("utf-8")).hexdigest().lower()
 
+    def _create_honeytokens(self, filenames):
+        # Load or create meta
+        if os.path.exists(self.meta_path):
+            with open(self.meta_path, "r") as f:
+                meta = json.load(f)
+        else:
+            meta = {}
 
+        # Insert marker if missing
+        if self.marker not in meta:
+            meta[self.marker] = "DO NOT REMOVE — all entries after this are auto-generated honeytokens"
 
+        for name in filenames:
+            hash_val = self._md5_hash(name)
+            ext = os.path.splitext(name)[1]
+            content_type = self.content_types.get(ext.lower(), "application/octet-stream")
 
-# Hugging Face token:
-# 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
+            dummy_path = os.path.join(self.page_dir, hash_val)
+            if not os.path.exists(dummy_path):
+                with open(dummy_path, "wb") as f:
+                    f.write(b"This is a honeypot file. Access is monitored.\n")
+
+            meta[f"/{name}"] = {
+                "content_type": content_type,
+                "hash": hash_val.upper()
+            }
+
+        # Save updated meta
+        with open(self.meta_path, "w") as f:
+            json.dump(meta, f, indent=4)
+
+        self.logger(f"✅ Created {len(filenames)} honeytoken files in {self.page_dir}", "SUCCESS")
+
+    def _write_honeytoken_log(self):
+        if not os.path.exists(self.meta_path):
+            self.logger("⚠️ meta.json not found. Skipping Honeytokens.txt log.", "WARNING")
+            return
+
+        with open(self.meta_path, "r") as f:
+            meta = json.load(f)
+
+        logging = False
+        filenames = []
+
+        for key in meta.keys():
+            if logging:
+                filenames.append(key.strip("/"))
+            if key == self.marker:
+                logging = True
+
+        with open(self.log_path, "w") as f:
+            for name in filenames:
+                f.write(name + "\n")
+
+        self.logger(f"📝 Honeytokens.txt updated with {len(filenames)} filenames at {self.log_path}", "INFO")
+
+    def cleanup(self):
+        if not os.path.exists(self.meta_path):
+            self.logger("⚠️ meta.json not found. Nothing to clean.", "WARNING")
+            return
+
+        with open(self.meta_path, "r") as f:
+            meta = json.load(f)
+
+        updated_meta = {}
+        deleting = False
+        deleted_files = []
+
+        for key, entry in meta.items():
+            if deleting:
+                hash_val = entry.get("hash", "").lower()
+                token_path = os.path.join(self.page_dir, hash_val)
+                if os.path.exists(token_path):
+                    os.remove(token_path)
+                    deleted_files.append(hash_val)
+            else:
+                updated_meta[key] = entry
+
+            if key == self.marker:
+                deleting = True
+
+        with open(self.meta_path, "w") as f:
+            json.dump(updated_meta, f, indent=4)
+
+        self.logger(f"🧹 Deleted {len(deleted_files)} honeytoken files and cleaned meta.json.", "INFO")
