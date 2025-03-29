@@ -54,7 +54,6 @@ class TannerHandler:
                     json=data,
                     timeout=10.0,
                 )
-                self.logger.info("TEST TEST TEST request received: {} and {}".format(r, data))
                 try:
                     event_result = await r.json()
                 except (
