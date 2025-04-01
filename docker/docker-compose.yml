@@ -44,6 +44,7 @@ services:
     command: tanner
     privileged: true
     volumes:
+     - ./snare/dist/honeytokens:/opt/snare/honeytokens
      - /home/azureuser/log/tanner:/var/log/tanner:rw
      - /home/azureuser/files/tanner:/opt/tanner/files
     depends_on:
