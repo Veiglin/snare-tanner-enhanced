@@ -10,8 +10,6 @@ services:
     restart: on-failure
     stop_signal: SIGKILL
     tty: true
-#    cpu_count: 1
-#    cpus: 0.25
     networks:
      - tanner_local
     image: "dtagdevsec/redis:24.04"
@@ -26,60 +24,10 @@ services:
     tmpfs:
      - /tmp:uid=2000,gid=2000
     tty: true
-#    cpu_count: 1
-#    cpus: 0.25
     networks:
      - tanner_local
     image: "dtagdevsec/phpox:24.04"
     read_only: true
-
-# Tanner API Service
-  tanner_api:
-    build:
-      context: ../
-      dockerfile: docker/tanner/Dockerfile
-    container_name: tanner_api
-    restart: on-failure
-    stop_signal: SIGKILL
-    tmpfs:
-     - /tmp/tanner:uid=2000,gid=2000
-    tty: true
-#    cpu_count: 1
-#    cpus: 0.25
-    networks:
-     - tanner_local
-    image: "dtagdevsec/tanner:24.04"
-    read_only: true
-    volumes:
-     - $HOME/tpotce/data/tanner/log:/var/log/tanner
-    command: tannerapi 
-    depends_on:
-     - tanner_redis
-    ports:
-     - "8092:8092"
-
-# Tanner WEB Service
-  tanner_web:
-    build:
-      context: ../
-      dockerfile: docker/tanner/Dockerfile
-    container_name: tanner_web
-    restart: on-failure
-    stop_signal: SIGKILL
-    tmpfs:
-     - /tmp/tanner:uid=2000,gid=2000
-    tty: true
-    networks:
-     - tanner_local
-    ports:
-     - "127.0.0.1:8091:8091"
-    image: "dtagdevsec/tanner:24.04"
-    command: tannerweb
-    read_only: true
-    volumes:
-     - $HOME/tpotce/data/tanner/log:/var/log/tanner
-    depends_on:
-     - tanner_redis
 
 # Tanner Service
   tanner:
@@ -89,23 +37,17 @@ services:
     container_name: tanner
     restart: on-failure
     stop_signal: SIGKILL
-    tmpfs:
-     - /tmp/tanner:uid=2000,gid=2000
     tty: true
-#    cpu_count: 1
-#    cpus: 0.25
     networks:
      - tanner_local
     image: "dtagdevsec/tanner:24.04"
     command: tanner
-    read_only: true
+    privileged: true
     volumes:
-     - $HOME/tpotce/data/tanner/log:/var/log/tanner
-     - $HOME/tpotce/data/tanner/files:/opt/tanner/files
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
+     - /home/azureuser/log/tanner:/var/log/tanner:rw
+     - /home/azureuser/files/tanner:/opt/tanner/files
     depends_on:
-     - tanner_api
-     - tanner_web
      - tanner_phpox
 
 # Snare Service
@@ -117,16 +59,17 @@ services:
     restart: on-failure
     stop_signal: SIGKILL
     tty: true
-#    cpu_count: 1
-#    cpus: 0.25
     networks:
      - tanner_local
     ports:
-     - "80:80"
+     - "443:443"
     image: "dtagdevsec/snare:24.04"
     depends_on:
      - tanner
     volumes:
-     - $HOME/credentials.xlsx:/opt/snare/files/credentials.xlsx
+     - /home/azureuser/log/snare/snare.log:/opt/snare/snare.log:rw
+     - /home/azureuser/log/snare/snare.err:/opt/snare/snare.err:rw
+     - /home/azureuser/log/snare:/var/log/snare
+     - /home/azureuser/credentials.xlsx:/opt/snare/files/credentials.xlsx
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
-     
+     - /etc/letsencrypt:/etc/letsencrypt:ro
