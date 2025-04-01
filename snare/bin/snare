@@ -32,6 +32,7 @@ from snare.utils import snare_helpers
 from snare.utils.logger import Logger
 from snare.utils.snare_helpers import check_privileges, check_meta_file, print_color, str_to_bool
 from snare.utils.breadcrumbs_generator import BreadcrumbsGenerator
+from snare.utils.honeytoken_generator import HoneytokensGenerator
 
 def create_initial_config(base_path):
     cfg = configparser.ConfigParser()
@@ -196,7 +197,12 @@ if __name__ == '__main__':
     
     #  check if breadcrumbs defined in parsed args
     if args.breadcrumbs:
-        # Initialize and generate breadcrumbs
+        # Initialize and generate breadcrumbs and honeytokens
+        honey_gen = HoneytokensGenerator(full_page_path, meta_info, hf_token="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")
+        honey_gen.cleanup()
+        honey_gen.generate()
+        with open(os.path.join(full_page_path, 'meta.json')) as meta:
+            meta_info = json.load(meta)
         breadcrumbs = BreadcrumbsGenerator(full_page_path, meta_info, args.breadcrumbs, args.html_comments_abs_url)
         breadcrumbs.generate_breadcrumbs()
     

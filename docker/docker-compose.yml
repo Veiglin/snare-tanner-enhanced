@@ -102,6 +102,7 @@ services:
     volumes:
      - $HOME/tpotce/data/tanner/log:/var/log/tanner
      - $HOME/tpotce/data/tanner/files:/opt/tanner/files
+     - ./snare/dist/honeytokens:/opt/snare/honeytokens
     depends_on:
      - tanner_api
      - tanner_web
@@ -128,3 +129,4 @@ services:
     volumes:
      - $HOME/credentials.xlsx:/opt/snare/files/credentials.xlsx
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
+     
