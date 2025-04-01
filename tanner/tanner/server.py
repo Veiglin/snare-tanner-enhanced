@@ -23,19 +23,18 @@ class TannerServer:
         self.session_manager = session_manager.SessionManager()
         self.delete_timeout = TannerConfig.get("SESSIONS", "delete_timeout")
         
-        if TannerConfig.get("HONEYTOKEN", "enabled") is True:
-            self.honeytoken_paths = TannerConfig.get("HONEYTOKEN", "absolute_path")
-            # Retrieve weak credentials as a dictionary first
-            weak_credentials = TannerConfig.get("HONEYTOKEN", "weak_credentials")
-
-            # Extract username and password from the dictionary
-            self.weak_username = weak_credentials.get("username", "")
-            self.weak_password = weak_credentials.get("password", "")
-        
         self.dorks = dorks_manager.DorksManager()
         self.base_handler = base.BaseHandler(base_dir, db_name)
         self.logger = logging.getLogger(__name__)
         self.redis_client = None
+
+        if TannerConfig.get("HONEYTOKEN", "enabled") is True:
+            # Start with paths from config
+            self.honeytoken_paths = TannerConfig.get("HONEYTOKEN", "absolute_path")
+            # Retrieve weak credentials as a dictionary
+            weak_credentials = TannerConfig.get("HONEYTOKEN", "weak_credentials")
+            self.weak_username = weak_credentials.get("username", "")
+            self.weak_password = weak_credentials.get("password", "")
 
         if TannerConfig.get("HPFEEDS", "enabled") is True:
             self.hpf = hpfeeds_report()
@@ -147,10 +146,16 @@ class TannerServer:
 
     async def start_background_delete(self, app):
         app["session_delete"] = asyncio.ensure_future(self.delete_sessions())
+        app["delayed_honeytoken_loader"] = asyncio.ensure_future(self.delayed_load_honeytokens())
+
 
     async def cleanup_background_tasks(self, app):
         app["session_delete"].cancel()
         await app["session_delete"]
+
+        app["delayed_honeytoken_loader"].cancel()
+        await app["delayed_honeytoken_loader"]
+
 
     def start(self):
         loop = asyncio.get_event_loop()
@@ -160,3 +165,14 @@ class TannerServer:
         port = TannerConfig.get("TANNER", "port")
 
         web.run_app(self.make_app(), host=host, port=port)
+    
+    async def delayed_load_honeytokens(self):
+        await asyncio.sleep(20)  # wait 20 seconds after start
+        try:
+            with open("/opt/snare/honeytokens/Honeytokens.txt", "r") as f:
+                file_paths = [line.strip() for line in f if line.strip()]
+                self.honeytoken_paths.extend(file_paths)
+            self.logger.info("Successfully loaded additional honeytoken paths after delay.")
+        except Exception as e:
+            self.logger.warning("Could not read additional honeytoken paths after delay.")
+

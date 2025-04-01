@@ -1,6 +1,8 @@
 import os
 import hashlib
 import json
+import random
+
 
 from snare.utils.snare_helpers import print_color
 
@@ -35,32 +37,60 @@ class BreadcrumbsGenerator:
 
     def generate_robots_breadcrumb(self):
         """
-        Generates a robots.txt breadcrumb.
+        Generates or refreshes robots.txt with realistic bait paths.
         """
         file_name = "robots.txt"
         hash_name = self.make_filename(file_name)
         robots_path = os.path.join(self.page_dir, hash_name)
-        
-        # If the robots.txt file does not exist, create it with default content.
-        if not os.path.exists(robots_path):
-            default_content = "User-agent: *\nDisallow:"  # You can adjust the content as needed.
-            with open(robots_path, "w") as f:
-                f.write(default_content)
-        
-            abs_url = "/robots.txt" 
+
+        # Check if /robots.txt is in meta.json — if not, add it
+        abs_url = "/robots.txt"
+        if abs_url not in self.meta:
             self.meta[abs_url] = {
                 "hash": hash_name,
                 "content_type": "text/plain"
             }
-
-            # Save the updated meta dictionary to meta.json
-            meta_json_path = os.path.join(self.page_dir, "meta.json")
-            with open(meta_json_path, "w") as meta_file:
-                json.dump(self.meta, meta_file, indent=4)
-
-            print_color("Breadcrumbing: Added robots.txt as breadcrumb with hash '{}'".format(hash_name))
         else:
-            print_color("Breadcrumbing: robots.txt already exists.")
+            # Already exists — clear old content
+            with open(robots_path, "w") as f:
+                f.write("")
+
+        # Load bait from honeytokens
+        honeytoken_path = "/opt/snare/honeytokens/Honeytokens.txt"
+        bait_lines = []
+        bait_sample = []
+        if os.path.exists(honeytoken_path):
+            with open(honeytoken_path, "r") as f:
+                tokens = [line.strip() for line in f if line.strip()]
+                if tokens:
+                    bait_sample = random.sample(tokens, min(len(tokens), 3))
+                    bait_lines = [f"Disallow: /{token}" for token in bait_sample]
+
+        lines = [
+            "User-agent: *",
+            ""
+        ] + bait_lines + [
+            "Disallow: /private/",
+            "Disallow: /admin/",
+            "",
+            "Sitemap: https://smartgadgetstore.live/sitemap.xml"
+        ]
+
+        # Write the new content
+        with open(robots_path, "w") as f:
+            f.write("\n".join(lines))
+
+        # Save meta.json (in case it was just added)
+        meta_json_path = os.path.join(self.page_dir, "meta.json")
+        with open(meta_json_path, "w") as meta_file:
+            json.dump(self.meta, meta_file, indent=4)
+
+        if bait_sample:
+            print_color(f"Breadcrumbing: Refreshed robots.txt with bait: {bait_sample}", "SUCCESS")
+        else:
+            print_color("Breadcrumbing: Refreshed robots.txt (no honeytokens found)", "SUCCESS")
+
+
 
     def generate_404_breadcrumb(self):
         """
