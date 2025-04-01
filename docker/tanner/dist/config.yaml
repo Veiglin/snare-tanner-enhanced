@@ -98,6 +98,7 @@ HONEYTOKEN:
     username: "admin"
     password: "admin"
   mail_recipient: 
+    - nicolaiveiglin@gmail.com
     - cpalox@outlook.com
   mail_sender: DoNotReply@mail.smartgadgetstore.live
   connection_string: endpoint=https://honeytoken-communication-service.europe.communication.azure.com/;accesskey=7Zg2gbRpQw1SstLA2m31YeFDKCDCaXLjoviswrbizC2pGLsygGL6JQQJ99BCACULyCpIwaC6AAAAAZCSC5cT
