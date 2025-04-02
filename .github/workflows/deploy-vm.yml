@@ -83,6 +83,8 @@ jobs:
             # Ensure log files exist as files before starting Docker
             sudo mkdir -p /home/azureuser/log/snare
             sudo mkdir -p /home/azureuser/log/tanner
+            sudo mkdir -p /home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/docker/snare/dist/honeytokens
+
             sudo touch /home/azureuser/log/snare/snare.log
             sudo touch /home/azureuser/log/snare/snare.err
             sudo touch /home/azureuser/log/tanner/tanner.log
@@ -90,6 +92,8 @@ jobs:
             sudo touch /home/azureuser/log/tanner/tanner_report.json
             sudo chown -R 2000:2000 /home/azureuser/log/snare
             sudo chown -R 2000:2000 /home/azureuser/log/tanner
+            sudo chown -R 2000:2000 /home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/docker/snare/dist/honeytokens
+            sudo chmod -R 755 /home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/docker/snare/dist/honeytokens
             sudo chmod -R 755 /home/azureuser/log/snare
             sudo chmod -R 755 /home/azureuser/log/tanner
             
