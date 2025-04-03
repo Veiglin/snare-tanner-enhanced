@@ -147,11 +147,9 @@ class TannerServer:
     async def start_background_delete(self, app):
         app["session_delete"] = asyncio.ensure_future(self.delete_sessions())
 
-
     async def cleanup_background_tasks(self, app):
         app["session_delete"].cancel()
         await app["session_delete"]
-
 
     def start(self):
         loop = asyncio.get_event_loop()
