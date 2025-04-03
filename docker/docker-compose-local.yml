@@ -51,6 +51,8 @@ services:
 
 # Snare Service
   snare:
+    environment:
+      - IS_LOCAL=true
     build: 
       context: ../
       dockerfile: docker/snare/Dockerfile

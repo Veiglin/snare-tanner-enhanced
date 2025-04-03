@@ -3,6 +3,7 @@ import aiohttp
 import aiohttp_jinja2
 import jinja2
 import ssl
+import os
 
 from aiohttp import web
 from aiohttp.web import StaticResource as StaticRoute
@@ -86,14 +87,22 @@ class HttpRequestHandler:
         self.runner = web.AppRunner(app)
         await self.runner.setup()
 
-        # Create an SSL context with your certificate and key.
-        ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        ssl_context.load_cert_chain(
-            certfile='/etc/letsencrypt/live/smartgadgetstore.live/fullchain.pem',
-            keyfile='/etc/letsencrypt/live/smartgadgetstore.live/privkey.pem'
-        )
+        # Check if the application is running locally
+        is_local = os.getenv("IS_LOCAL", "false").lower() == "true"
 
-        site = web.TCPSite(self.runner, self.run_args.host_ip, self.run_args.port, ssl_context=ssl_context)
+        if not is_local:
+            # Create an SSL context with your certificate and key.
+            ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            ssl_context.load_cert_chain(
+                certfile='/etc/letsencrypt/live/smartgadgetstore.live/fullchain.pem',
+                keyfile='/etc/letsencrypt/live/smartgadgetstore.live/privkey.pem'
+            )
+
+            site = web.TCPSite(self.runner, self.run_args.host_ip, self.run_args.port, ssl_context=ssl_context)
+        else:
+            # No SSL for local environment
+            site = web.TCPSite(self.runner, self.run_args.host_ip, self.run_args.port)
+
 
         await site.start()
         names = sorted(str(s.name) for s in self.runner.sites)
