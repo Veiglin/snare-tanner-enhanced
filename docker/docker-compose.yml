@@ -45,8 +45,8 @@ services:
     privileged: true
     volumes:
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
-     - $HOME/tpotce/data/tanner/log:/var/log/tanner
-     - $HOME/tpotce/data/tanner/files:/opt/tanner/files
+     - /home/azureuser/log/tanner:/var/log/tanner:rw
+     - /home/azureuser/files/tanner:/opt/tanner/files
     depends_on:
      - tanner_phpox
 
@@ -67,9 +67,9 @@ services:
     depends_on:
      - tanner
     volumes:
-     - $HOME/azureuser/log/snare/snare.log:/opt/snare/snare.log:rw
-     - $HOME/azureuser/log/snare/snare.err:/opt/snare/snare.err:rw
-     - $HOME/azureuser/log/snare:/var/log/snare
-     - $HOME/azureuser/credentials.xlsx:/opt/snare/files/credentials.xlsx
+     - /home/azureuser/log/snare/snare.log:/opt/snare/snare.log:rw
+     - /home/azureuser/log/snare/snare.err:/opt/snare/snare.err:rw
+     - /home/azureuser/log/snare:/var/log/snare
+     - /home/azureuser/credentials.xlsx:/opt/snare/files/credentials.xlsx
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
      - /etc/letsencrypt:/etc/letsencrypt:ro
