@@ -165,6 +165,7 @@ class TannerServer:
         port = TannerConfig.get("TANNER", "port")
 
         web.run_app(self.make_app(), host=host, port=port)
+
     
     async def delayed_load_honeytokens(self):
         await asyncio.sleep(20)  # wait 20 seconds after start
