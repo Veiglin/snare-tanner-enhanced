@@ -67,9 +67,9 @@ services:
     depends_on:
      - tanner
     volumes:
-     - /home/azureuser/log/snare/snare.log:/opt/snare/snare.log:rw
-     - /home/azureuser/log/snare/snare.err:/opt/snare/snare.err:rw
-     - /home/azureuser/log/snare:/var/log/snare
-     - /home/azureuser/credentials.xlsx:/opt/snare/files/credentials.xlsx
+     - $HOME/azureuser/log/snare/snare.log:/opt/snare/snare.log:rw
+     - $HOME/azureuser/log/snare/snare.err:/opt/snare/snare.err:rw
+     - $HOME/azureuser/log/snare:/var/log/snare
+     - $HOME/azureuser/credentials.xlsx:/opt/snare/files/credentials.xlsx
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
      - /etc/letsencrypt:/etc/letsencrypt:ro
