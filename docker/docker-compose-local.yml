@@ -1,0 +1,70 @@
+networks:
+  tanner_local:
+
+services:
+
+# Tanner Redis Service
+  tanner_redis:
+    build: ./redis
+    container_name: tanner_redis
+    restart: on-failure
+    stop_signal: SIGKILL
+    tty: true
+    networks:
+     - tanner_local
+    image: "dtagdevsec/redis:24.04"
+    read_only: true
+
+# PHP Sandbox service
+  tanner_phpox:
+    build: ./phpox
+    container_name: tanner_phpox
+    restart: on-failure
+    stop_signal: SIGKILL
+    tmpfs:
+     - /tmp:uid=2000,gid=2000
+    tty: true
+    networks:
+     - tanner_local
+    image: "dtagdevsec/phpox:24.04"
+    read_only: true
+
+# Tanner Service
+  tanner:
+    build: 
+      context: ../
+      dockerfile: docker/tanner/Dockerfile
+    container_name: tanner
+    restart: on-failure
+    stop_signal: SIGKILL
+    tty: true
+    networks:
+     - tanner_local
+    image: "dtagdevsec/tanner:24.04"
+    command: tanner
+    privileged: true
+    volumes:
+     - $HOME/log/tanner:/var/log/tanner
+     - $HOME/files/tanner:/opt/tanner/files
+    depends_on:
+     - tanner_phpox
+
+# Snare Service
+  snare:
+    build: 
+      context: ../
+      dockerfile: docker/snare/Dockerfile
+    container_name: snare
+    restart: on-failure
+    stop_signal: SIGKILL
+    tty: true
+    networks:
+     - tanner_local
+    ports:
+     - "443:443"
+    image: "dtagdevsec/snare:24.04"
+    depends_on:
+     - tanner
+    volumes:
+     - $HOME/credentials.xlsx:/opt/snare/files/credentials.xlsx
+     - ./snare/dist/honeytokens:/opt/snare/honeytokens
