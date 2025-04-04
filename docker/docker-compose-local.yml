@@ -44,14 +44,15 @@ services:
     command: tanner
     privileged: true
     volumes:
-     - ./snare/dist/honeytokens:/opt/snare/honeytokens
-     - /home/azureuser/log/tanner:/var/log/tanner:rw
-     - /home/azureuser/files/tanner:/opt/tanner/files
+     - $HOME/log/tanner:/var/log/tanner
+     - $HOME/files/tanner:/opt/tanner/files
     depends_on:
      - tanner_phpox
 
 # Snare Service
   snare:
+    environment:
+      - IS_LOCAL=true
     build: 
       context: ../
       dockerfile: docker/snare/Dockerfile
@@ -67,9 +68,5 @@ services:
     depends_on:
      - tanner
     volumes:
-     - /home/azureuser/log/snare/snare.log:/opt/snare/snare.log:rw
-     - /home/azureuser/log/snare/snare.err:/opt/snare/snare.err:rw
-     - /home/azureuser/log/snare:/var/log/snare
-     - /home/azureuser/credentials.xlsx:/opt/snare/files/credentials.xlsx
+     - $HOME/credentials.xlsx:/opt/snare/files/credentials.xlsx
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
-     - /etc/letsencrypt:/etc/letsencrypt:ro
