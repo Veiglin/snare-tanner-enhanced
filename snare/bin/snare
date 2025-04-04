@@ -203,7 +203,7 @@ if __name__ == '__main__':
         honey_gen.generate()
         with open(os.path.join(full_page_path, 'meta.json')) as meta:
             meta_info = json.load(meta)
-        breadcrumbs = BreadcrumbsGenerator(full_page_path, meta_info, hf_token="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")
+        breadcrumbs = BreadcrumbsGenerator(full_page_path, meta_info, args.breadcrumbs, hf_token="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")
         breadcrumbs.generate_breadcrumbs()
     
     loop = asyncio.get_event_loop()

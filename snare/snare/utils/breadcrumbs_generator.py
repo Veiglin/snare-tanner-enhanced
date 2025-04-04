@@ -271,10 +271,10 @@ class BreadcrumbsGenerator:
 
         html_path = os.path.join(self.page_dir, hash_name)
 
-        # Ensure file exists
         if not os.path.exists(html_path):
-            with open(html_path, "w") as f:
-                f.write("<html><body></body></html>")
+            print_color(f"⚠️ index.html not found at {html_path}. Cannot inject comment.", "WARNING")
+            return
+
 
         with open(html_path, "r") as f:
             html_content = f.read()
