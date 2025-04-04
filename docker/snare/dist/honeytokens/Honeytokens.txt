@@ -1,4 +1,4 @@
-logs/9521_1743774094.sql
-logs/SmartGadgetStore_2021_05_21.pdf
-logs/SmartGadgetStore_Inventory_Backup_2021-05-21_1000.zip
-logs/SmartGadgetStore_Admin_Data_2021-05-21_1000.bak
+private/logs/6787_1743776658.pdf
+private/logs/3630222_3867012404.pdf
+private/logs/1957522_2370384832.zip
+private/logs/1523732_322464736.db

@@ -252,32 +252,29 @@ class BreadcrumbsGenerator:
 
     def generate_html_comments_breadcrumb(self):
         """
-        Injects a subtle HTML comment breadcrumb into /index.html based on a random honeytoken.
+        Safely injects a breadcrumb HTML comment below an existing harmless comment (e.g. 'footer section start').
         """
         abs_url = "/index.html"
         hash_name = self.meta.get(abs_url, {}).get("hash")
 
-        # Create meta entry if missing
         if not hash_name:
-            hash_name = self.make_filename(abs_url)
-            self.meta[abs_url] = {
-                "hash": hash_name,
-                "content_type": "text/html"
-            }
-            meta_path = os.path.join(self.page_dir, "meta.json")
-            with open(meta_path, "w") as meta_file:
-                json.dump(self.meta, meta_file, indent=4)
-            print_color(f"Breadcrumbing: Created new meta entry for '{abs_url}'", "INFO")
-
-        html_path = os.path.join(self.page_dir, hash_name)
-
-        if not os.path.exists(html_path):
-            print_color(f"⚠️ index.html not found at {html_path}. Cannot inject comment.", "WARNING")
+            print_color("⚠️ Meta entry for /index.html not found.", "WARNING")
             return
 
+        html_path = os.path.join(self.page_dir, hash_name)
+        if not os.path.exists(html_path):
+            print_color(f"⚠️ index.html not found at {html_path}. Skipping injection.", "WARNING")
+            return
 
         with open(html_path, "r") as f:
             html_content = f.read()
+
+        # Pick an anchor comment already in the page
+        anchor_comment = "<!-- footer section start -->"
+
+        if anchor_comment not in html_content:
+            print_color("⚠️ Anchor comment not found. Skipping breadcrumb injection.", "WARNING")
+            return
 
         # Load honeytokens
         if not os.path.exists(self.honeytoken_path):
@@ -286,36 +283,29 @@ class BreadcrumbsGenerator:
 
         with open(self.honeytoken_path, "r") as f:
             tokens = [line.strip() for line in f if line.strip()]
-
         if not tokens:
-            print_color("⚠️ No honeytokens to generate comment from.", "WARNING")
+            print_color("⚠️ Honeytokens.txt is empty.", "WARNING")
             return
 
         chosen_token = random.choice(tokens)
-
-        # Generate the comment
         comment = self._generate_html_comment_from_llm(chosen_token)
 
-        # Remove existing breadcrumb-like comment
-        html_content = re.sub(r"<!--.*?/[a-zA-Z0-9_\-/]+\.\w+.*?-->\n?", "", html_content, flags=re.DOTALL)
-
-        # Insert comment before </body>
-        if "</body>" in html_content:
-            html_content = html_content.replace("</body>", comment + "\n</body>")
-        else:
-            html_content += "\n<body>\n" + comment + "\n</body>"
+        # Inject right after the anchor comment
+        html_content = html_content.replace(anchor_comment, anchor_comment + "\n" + comment)
 
         with open(html_path, "w") as f:
             f.write(html_content)
 
-        print_color(f"Breadcrumbing: Injected comment breadcrumb referencing '/{chosen_token}' into index.html", "SUCCESS")
+        print_color(f"Breadcrumbing: Injected comment after '{anchor_comment}' for '/{chosen_token}'", "SUCCESS")
+
+
 
 
     def _generate_html_comment_from_llm(self, honeytoken):
         prompt = (
-            f"Write a one-line HTML comment a developer might leave in the code. "
-            f"It should subtly reference an internal path like /{honeytoken} without giving away that it's a trap. "
-            f"Avoid using '--' and do not include HTML elements."
+            f"Write a realistic one-line HTML comment like a developer's note. "
+            f"It should mention /{honeytoken} as if it's a config file or temporary log. "
+            f"Do NOT include HTML tags or '--'. Make it look like leftover debug info."
         )
 
         response = requests.post(
@@ -335,24 +325,23 @@ class BreadcrumbsGenerator:
         )
 
         if response.status_code != 200:
-            print_color(f"⚠️ Failed to generate comment from LLM: {response.status_code}", "WARNING")
-            return f"<!-- temp ref /{honeytoken} -->"
+            print_color(f"⚠️ Failed to fetch LLM comment: {response.status_code}", "WARNING")
+            return f"<!-- dev note /{honeytoken} -->"
 
         try:
             text = response.json()[0]["generated_text"].strip()
-            if ":" in text:
-                text = text.split(":", 1)[1].strip()
 
-            text = text.replace("--", "–")  # sanitize
-            text = text.replace("\n", " ")
+            # Clean invalid syntax
+            text = text.split(":", 1)[1].strip() if ":" in text else text
+            text = text.replace("--", "–").replace("\n", " ").strip()
 
             if f"/{honeytoken}" not in text:
                 text += f" /{honeytoken}"
 
             return f"<!-- {text} -->"
+        except Exception:
+            return f"<!-- dev ref /{honeytoken} -->"
 
-        except (KeyError, IndexError, TypeError):
-            return f"<!-- ref: /{honeytoken} -->"
 
 
     def clean_html_comments_breadcrumb(self):

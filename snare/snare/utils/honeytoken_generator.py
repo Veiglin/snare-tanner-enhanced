@@ -119,7 +119,7 @@ class HoneytokensGenerator:
             dummy_path = os.path.join(self.page_dir, hash_val.upper())
             if not os.path.exists(dummy_path):
                 with open(dummy_path, "wb") as f:
-                    f.write(b"This is a honeypot file. Access is monitored.\n")
+                    f.write(b"Access is being monitored.\n")
 
             meta[f"/{full_path}"] = {
                 "content_type": content_type,
