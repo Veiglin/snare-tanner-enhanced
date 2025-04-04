@@ -10,10 +10,10 @@ import re
 from snare.utils.snare_helpers import print_color
 
 class BreadcrumbsGenerator:
-    def __init__(self, page_dir, meta, breadcrumb=None, hf_token=None):
+    def __init__(self, page_dir, meta, breadcrumb, hf_token=None):
         self.page_dir = page_dir
         self.meta = meta
-        self.breadcrumb = breadcrumb or []
+        self.breadcrumb = breadcrumb
         self.hf_token = hf_token
         self.model = "mistralai/Mistral-7B-Instruct-v0.1"
         self.honeytoken_path = "/opt/snare/honeytokens/Honeytokens.txt"
@@ -25,7 +25,7 @@ class BreadcrumbsGenerator:
         Always cleans up the 404 and robots.txt files regardless of generation flag.
         """
         self.clean_404_breadcrumb()
-        self.clean_html_comments_breadcrumb()
+        # self.clean_html_comments_breadcrumb()
 
         for breadcrumb in self.breadcrumb:
             if breadcrumb == 'robots':
