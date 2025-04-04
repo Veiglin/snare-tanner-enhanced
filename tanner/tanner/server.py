@@ -146,15 +146,11 @@ class TannerServer:
 
     async def start_background_delete(self, app):
         app["session_delete"] = asyncio.ensure_future(self.delete_sessions())
-        app["delayed_honeytoken_loader"] = asyncio.ensure_future(self.delayed_load_honeytokens())
 
 
     async def cleanup_background_tasks(self, app):
         app["session_delete"].cancel()
         await app["session_delete"]
-
-        app["delayed_honeytoken_loader"].cancel()
-        await app["delayed_honeytoken_loader"]
 
 
     def start(self):
@@ -165,14 +161,7 @@ class TannerServer:
         port = TannerConfig.get("TANNER", "port")
 
         web.run_app(self.make_app(), host=host, port=port)
+
     
-    async def delayed_load_honeytokens(self):
-        await asyncio.sleep(20)  # wait 20 seconds after start
-        try:
-            with open("/opt/snare/honeytokens/Honeytokens.txt", "r") as f:
-                file_paths = [line.strip() for line in f if line.strip()]
-                self.honeytoken_paths.extend(file_paths)
-            self.logger.info("Successfully loaded additional honeytoken paths after delay.")
-        except Exception as e:
-            self.logger.warning("Could not read additional honeytoken paths after delay.")
+
 
