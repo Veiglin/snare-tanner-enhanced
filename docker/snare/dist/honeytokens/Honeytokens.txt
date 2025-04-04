@@ -1,4 +1,3 @@
-user/logs/4282_1743772830.pdf
-user/logs/INV_REPORT_1743772831.pdf
-user/logs/CUSTOMER_EXPORT_1743772832.pdf
-user/logs/ADMIN_DATA_1743772833.zip
+logs/Backup_Inventory_SmartGadgetStore.pdf
+logs/Admin_Settings_SmartGadgetStore.sql
+logs/Purchase_Orders_SmartGadgetStore.pdf
