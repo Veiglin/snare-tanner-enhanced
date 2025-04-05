@@ -38,5 +38,4 @@ class SnareConfig:
 
         return res
 
-
-DEFAULT_CONFIG = SnareConfig.read_config("/opt/snare/data/config.yaml")
+DEFAULT_CONFIG = SnareConfig.read_config("/opt/snare/config.yaml")

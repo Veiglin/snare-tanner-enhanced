@@ -22,6 +22,7 @@ RUN apk -U upgrade && \
 		py3-setuptools \
 		py3-pip \
 		py3-pycodestyle \
+        py3-yaml \
 		py3-wheel && \
 #
 # Setup Snare 
@@ -32,6 +33,7 @@ RUN apk -U upgrade && \
     cd / && \
     rm -rf /opt/snare && \
     mkdir -p /opt/snare/pages && \
+    cp /root/dist/config.yaml /opt/snare/ && \
     mv /root/dist/pages/* /opt/snare/pages/ && \
 #
 # Setup configs, user, groups

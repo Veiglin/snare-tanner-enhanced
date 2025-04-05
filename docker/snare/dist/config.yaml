@@ -1,4 +1,4 @@
-HONEYTOKENS:
+HONEYTOKEN:
   enabled: True
   API-ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
   API-KEY: AIzaSyC-QsN2PPv9CBFgRSLRnJq5l4CynuBioVM
