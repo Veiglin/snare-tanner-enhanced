@@ -82,7 +82,7 @@ class HoneytokensGenerator:
         return cleaned
 
     def _md5_hash(self, text):
-        return hashlib.md5(text.encode("utf-8")).hexdigest().lower()
+        return hashlib.md5(text.encode("utf-8")).hexdigest()
 
     def create_honeytokens(self, filenames):
         # Load or create meta
@@ -101,7 +101,7 @@ class HoneytokensGenerator:
         self.generated_paths = []  # store full paths like 'logs/vault2022.db'
         for name in filenames:
             full_path = os.path.join(prefix, name).replace("\\", "/")  # ensures it's slash-separated
-            hash_val = self._md5_hash(name)
+            hash_val = self._md5_hash(full_path)
             ext = os.path.splitext(name)[1]
             content_type = self.meta_content_types.get(ext.lower(), "application/octet-stream")
             #dummy_path = os.path.join(self.page_dir, hash_val.upper())
@@ -110,7 +110,7 @@ class HoneytokensGenerator:
             #        f.write(b"This is a honeypot file. Access is monitored.\n")
             meta[f"/{full_path}"] = {
                 "content_type": content_type,
-                "hash": hash_val.upper()
+                "hash": hash_val
             }
             self.generated_paths.append(full_path)
 
@@ -235,7 +235,6 @@ class HoneytokensGenerator:
 
         # Check if the request was successful
         if response.status_code == 200:
-            print_color(f"Response: {response.content}", "INFO")
             print_color(f"File content successfully downloaded", "INFO")
             return response.content
         else:
