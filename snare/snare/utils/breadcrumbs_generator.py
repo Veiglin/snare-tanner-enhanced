@@ -2,7 +2,7 @@ import os
 import hashlib
 import json
 import random
-
+import logging
 
 from snare.utils.snare_helpers import print_color
 
@@ -20,6 +20,7 @@ class BreadcrumbsGenerator:
         self.meta = meta
         self.breadcrumb = breadcrumb
         self.html_comments_abs_url = html_comments_abs_url
+        self.logger = logging.getLogger(__name__)
     
     def generate_breadcrumbs(self):
         """
@@ -86,6 +87,7 @@ class BreadcrumbsGenerator:
             json.dump(self.meta, meta_file, indent=4)
 
         if bait_sample:
+            self.logger.info(f"Breadcrumbing: Refreshed robots.txt with bait: {bait_sample}")
             print_color(f"Breadcrumbing: Refreshed robots.txt with bait: {bait_sample}", "SUCCESS")
         else:
             print_color("Breadcrumbing: Refreshed robots.txt (no honeytokens found)", "SUCCESS")
@@ -118,6 +120,7 @@ class BreadcrumbsGenerator:
         with open(html_path, "w") as f:
             f.write(html_content)
 
+        self.logger.info("Breadcrumbing: Updated 404 page with message '{}'".format(msg))
         print_color("Breacrumbing: Updated 404 page with message '{}'".format(msg))
 
     def generate_html_comments_breadcrumb(self):
@@ -148,6 +151,7 @@ class BreadcrumbsGenerator:
         with open(html_path, "w") as f:
             f.write(html_content)
 
+        self.logger.info("Breadcrumbing: Updated HTML page '{}' with the comment '{}' for breadcrumbing".format(self.html_comments_abs_url, msg))
         print_color("Breadcrumbing: Updated HTML page '{}' with the comment '{}' for breadcrumbing".format(self.html_comments_abs_url, msg))
 
     @staticmethod
