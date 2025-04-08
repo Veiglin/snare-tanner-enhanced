@@ -167,6 +167,7 @@ if __name__ == '__main__':
     log_debug = os.path.join(log_path, 'snare.log')
     log_err = os.path.join(log_path, 'snare.err')
     Logger.create_logger(log_debug, log_err, __package__)
+    Logger.get_logger(__package__).info(f"Selected page-dir: {full_page_path}")
     if args.list_pages:
         print_color('Available pages:\n', 'INFO')
         for page in os.listdir(base_page_path):

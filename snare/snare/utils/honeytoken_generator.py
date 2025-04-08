@@ -5,6 +5,7 @@ import time
 import random
 import hashlib
 import requests
+import logging
 from typing import Optional, Dict
 import requests, sys
 
@@ -24,12 +25,11 @@ class HoneytokensGenerator:
         self.api_key = SnareConfig.get("HONEYTOKEN", "API-KEY")
         self.llm_parameters = SnareConfig.get("HONEYTOKEN", "LLM-PARAMETERS")
         self.marker = "__honeypot_honeytokens_marker__"
-        # 🔒 Hardcoded log directory
         self.track_dir = os.path.join("/opt/snare", "honeytokens")
         self.track_path = os.path.join(self.track_dir, "Honeytokens.txt")
-        os.makedirs(self.page_dir, exist_ok=True)
         os.makedirs(self.track_dir, exist_ok=True)
         self.meta_path = os.path.join(self.page_dir, "meta.json")
+        self.logger = logging.getLogger(__name__)
         self.meta_content_types = {
             ".pdf": "application/pdf",
             ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -67,6 +67,7 @@ class HoneytokensGenerator:
 
         filenames = self._extract_clean_filenames(text)
         print_color("📂 Cleaned Filenames:\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
+        self.logger.info("Generated filenames: %s", filenames)
         return filenames
 
     def _extract_clean_filenames(self, text):
@@ -178,6 +179,7 @@ class HoneytokensGenerator:
                 canarytoken = self.generate_token(token_type, token + " - Triggered", webhook='https://webhook.site/cb2663e7-634a-411b-b21d-3eadd61c53ae')
                 if canarytoken:
                     print_color(f"✅ Generated canarytoken for {token}: {canarytoken}", "SUCCESS")
+                    self.logger.info(f"Generated canarytoken for file: {token}")
 
                     # download the canarytoken file
                     canarytoken_content = self._downloaded_token_file(token_type, canarytoken['auth_token'], canarytoken['token'])
