@@ -40,7 +40,8 @@ RUN apk -U upgrade && \
     addgroup -g 2000 snare && \
     adduser -S -s /bin/ash -u 2000 -D -g 2000 snare && \
     mkdir /var/log/tanner && \
-    chown -R snare:snare /opt/snare && \
+    mkdir /var/log/snare && \
+    chown -R snare:snare /opt/snare /var/log/snare && \
 #   
 # Clean up
     apk del --purge \
@@ -54,4 +55,4 @@ RUN apk -U upgrade && \
 # Start snare
 STOPSIGNAL SIGKILL
 USER snare:snare
-CMD snare --tanner tanner --debug true --auto-update false --host-ip 0.0.0.0 --port 443 --page-dir WEBPAGE_hashed_copy --breadcrumbs robots
+CMD snare --tanner tanner --debug true --auto-update false --host-ip 0.0.0.0 --port 443 --page-dir smartgadgetstore --breadcrumbs robots
