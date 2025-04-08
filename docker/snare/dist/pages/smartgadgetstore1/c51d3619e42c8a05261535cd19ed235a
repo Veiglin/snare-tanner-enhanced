@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <!-- basic -->
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <!-- mobile metas -->
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+      <!-- site metas -->
+      <title>Smart Gadget Store</title>
+      <meta name="keywords" content="">
+      <meta name="description" content="">
+      <meta name="author" content="">
+      <!-- bootstrap css -->
+      <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+      <!-- style css -->
+      <link rel="stylesheet" type="text/css" href="css/style.css">
+      <!-- Responsive-->
+      <link rel="stylesheet" href="css/responsive.css">
+      <!-- fevicon -->
+      <link rel="icon" href="images/fevicon.png" type="image/gif" />
+      <!-- Scrollbar Custom CSS -->
+      <link rel="stylesheet" href="css/jquery.mCustomScrollbar.min.css">
+      <!-- Tweaks for older IEs-->
+      <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+      <!-- fonts -->
+      <link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet">
+      <!-- font awesome -->
+      <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+      <!--  -->
+      <!-- owl stylesheets -->
+      <link href="https://fonts.googleapis.com/css?family=Great+Vibes|Poppins:400,700&display=swap&subset=latin-ext" rel="stylesheet">
+      <link rel="stylesheet" href="css/owl.carousel.min.css">
+      <link rel="stylesoeet" href="css/owl.theme.default.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" media="screen">
+     
+      
+     
+
+   </head>
+   <body>
+      <!-- banner bg main start -->
+      <div class="banner_bg_main">
+         <!-- header top section start -->
+         <div class="container">
+            <div class="header_section_top">
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="custom_menu">
+                        <ul >
+                           <li><a class="trigger-popup" href="#">Best Sellers</a></li>
+                           <li><a class="trigger-popup" href="#">Gift Cards</a></li>
+                           <li><a class="trigger-popup" href="#">New Releases</a></li>
+                        </ul>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <!-- header top section start -->
+         <!-- logo section start -->
+         <div class="logo_section">
+            <div class="container">
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="logo"><a href="index.html"><img src="images/logo4.png"></a></div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <!-- logo section end -->
+         <!-- header section start -->
+         <div class="header_section">
+            <div class="container">
+               <div class="containt_main">
+                  <div id="mySidenav" class="sidenav">
+                     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+                     <a href="index.html">Home</a>
+                     <div class="dropdown categories-dropdown">
+                        <button class="btn dropdown-toggle" type="button_sidenav" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Categories
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="#">Computers</a>
+                            <a class="dropdown-item" href="#">Smartphones</a>
+                            <a class="dropdown-item" href="#">Smartwatches</a>
+                            <a class="dropdown-item" href="#">Audio</a>
+                            <a class="dropdown-item" href="#">Gaming</a>
+                            <a class="dropdown-item" href="#">See more..</a>
+                        </div>
+                    </div>
+                     <a href=" ">Deals / Promotions</a>
+                     <a href=" ">Your Account</a>
+                     <a href=" ">About Us</a>
+                  </div>
+                  <span class="toggle_icon" onclick="openNav()"><img src="images/toggle-icon.png"></span>
+                  <div class="dropdown">
+                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Filter by 
+                     </button>
+                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="#">Men's</a>
+                        <a class="dropdown-item" href="#">Women's</a>
+                        <a class="dropdown-item" href="#">Kid's</a>
+                     </div>
+                  </div>
+                  <div class="main">
+                     <!-- Another variation with a button -->
+                     <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search this blog">
+                        <div class="input-group-append">
+                           <button class="btn btn-secondary" type="button" style="background-color: #bd2e95;; border-color:#bd2e95; ">
+                           <i class="fa fa-search"></i>
+                           </button>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="header_box">
+                     <div class="lang_box ">
+                        <a href="#" title="Language" class="nav-link" data-toggle="dropdown" aria-expanded="true">
+                        <img src="images/eng.jpg" alt="flag" class="mr-2 " title="United Kingdom"> English <i class="fa fa-angle-down ml-2" aria-hidden="true"></i>
+                        </a>
+                        <div class="dropdown-menu ">
+                           <a href="#" class="dropdown-item">
+                           <img src="images/dan.png" class="mr-2" alt="flag">
+                           Danish
+                           </a>
+                        </div>
+                     </div>
+                     <div class="login_menu">
+                        <ul>
+                           <li><a href="/login.php">
+                              <i class="fa fa-user" aria-hidden="true"></i>
+                              <span class="padding_10">Login</span></a>
+                           </li>
+                        </ul>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <!-- header section end -->
+         <!-- banner section start -->
+         <div class="banner_section layout_padding banner_height">
+            <div class="container">
+               <div id="my_slider" class="carousel slide" data-ride="carousel">
+                  <div class="carousel-inner">
+                     <div class="carousel-item active">
+                        <div class="row">
+                           <div class="col-sm-12">
+                              <h1 class="banner_taital"><br>Your favorite gadgets!</h1>
+                              <div class="buynow_bt trigger-popup"><a href="#">Buy Now</a></div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="carousel-item">
+                        <div class="row">
+                           <div class="col-sm-12">
+                              <h1 class="banner_taital"><br>Don't miss our great Deals!</h1>
+                              <div class="buynow_bt trigger-popup"><a href="#">Buy Now</a></div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="carousel-item">
+                        <div class="row">
+                           <div class="col-sm-12">
+                              <h1 class="banner_taital"><br>Use code #FREE20%</h1>
+                              <div class="buynow_bt trigger-popup"><a href="#">Use Code Now</a></div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <a class="carousel-control-prev" href="#my_slider" role="button" data-slide="prev">
+                  <i class="fa fa-angle-left"></i>
+                  </a>
+                  <a class="carousel-control-next" href="#my_slider" role="button" data-slide="next">
+                  <i class="fa fa-angle-right"></i>
+                  </a>
+               </div>
+            </div>
+         </div>
+         <!-- banner section end -->
+      </div>
+      <!-- banner bg main end -->
+      <!-- fashion section start -->
+      <div class="fashion_section">
+         <h1 class="fashion_taital1">This Week's Discounts</h1>
+         <div id="main_slider" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+               <div class="carousel-item active">
+                  <div class="container">
+                     <div class="fashion_section_2">
+                        <div class="row">
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Apple Watch Series 3</h4>
+                                 <p class="price_text">Price  <span style="color: #262626;">$199</span></p>
+                                 <div class="jewellery_img"><img src="images/smartwatch2.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Sony Alpha A7 III</h4>
+                                 <p class="price_text">Price  <span style="color: #262626;">$1,998</span></p>
+                                 <div class="jewellery_img"><img src="images/SonyCamera.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Sony WH-1000XM3</h4>
+                                 <p class="price_text">Price  <span style="color: #262626;">$349</span></p>
+                                 <div class="jewellery_img"><img src="images/SonyHeadphones.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="carousel-item">
+                  <div class="container">
+                     <div class="fashion_section_2">
+                        <div class="row">
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Oculus Quest Pro VR</h4>
+                                 <p class="price_text">Price  <span style="color: #262626;">$1149</span></p>
+                                 <div class="jewellery_img"><img src="images/VR_Headset.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Xbox One Controller</h4>
+                                 <p class="price_text">Price  <span style="color: #262626;">$59</span></p>
+                                 <div class="jewellery_img"><img src="images/XboxController.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Philips SHB9850NC</h4>
+                                 <p class="price_text">Price  <span style="color: #262626;">$129</span></p>
+                                 <div class="jewellery_img"><img src="images/PhilipsHeadphones.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="carousel-item">
+                  <div class="container">
+                     <div class="fashion_section_2">
+                        <div class="row">
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Apple iPhone 7 Plus</h4>
+                                 <p class="price_text">Price  <span style="color: #262626;">$349</span></p>
+                                 <div class="jewellery_img"><img src="images/Phone.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Samsung Galaxy S22</h4>
+                                 <p class="price_text">Price  <span style="color: #262626;">$799</span></p>
+                                 <div class="jewellery_img"><img src="images/SamsungPhone.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Huawei P10</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$349</span></p>
+                                 <div class="jewellery_img"><img src="images/HuaweiPhone.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <a class="carousel-control-prev" href="#main_slider" role="button" data-slide="prev">
+            <i class="fa fa-angle-left"></i>
+            </a>
+            <a class="carousel-control-next" href="#main_slider" role="button" data-slide="next">
+            <i class="fa fa-angle-right"></i>
+            </a>
+         </div>
+      </div>
+      <!-- fashion section end -->
+      <!-- electronic section start -->
+      <div class="fashion_section">
+         <h1 class="fashion_taital">This Week's Top Sellers</h1>
+         <div id="electronic_main_slider" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+               <div class="carousel-item active">
+                  <div class="container">
+                     <div class="fashion_section_2">
+                        <div class="row">
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">A6s TWS Earbuds</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$14,99</span></p>
+                                 <div class="electronic_img"><img src="images/earbuds.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Recon VX1 Drone</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$799</span></p>
+                                 <div class="electronic_img"><img src="images/drone.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Aventon Sinch Foldable Ebike</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$1499</span></p>
+                                 <div class="electronic_img"><img src="images/folding-4047804_1280.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="carousel-item">
+                  <div class="container">
+                     <div class="fashion_section_2">
+                        <div class="row">
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Samsung 360 Gear</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$ 199</span></p>
+                                 <div class="electronic_img"><img src="images/Samsung360camera.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Amazfit GTR 3</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$179</span></p>
+                                 <div class="electronic_img"><img src="images/smartwatch3.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Fujifilm X-T10 Mirrorless</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$599</span></p>
+                                 <div class="electronic_img"><img src="images/camera2.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="carousel-item">
+                  <div class="container">
+                     <div class="fashion_section_2">
+                        <div class="row">
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">iRex Digital Reader</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$249</span></p>
+                                 <div class="electronic_img"><img src="images/EReader.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">GoPro Hero 3+</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$249</span></p>
+                                 <div class="jewellery_img"><img src="images/gopro-1442895_1280.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Bluetooth Hands-Free Earbud</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$17,99</span></p>
+                                 <div class="electronic_img"><img src="images/Handsfree.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <a class="carousel-control-prev" href="#electronic_main_slider" role="button" data-slide="prev">
+            <i class="fa fa-angle-left"></i>
+            </a>
+            <a class="carousel-control-next" href="#electronic_main_slider" role="button" data-slide="next">
+            <i class="fa fa-angle-right"></i>
+            </a>
+         </div>
+      </div>
+      <!-- electronic section end -->
+      <!-- jewellery  section start -->
+      <div class="jewellery_section">
+         <h1 class="fashion_taital">New Arrivals</h1>
+         <div id="jewellery_main_slider" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+               <div class="carousel-item active">
+                  <div class="container">
+                     <div class="fashion_section_2">
+                        <div class="row">
+                           <div class="col-lg-4 col-sm-4">            
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Polar A370 Fitness Tracker</h4>
+                                 <p class="price_text">Price  <span style="color: #262626;">$149</span></p>
+                                 <div class="jewellery_img"><img src="images/smartwatch.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>                     
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">GoPro Hero 5 Action</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$299</span></p>
+                                 <div class="electronic_img"><img src="images/gopro.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Olympus OM-D E-M10 Mark III</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$449</span></p>
+                                 <div class="jewellery_img"><img src="images/camera-541213_1280.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="carousel-item">
+                  <div class="container">
+                     <div class="fashion_section_2">
+                        <div class="row">
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Custom Cases</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$9,99</span></p>
+                                 <div class="jewellery_img"><img src="images/CustomCase.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Customize Now</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Build your own Keyboard</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$749</span></p>
+                                 <div class="jewellery_img"><img src="images/BuildKeyboard.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Build Now</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Phone Accesories</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$4,99</span></p>
+                                 <div class="jewellery_img"><img src="images/Powerbank.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">View More</a></div>
+                                 </div>
+                              </div>
+                           </div>                        
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="carousel-item">
+                  <div class="container">
+                     <div class="fashion_section_2">
+                        <div class="row">
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">G-SHOCK DWH5600</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$450</span></p>
+                                 <div class="jewellery_img"><img src="images/casiowatch.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Apple Keyboard w/ Mouse</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$749</span></p>
+                                 <div class="jewellery_img"><img src="images/AppleKeyMouse.jpg"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt trigger-popup"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div>                           
+                           <!-- <div class="col-lg-4 col-sm-4">
+                              <div class="box_main">
+                                 <h4 class="shirt_text">Kangans</h4>
+                                 <p class="price_text">Start Price  <span style="color: #262626;">$ 100</span></p>
+                                 <div class="jewellery_img"><img src="images/kangan-img.png"></div>
+                                 <div class="btn_main">
+                                    <div class="buy_bt"><a href="#">Buy Now</a></div>
+                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                 </div>
+                              </div>
+                           </div> -->
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <a class="carousel-control-prev" href="#jewellery_main_slider" role="button" data-slide="prev">
+            <i class="fa fa-angle-left"></i>
+            </a>
+            <a class="carousel-control-next" href="#jewellery_main_slider" role="button" data-slide="next">
+            <i class="fa fa-angle-right"></i>
+            </a>
+            <div class="loader_main">
+               <div class="loader"></div>
+            </div>
+         </div>
+      </div>
+      <!-- jewellery  section end -->
+      <!-- footer section start -->
+      <div class="footer_section layout_padding">
+         <div class="container">
+            <div class="footer_logo"><a href="index.html"><img src="images/logo1.png"></a></div>
+            <div class="input_bt">
+               <input type="text" class="mail_bt" placeholder="Your Email" name="Your Email">
+               <span class="subscribe_bt" id="basic-addon2"><a href="#">Subscribe</a></span>
+            </div>
+            <div class="footer_menu">
+               <ul>
+                  <li><a class="trigger-popup" href="#">Best Sellers</a></li>
+                  <li><a class="trigger-popup" href="#">Gift Cards</a></li>
+                  <li><a class="trigger-popup" href="#">New Releases</a></li>
+               </ul>
+            </div>
+            <div class="location_main">Help Line  Number : <a href="#">+1 1800 1200 1200</a></div>
+         </div>
+      </div>
+      <!-- footer section end -->
+      <!-- copyright section start -->
+      <div class="copyright_section">
+         <div class="container">
+            <p class="copyright_text">© 2020 All Rights Reserved.</p>
+         </div>
+      </div>
+      <!-- copyright section end -->
+
+      <!-- Trigger Button(s) -->
+      <button class="action-btn trigger-popup">Click Me</button>
+
+      <!-- Pop-up Window -->
+      <div id="loginPopup" class="popup-overlay">
+         <div class="popup-content">
+            <span class="close-btn" onclick="closePopup()">&times;</span>
+            <h3>You are currently not logged in as a user.</h3>
+            <p>Please log in to proceed.</p>
+            <a href="/login.php" class="popup-login-btn">Go to Login</a>
+         </div>
+      </div>
+
+      <!-- Javascript files-->
+      <script src="js/jquery.min.js"></script>
+      <script src="js/popper.min.js"></script>
+      <script src="js/bootstrap.bundle.min.js"></script>
+      <script src="js/jquery-3.0.0.min.js"></script>
+      <script src="js/plugin.js"></script>
+      <!-- sidebar -->
+      <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+      <script src="js/custom.js"></script>
+      <script>
+         function openNav() {
+           document.getElementById("mySidenav").style.width = "250px";
+         }
+         
+         function closeNav() {
+           document.getElementById("mySidenav").style.width = "0";
+         }
+      </script>
+   </body>
+</html>

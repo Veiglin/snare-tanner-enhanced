@@ -55,4 +55,4 @@ RUN apk -U upgrade && \
 # Start snare
 STOPSIGNAL SIGKILL
 USER snare:snare
-CMD snare --tanner tanner --debug true --auto-update false --host-ip 0.0.0.0 --port 443 --page-dir smartgadgetstore --breadcrumbs robots
+CMD snare --tanner tanner --debug true --auto-update false --host-ip 0.0.0.0 --port 443 --page-dir smartgadgetstore$(shuf -i 1-4 -n 1) --breadcrumbs robots
