@@ -154,6 +154,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     base_path = os.path.join(args.path, 'snare')
+    log_path = os.path.join("/var/log/", 'snare')
     if(not os.path.isabs(args.page_dir)):
         base_page_path = os.path.join(base_path, 'pages')
         full_page_path = os.path.join(base_page_path, args.page_dir)
@@ -163,8 +164,8 @@ if __name__ == '__main__':
     snare_uuid = snare_setup(base_path)
     config = configparser.ConfigParser()
     config.read(os.path.join(base_path, args.config))
-    log_debug = os.path.join(base_path, 'snare.log')
-    log_err = os.path.join(base_path, 'snare.err')
+    log_debug = os.path.join(log_path, 'snare.log')
+    log_err = os.path.join(log_path, 'snare.err')
     Logger.create_logger(log_debug, log_err, __package__)
     if args.list_pages:
         print_color('Available pages:\n', 'INFO')
