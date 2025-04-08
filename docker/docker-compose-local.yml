@@ -1,6 +1,10 @@
 networks:
   tanner_local:
 
+volumes:
+  shared_logs:
+    driver: local
+
 services:
 
 # Tanner Redis Service
@@ -44,7 +48,7 @@ services:
     command: tanner
     privileged: true
     volumes:
-     - $HOME/log/tanner:/var/log/tanner
+     - shared_logs:/var/log/tanner
      - $HOME/files/tanner:/opt/tanner/files
     depends_on:
      - tanner_phpox
@@ -68,5 +72,25 @@ services:
     depends_on:
      - tanner
     volumes:
+     - shared_logs:/var/log/snare
      - $HOME/credentials.xlsx:/opt/snare/files/credentials.xlsx
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
+
+# Log Interface Service
+  log-interface:
+    image: python:3.9-slim
+    container_name: logging
+    restart: on-failure
+    networks:
+      - tanner_local
+    ports:
+      - "5003:5003"
+    depends_on:
+      - snare
+      - tanner
+    volumes:
+      - shared_logs:/shared_logs
+      - ../logging:/app
+    command: >
+      sh -c "pip install flask requests && python /app/log_interface.py"
+
