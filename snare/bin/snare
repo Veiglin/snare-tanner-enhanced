@@ -209,7 +209,7 @@ if __name__ == '__main__':
         # 
         with open(os.path.join(full_page_path, 'meta.json')) as meta:
             meta_info = json.load(meta)
-        breadcrumbs = BreadcrumbsGenerator(full_page_path, meta_info, args.breadcrumbs, args.html_comments_abs_url)
+        breadcrumbs = BreadcrumbsGenerator(full_page_path, meta_info, args.breadcrumbs,     ")
         breadcrumbs.generate_breadcrumbs()
     
     loop = asyncio.get_event_loop()

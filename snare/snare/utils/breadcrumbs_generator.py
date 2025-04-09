@@ -2,38 +2,41 @@ import os
 import hashlib
 import json
 import random
+import requests
+import re
+
 
 
 from snare.utils.snare_helpers import print_color
 
 class BreadcrumbsGenerator:
-    def __init__(self, page_dir, meta, breadcrumb, html_comments_abs_url = None):
-        """
-        Initializes the breadcrumbs generator.
-        
-        :param page_dir: The directory where cloned pages are stored.
-        :param meta: The meta dictionary (parsed from meta.json).
-        :param breadcrumb: The type of breadcrumb to generate.
-        :param html_comments_abs_url: The absolute URL of the HTML comments page.
-        """
+    def __init__(self, page_dir, meta, breadcrumb=None,   
         self.page_dir = page_dir
         self.meta = meta
-        self.breadcrumb = breadcrumb
-        self.html_comments_abs_url = html_comments_abs_url
+        self.breadcrumb = breadcrumb or []
+        self.   =   
+        self.model = "mistralai/Mistral-7B-Instruct-v0.1"
+        self.honeytoken_path = "/opt/snare/honeytokens/Honeytokens.txt"
+
     
     def generate_breadcrumbs(self):
         """
         Generates breadcrumbs for the given types.
+        Always cleans up the 404 and robots.txt files regardless of generation flag.
         """
+        self.clean_404_breadcrumb()
+        # self.clean_html_comments_breadcrumb()
+
         for breadcrumb in self.breadcrumb:
             if breadcrumb == 'robots':
                 self.generate_robots_breadcrumb()
             elif breadcrumb == '404_page':
                 self.generate_404_breadcrumb()
-            elif breadcrumb == 'html_comments' and self.html_comments_abs_url:
+            elif breadcrumb == 'html_comments':
                 self.generate_html_comments_breadcrumb()
             else:
                 print_color("Breadcrumb type '{}' is not supported yet.".format(breadcrumb), "WARNING")
+
 
     def generate_robots_breadcrumb(self):
         """
@@ -91,64 +94,292 @@ class BreadcrumbsGenerator:
             print_color("Breadcrumbing: Refreshed robots.txt (no honeytokens found)", "SUCCESS")
 
 
-
     def generate_404_breadcrumb(self):
         """
-        Generates a 404 page breadcrumb.
+        Rewrites the 404 page identified by '/status_404' in meta with a breadcrumb line
+        generated using an LLM and one random honeytoken.
+        If not found, creates the entry and file.
         """
-        # find the 404 page hash in the meta dictionary
-        for key, val in self.meta.items():
-            if "404" in key:
-                hash_name = val["hash"]
-                break
-            
-        # go to the hash file name and change the content of the html file
+        import requests  # ensure this is imported at the top
+
+        abs_url = "/status_404"
+        hash_name = self.meta.get(abs_url, {}).get("hash")
+
+        # If not found in meta, create it
+        if not hash_name:
+            hash_name = self.make_filename(abs_url)
+            self.meta[abs_url] = {
+                "hash": hash_name,
+                "content_type": "text/html"
+            }
+
+            # Save updated meta.json
+            meta_json_path = os.path.join(self.page_dir, "meta.json")
+            with open(meta_json_path, "w") as meta_file:
+                json.dump(self.meta, meta_file, indent=4)
+            print_color(f"Breadcrumbing: Created new meta entry for '{abs_url}'", "INFO")
+
         html_path = os.path.join(self.page_dir, hash_name)
+
+        # If file doesn't exist, create a basic HTML structure
+        if not os.path.exists(html_path):
+            with open(html_path, "w") as f:
+                f.write("<html><body></body></html>")
+
+        # Read current content
         with open(html_path, "r") as f:
             html_content = f.read()
-            # check if the 404 page already has a message
-            if "Try accessing" in html_content:
-                print_color("Breadcrumbing: 404 page already has a custom message.")
-                return None
-            # change the content of the 404 page as needed by adding a message
-            msg = "<p>Try accessing test, test, test for more information.</p>"
-            html_content = html_content.replace("</body>", msg + "</body>")
 
-        # save the new content in the hash file
+        # Load honeytokens
+        if not os.path.exists(self.honeytoken_path):
+            print_color("⚠️ No Honeytokens.txt found. Cannot generate breadcrumb.", "WARNING")
+            return
+
+        with open(self.honeytoken_path, "r") as f:
+            tokens = [line.strip() for line in f if line.strip()]
+
+        if not tokens:
+            print_color("⚠️ Honeytokens.txt is empty. Cannot generate breadcrumb.", "WARNING")
+            return
+
+        chosen_token = random.choice(tokens)
+
+        # Generate breadcrumb from LLM
+        breadcrumb_line = self._generate_breadcrumb_from_llm(chosen_token)
+
+        # Remove old breadcrumb if it exists
+        html_content = html_content.replace("<p>This is a breadcrumb.</p>", "")
+        if "</body>" in html_content:
+            html_content = html_content.replace("</body>", breadcrumb_line + "\n</body>")
+        else:
+            html_content += "\n" + breadcrumb_line
+
+        # Save updated HTML
         with open(html_path, "w") as f:
             f.write(html_content)
 
-        print_color("Breacrumbing: Updated 404 page with message '{}'".format(msg))
+        print_color(f"Breadcrumbing: Updated 404 page with breadcrumb referencing '/{chosen_token}'", "SUCCESS")
+
+
+    def _generate_breadcrumb_from_llm(self, honeytoken):
+        prompt = (
+            f"Write a short HTML bait line (in a <p> tag) that subtly hints at an internal file located at /{honeytoken}. "
+            f"It should look like something a developer accidentally left in, referencing the file path naturally."
+            f"Your goal is to lead a potential attacker to believe that this is a legitimate file path. "
+        )
+
+        response = requests.post(
+            f"https://api-inference.huggingface.co/models/{self.model}",
+            headers={"Authorization": f"Bearer {self.  
+            json={
+                "inputs": prompt,
+                "parameters": {
+                    "temperature": 0.8,
+                    "do_sample": True,
+                    "top_p": 0.9,
+                    "top_k": 50,
+                    "max_new_tokens": 60,
+                    "return_full_text": False
+                }
+            }
+        )
+
+        if response.status_code != 200:
+            print_color(f"⚠️ LLM API error {response.status_code}: {response.text}", "WARNING")
+            return f"<p>Check /{honeytoken} for debug info.</p>"
+
+        try:
+            raw = response.json()[0]["generated_text"].strip()
+
+            # Remove preamble text like "Here's a possible solution:"
+            if ":" in raw:
+                raw = raw.split(":", 1)[1].strip()
+
+            # Ensure the honeytoken path is mentioned
+            if f"/{honeytoken}" not in raw:
+                raw += f" (see /{honeytoken})"
+
+            # Wrap in a clean <p> tag if not already
+            if not raw.startswith("<p>"):
+                raw = f"<p>{raw}</p>"
+
+            return raw
+
+        except (KeyError, IndexError, TypeError):
+            return f"<p>Access /{honeytoken} for diagnostics.</p>"
+
+
+
+
+    def clean_404_breadcrumb(self):
+        """
+        Removes any existing breadcrumb line from the /status_404 page.
+        """
+        abs_url = "/status_404"
+        hash_name = self.meta.get(abs_url, {}).get("hash")
+
+        if not hash_name:
+            # Still create the meta entry for consistency
+            hash_name = self.make_filename(abs_url)
+            self.meta[abs_url] = {
+                "hash": hash_name,
+                "content_type": "text/html"
+            }
+            meta_json_path = os.path.join(self.page_dir, "meta.json")
+            with open(meta_json_path, "w") as meta_file:
+                json.dump(self.meta, meta_file, indent=4)
+            print_color(f"Breadcrumbing: Created new meta entry for '{abs_url}'", "INFO")
+
+        html_path = os.path.join(self.page_dir, hash_name)
+
+        if not os.path.exists(html_path):
+            with open(html_path, "w") as f:
+                f.write("<html><body></body></html>")
+            return
+
+        # Read and clean the file
+        with open(html_path, "r") as f:
+            html_content = f.read()
+
+        breadcrumb = "<p>This is a breadcrumb.</p>"
+        if breadcrumb in html_content:
+            html_content = html_content.replace(breadcrumb, "")
+            with open(html_path, "w") as f:
+                f.write(html_content)
+            print_color("Breadcrumbing: Removed old breadcrumb from /status_404 page.", "INFO")
+
+
 
     def generate_html_comments_breadcrumb(self):
         """
-        Generates a breadcrumb for the HTML comments page.
-        
-        :param html_comments_abs_url: The absolute URL of the HTML comments page.
+        Safely injects a breadcrumb HTML comment below a randomly selected existing harmless comment.
         """
-        # find the hash of the html comments page in the meta dictionary
-        for key, val in self.meta.items():
-            if self.html_comments_abs_url in key:
-                hash_name = val["hash"]
-                break
-        
-        # go to the hash file name and change the content of the html file
+        html_comments = [
+            "banner bg main start", "header top section start", "logo section start",
+            "header section start", "header section end", "banner section start",
+            "banner section end", "banner bg main end", "fashion section start",
+            "fashion section end", "electronic section start", "electronic section end",
+            "jewellery section start", "jewellery section end", "footer section start",
+            "footer section end", "copyright section start", "copyright section end",
+            "Trigger Button(s)", "sidebar"
+        ]
+
+        abs_url = "/index.html"
+        hash_name = self.meta.get(abs_url, {}).get("hash")
+
+        if not hash_name:
+            print_color("⚠️ Meta entry for /index.html not found.", "WARNING")
+            return
+
         html_path = os.path.join(self.page_dir, hash_name)
+        if not os.path.exists(html_path):
+            print_color(f"⚠️ index.html not found at {html_path}. Skipping injection.", "WARNING")
+            return
+
         with open(html_path, "r") as f:
             html_content = f.read()
-            # check if the html breadcrumb comments already exists
-            if "This is a breadcrumb comment" in html_content:
-                print_color("Breadcrumbing: HTML comments page already has a custom message.")
-                return None
-            # change the content of the html adding a comments as breadcrumb
-            msg = "<!-- This is a breadcrumb comment -->"
-            html_content = html_content.replace("</body>", msg + "</body>")
 
-        # save the new content in the hash file
+        # Randomly select one comment
+        selected_comment = random.choice(html_comments)
+        anchor_comment = f"<!-- {selected_comment} -->"
+
+        if anchor_comment not in html_content:
+            print_color(f"⚠️ Anchor comment '{anchor_comment}' not found. Skipping injection.", "WARNING")
+            return
+
+        if not os.path.exists(self.honeytoken_path):
+            print_color("⚠️ Honeytokens.txt not found.", "WARNING")
+            return
+
+        with open(self.honeytoken_path, "r") as f:
+            tokens = [line.strip() for line in f if line.strip()]
+        if not tokens:
+            print_color("⚠️ Honeytokens.txt is empty.", "WARNING")
+            return
+
+        chosen_token = random.choice(tokens)
+        comment = self._generate_html_comment_from_llm(chosen_token)
+
+        html_content = html_content.replace(anchor_comment, anchor_comment + "\n" + comment)
+
         with open(html_path, "w") as f:
             f.write(html_content)
 
-        print_color("Breadcrumbing: Updated HTML page '{}' with the comment '{}' for breadcrumbing".format(self.html_comments_abs_url, msg))
+        print_color(f"Breadcrumbing: Injected comment after '{selected_comment}' for '/{chosen_token}'", "SUCCESS")
+
+
+
+    def _generate_html_comment_from_llm(self, honeytoken):
+        prompt = (
+            f"Write a realistic one-line HTML comment like a developer's note. "
+            f"It should mention /{honeytoken} as if it's a config file or temporary log. "
+            f"Do NOT include HTML tags or '--'. Make it look like leftover debug info."
+        )
+
+        response = requests.post(
+            f"https://api-inference.huggingface.co/models/{self.model}",
+            headers={"Authorization": f"Bearer {self.  
+            json={
+                "inputs": prompt,
+                "parameters": {
+                    "temperature": 0.8,
+                    "do_sample": True,
+                    "top_p": 0.9,
+                    "top_k": 50,
+                    "max_new_tokens": 60,
+                    "return_full_text": False
+                }
+            }
+        )
+
+        if response.status_code != 200:
+            print_color(f"⚠️ Failed to fetch LLM comment: {response.status_code}", "WARNING")
+            return f"<!-- dev note /{honeytoken} -->"
+
+        try:
+            text = response.json()[0]["generated_text"].strip()
+
+            # Clean invalid syntax
+            text = text.split(":", 1)[1].strip() if ":" in text else text
+            text = text.replace("--", "–").replace("\n", " ").strip()
+
+            if f"/{honeytoken}" not in text:
+                text += f" /{honeytoken}"
+
+            return f"<!-- {text} -->"
+        except Exception:
+            return f"<!-- dev ref /{honeytoken} -->"
+
+
+
+    def clean_html_comments_breadcrumb(self):
+        """
+        Removes any HTML comment in /index.html that references a honeytoken path.
+        """
+        abs_url = "/index.html"
+        hash_name = self.meta.get(abs_url, {}).get("hash")
+        if not hash_name:
+            return
+
+        html_path = os.path.join(self.page_dir, hash_name)
+        if not os.path.exists(html_path):
+            return
+
+        with open(html_path, "r") as f:
+            html_content = f.read()
+
+        # Remove any HTML comment with a slash path inside (e.g., /logs/file.sql)
+        cleaned = re.sub(r"<!--.*?/[a-zA-Z0-9_\-/]+\.\w+.*?-->\n?", "", html_content, flags=re.DOTALL)
+
+        if cleaned != html_content:
+            with open(html_path, "w") as f:
+                f.write(cleaned)
+            print_color("Breadcrumbing: Removed old HTML comment breadcrumb from index.html", "INFO")
+
+
+
+
+
 
     @staticmethod
     def make_filename(file_name):
