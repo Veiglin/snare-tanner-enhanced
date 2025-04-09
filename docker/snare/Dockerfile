@@ -22,6 +22,7 @@ RUN apk -U upgrade && \
 		py3-setuptools \
 		py3-pip \
 		py3-pycodestyle \
+        py3-yaml \
 		py3-wheel && \
 #
 # Setup Snare 
@@ -32,13 +33,15 @@ RUN apk -U upgrade && \
     cd / && \
     rm -rf /opt/snare && \
     mkdir -p /opt/snare/pages && \
+    cp /root/dist/config.yaml /opt/snare/ && \
     mv /root/dist/pages/* /opt/snare/pages/ && \
 #
 # Setup configs, user, groups
     addgroup -g 2000 snare && \
     adduser -S -s /bin/ash -u 2000 -D -g 2000 snare && \
     mkdir /var/log/tanner && \
-    chown -R snare:snare /opt/snare && \
+    mkdir /var/log/snare && \
+    chown -R snare:snare /opt/snare /var/log/snare && \
 #   
 # Clean up
     apk del --purge \
@@ -52,4 +55,4 @@ RUN apk -U upgrade && \
 # Start snare
 STOPSIGNAL SIGKILL
 USER snare:snare
-CMD snare --tanner tanner --debug true --auto-update false --host-ip 0.0.0.0 --port 443 --page-dir WEBPAGE_hashed_copy --breadcrumbs robots 404_page html_comments
+CMD snare --tanner tanner --debug true --auto-update false --host-ip 0.0.0.0 --port 443 --page-dir smartgadgetstore --breadcrumbs robots robots 404_page html_comments
