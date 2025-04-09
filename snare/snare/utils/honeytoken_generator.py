@@ -103,11 +103,13 @@ class HoneytokensGenerator:
             full_path = os.path.join(prefix, name).replace("\\", "/")  # ensures it's slash-separated
             hash_val = self._md5_hash(full_path)
             ext = os.path.splitext(name)[1]
+
             content_type = self.meta_content_types.get(ext.lower(), "application/octet-stream")
             #dummy_path = os.path.join(self.page_dir, hash_val.upper())
             #if not os.path.exists(dummy_path):
             #    with open(dummy_path, "wb") as f:
             #        f.write(b"This is a honeypot file. Access is monitored.\n")
+
             meta[f"/{full_path}"] = {
                 "content_type": content_type,
                 "hash": hash_val
