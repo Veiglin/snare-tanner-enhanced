@@ -252,8 +252,18 @@ class BreadcrumbsGenerator:
 
     def generate_html_comments_breadcrumb(self):
         """
-        Safely injects a breadcrumb HTML comment below an existing harmless comment (e.g. 'footer section start').
+        Safely injects a breadcrumb HTML comment below a randomly selected existing harmless comment.
         """
+        html_comments = [
+            "banner bg main start", "header top section start", "logo section start",
+            "header section start", "header section end", "banner section start",
+            "banner section end", "banner bg main end", "fashion section start",
+            "fashion section end", "electronic section start", "electronic section end",
+            "jewellery section start", "jewellery section end", "footer section start",
+            "footer section end", "copyright section start", "copyright section end",
+            "Trigger Button(s)", "sidebar"
+        ]
+
         abs_url = "/index.html"
         hash_name = self.meta.get(abs_url, {}).get("hash")
 
@@ -269,14 +279,14 @@ class BreadcrumbsGenerator:
         with open(html_path, "r") as f:
             html_content = f.read()
 
-        # Pick an anchor comment already in the page
-        anchor_comment = "<!-- footer section start -->"
+        # Randomly select one comment
+        selected_comment = random.choice(html_comments)
+        anchor_comment = f"<!-- {selected_comment} -->"
 
         if anchor_comment not in html_content:
-            print_color("⚠️ Anchor comment not found. Skipping breadcrumb injection.", "WARNING")
+            print_color(f"⚠️ Anchor comment '{anchor_comment}' not found. Skipping injection.", "WARNING")
             return
 
-        # Load honeytokens
         if not os.path.exists(self.honeytoken_path):
             print_color("⚠️ Honeytokens.txt not found.", "WARNING")
             return
@@ -290,14 +300,12 @@ class BreadcrumbsGenerator:
         chosen_token = random.choice(tokens)
         comment = self._generate_html_comment_from_llm(chosen_token)
 
-        # Inject right after the anchor comment
         html_content = html_content.replace(anchor_comment, anchor_comment + "\n" + comment)
 
         with open(html_path, "w") as f:
             f.write(html_content)
 
-        print_color(f"Breadcrumbing: Injected comment after '{anchor_comment}' for '/{chosen_token}'", "SUCCESS")
-
+        print_color(f"Breadcrumbing: Injected comment after '{selected_comment}' for '/{chosen_token}'", "SUCCESS")
 
 
 
