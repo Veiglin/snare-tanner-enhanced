@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webhooks</title>
+    <meta http-equiv="refresh" content="{{ refresh_interval }}">
+</head>
+<body>
+    <h1>Received Webhooks</h1>
+    {% if webhooks %}
+        <ul>
+            {% for webhook in webhooks %}
+                <li>
+                    <pre>{{ webhook | tojson(indent=2) }}</pre>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No webhooks received yet.</p>
+    {% endif %}
+    <a href="/">Back to Home</a>
+</body>
+</html>
