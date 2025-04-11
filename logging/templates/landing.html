@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SNARE/TANNER: Log Viewer</title>
+    <title>SNARE/TANNER - Log and Webhook Viewer</title>
     <style>
         body {
             display: flex;
@@ -18,14 +18,18 @@
 </head>
 <body>
     <div class="container">
-        <h2>SNARE/TANNER: Log Viewer</h2>
-        <p>Select a log file to view:</p>
+        <h2>SNARE/TANNER - Log and Webhook Viewer</h2>
+        <h3>Logs and Error Logs:</h3>
         <ul style="list-style: none; padding: 0;">
             <li><a href="/logs/snare">Snare Log</a></li>
             <li><a href="/logs/snare_err">Snare Error Log</a></li>
             <li><a href="/logs/tanner">Tanner Log</a></li>
             <li><a href="/logs/tanner_err">Tanner Error Log</a></li>
             <li><a href="/logs/tanner_report">Tanner Report</a></li>
+        </ul>
+        <h3>Webhooks:</h3>
+        <ul style="list-style: none; padding: 0;">
+            <li><a href="/webhooks">View Received Webhooks</a></li>
         </ul>
     </div>
 </body>

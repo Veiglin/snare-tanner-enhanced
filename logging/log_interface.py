@@ -1,16 +1,13 @@
-from flask import Flask, jsonify, render_template, send_from_directory
+from flask import Flask, jsonify, render_template, send_from_directory, request
 import os
 import logging
+from webhook_storage import load_webhooks, save_webhook
 
 logger = logging.getLogger("log_app_logger")
 
 # Environment and log directory setup
 Docker_ENV = os.getenv("Docker_ENV", "false")
-log_directory, host = (
-    ("/app/logs", "172.29.0.5")
-    if Docker_ENV == "True"
-    else ("./logs", "0.0.0.0")
-)
+log_directory = "/shared_logs"
 
 # Define log file paths
 LOG_FILES = {
@@ -53,6 +50,39 @@ def tanner_report_log():
     """View tanner_report.json."""
     return render_log("tanner_report")
 
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    """Webhook endpoint to receive POST requests."""
+    try:
+        # Ensure the request has a JSON body
+        if not request.is_json:
+            return jsonify({"error": "Invalid Content-Type. Expected application/json"}), 400
+
+        data = request.get_json()  # Safely parse JSON payload
+        if not data:
+            return jsonify({"error": "Invalid or missing JSON payload"}), 400
+
+        # Log the received data
+        logger.info(f"Webhook triggered with data: {data}")
+
+        # Save the webhook data to persistent storage
+        save_webhook(data)
+
+        return jsonify({"message": "Webhook received successfully"}), 200
+    except Exception as e:
+        logger.error(f"Error handling webhook: {e}")
+        return jsonify({"error": "Internal Server Error"}), 500
+
+@app.route("/webhooks", methods=["GET"])
+def view_webhooks():
+    """View all received webhooks."""
+    try:
+        webhooks = load_webhooks()  # Load webhooks from persistent storage
+        return render_template("webhooks.html", webhooks=webhooks)
+    except Exception as e:
+        logger.error(f"Error rendering webhooks: {e}")
+        return jsonify({"error": "Failed to load webhooks"}), 500
+
 def render_log(log_name):
     """Helper function to render a log file."""
     log_path = LOG_FILES.get(log_name)
@@ -65,7 +95,10 @@ def render_log(log_name):
     try:
         with open(log_path, "r") as f:
             log_content = f.read().replace("\n", "<br>")
-        return render_template(f"{log_name}_viewer.html", log_name=log_name, log_content=log_content)
+        return render_template(f"{log_name}_viewer.html", 
+                               log_name=log_name, 
+                               log_content=log_content
+                               )
     except Exception as e:
         logger.error(f"Failed to read log '{log_name}': {e}")
         return jsonify({"error": f"Failed to read log '{log_name}': {str(e)}"}), 500
@@ -86,5 +119,35 @@ def handle_exception(e):
     logger.error(f"Unhandled exception: {e}")
     return jsonify({"error": "Internal Server Error"}), 500
 
-if __name__ == "__main__":
-    app.run(host=host, port=5000, debug=(Docker_ENV != "True"))
+@app.route("/download/<log_name>", methods=["GET"])
+def download_log(log_name):
+    """Download a log file."""
+    log_path = LOG_FILES.get(log_name)
+    if not log_path or not os.path.exists(log_path):
+        return jsonify({"error": f"Log file '{log_name}' not found"}), 404
+
+    try:
+        return send_from_directory(
+            directory=os.path.dirname(log_path),
+            path=os.path.basename(log_path),
+            as_attachment=True
+        )
+    except Exception as e:
+        logger.error(f"Failed to download log '{log_name}': {e}")
+        return jsonify({"error": f"Failed to download log '{log_name}': {str(e)}"}), 500
+    
+@app.route("/clear/<log_name>", methods=["POST"])
+def clear_log(log_name):
+    """Clear the content of a log file."""
+    log_path = LOG_FILES.get(log_name)
+    if not log_path or not os.path.exists(log_path):
+        return jsonify({"error": f"Log file '{log_name}' not found"}), 404
+
+    try:
+        # Clear the content of the log file
+        open(log_path, "w").close()
+        logger.info(f"Cleared log file: {log_name}")
+        return jsonify({"message": f"Log file '{log_name}' cleared successfully"}), 200
+    except Exception as e:
+        logger.error(f"Failed to clear log '{log_name}': {e}")
+        return jsonify({"error": f"Failed to clear log '{log_name}': {str(e)}"}), 500

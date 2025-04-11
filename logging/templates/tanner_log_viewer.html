@@ -2,10 +2,113 @@
 <html>
 <head>
     <title>Tanner Log</title>
+    <script>
+        function fetchLog() {
+            // Fetch the latest log content from the server
+            fetch(window.location.href)
+                .then(response => response.text())
+                .then(html => {
+                    // Parse the returned HTML and extract the updated log content
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newContent = doc.querySelector('pre').innerHTML;
+
+                    // Update the log content on the current page
+                    document.querySelector('pre').innerHTML = newContent;
+                })
+                .catch(error => console.error('Error fetching log:', error));
+        }
+
+        // Fetch updates every 5 seconds
+        setInterval(fetchLog, 5000);
+
+        function clearLog() {
+            if (confirm('Are you sure you want to clear this?')) {
+                fetch('/clear/tanner_log', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            alert(data.message);
+                            document.querySelector('pre').innerHTML = ''; // Clear the log content on the page
+                        } else if (data.error) {
+                            alert(data.error);
+                        }
+                    })
+                    .catch(error => console.error('Error clearing:', error));
+            }
+        }
+    </script>
+    <style>
+        /* Style for the download button */
+        .download-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .download-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Icon inside the button */
+        .download-button i {
+            font-size: 24px;
+        }
+
+        /* Style for the clear button */
+        .clear-button {
+            position: fixed;
+            bottom: 100px; /* Adjust to hover above the download button */
+            right: 20px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .clear-button:hover {
+            background-color: #c82333;
+        }
+
+        /* Icon inside the button */
+        .clear-button i {
+            font-size: 24px;
+        }
+    </style>
 </head>
 <body>
     <h1>Tanner Log</h1>
     <pre>{{ log_content|safe }}</pre>
     <a href="/">Back to Home</a>
+
+    <!-- Download button -->
+    <a href="/download/tanner_log" class="download-button" title="Download Log">
+        <i>&#x2B07;</i>
+    </a>
+
+    <!-- Clear button -->
+    <button class="clear-button" title="Clear Log" onclick="clearLog()">
+        <i>&#x1F5D1;</i> <!-- Unicode for trash icon -->
+    </button>
 </body>
 </html>
