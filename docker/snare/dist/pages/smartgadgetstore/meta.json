@@ -12,7 +12,7 @@
         "hash": "7c0197b7ddafd6d0dd8de0f512e1c136"
     },
     "/css/bootstrap-grid.css.map": {
-        "content_type": "application/octet-stream",
+        "content_type": "text/css",
         "hash": "cca8f367abfcd6dbacff15a490cce1bb"
     },
     "/css/bootstrap-grid.min.css": {
@@ -20,7 +20,7 @@
         "hash": "ffdcdc94dfb81e71f752d20b1bf4f264"
     },
     "/css/bootstrap-grid.min.css.map": {
-        "content_type": "application/octet-stream",
+        "content_type": "text/css",
         "hash": "709a44829225e3565e67c394f3b56f0e"
     },
     "/css/bootstrap-reboot.css": {
@@ -28,7 +28,7 @@
         "hash": "8199d13b2c0d694956584d80ad1308c8"
     },
     "/css/bootstrap-reboot.css.map": {
-        "content_type": "application/octet-stream",
+        "content_type": "text/css",
         "hash": "554d784ec34b4cf73b7828dec864a5c4"
     },
     "/css/bootstrap-reboot.min.css": {
@@ -36,7 +36,7 @@
         "hash": "a7a4675edc5ee0e38c8a51fc22f9185e"
     },
     "/css/bootstrap-reboot.min.css.map": {
-        "content_type": "application/octet-stream",
+        "content_type": "text/css",
         "hash": "e43aa27cfeac4096258a37529fc470fe"
     },
     "/css/bootstrap.css": {
@@ -44,7 +44,7 @@
         "hash": "38fdafbec65832ead969ca340d28453f"
     },
     "/css/bootstrap.css.map": {
-        "content_type": "application/octet-stream",
+        "content_type": "text/css",
         "hash": "947478a54b4e568d34b07cf4e9e3aa14"
     },
     "/css/bootstrap.min.css": {
@@ -52,7 +52,7 @@
         "hash": "fee68c0f2f583161134a1fcb5950501d"
     },
     "/css/bootstrap.min.css.map": {
-        "content_type": "application/octet-stream",
+        "content_type": "text/css",
         "hash": "4bed2338a4e64c808325f5245457e576"
     },
     "/css/default-skin.css": {

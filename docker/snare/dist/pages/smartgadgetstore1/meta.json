@@ -4,7 +4,7 @@
         "hash": "19751b2a32e46d1ba1477f357123a898"
     },
     "/css/.DS_Store": {
-        "content_type": "application/octet-stream",
+        "content_type": "text/css",
         "hash": "2404fac9f4507cc396b9a3d72b02c191"
     },
     "/css/animate.min.css": {
@@ -16,7 +16,7 @@
         "hash": "7c0197b7ddafd6d0dd8de0f512e1c136"
     },
     "/css/bootstrap-grid.css.map": {
-        "content_type": "application/octet-stream",
+        "content_type": "text/css",
         "hash": "cca8f367abfcd6dbacff15a490cce1bb"
     },
     "/css/bootstrap-grid.min.css": {
@@ -24,7 +24,7 @@
         "hash": "ffdcdc94dfb81e71f752d20b1bf4f264"
     },
     "/css/bootstrap-grid.min.css.map": {
-        "content_type": "application/octet-stream",
+        "content_type": "text/css",
         "hash": "709a44829225e3565e67c394f3b56f0e"
     },
     "/css/bootstrap-reboot.css": {
@@ -32,7 +32,7 @@
         "hash": "8199d13b2c0d694956584d80ad1308c8"
     },
     "/css/bootstrap-reboot.css.map": {
-        "content_type": "application/octet-stream",
+        "content_type": "text/css",
         "hash": "554d784ec34b4cf73b7828dec864a5c4"
     },
     "/css/bootstrap-reboot.min.css": {
@@ -40,7 +40,7 @@
         "hash": "a7a4675edc5ee0e38c8a51fc22f9185e"
     },
     "/css/bootstrap-reboot.min.css.map": {
-        "content_type": "application/octet-stream",
+        "content_type": "text/css",
         "hash": "e43aa27cfeac4096258a37529fc470fe"
     },
     "/css/bootstrap.css": {
@@ -48,7 +48,7 @@
         "hash": "38fdafbec65832ead969ca340d28453f"
     },
     "/css/bootstrap.css.map": {
-        "content_type": "application/octet-stream",
+        "content_type": "text/css",
         "hash": "947478a54b4e568d34b07cf4e9e3aa14"
     },
     "/css/bootstrap.min.css": {
@@ -56,7 +56,7 @@
         "hash": "fee68c0f2f583161134a1fcb5950501d"
     },
     "/css/bootstrap.min.css.map": {
-        "content_type": "application/octet-stream",
+        "content_type": "text/css",
         "hash": "4bed2338a4e64c808325f5245457e576"
     },
     "/css/default-skin.css": {
@@ -368,7 +368,7 @@
         "hash": "44098cc2ee0b1f7dec52e148e28ad706"
     },
     "/js/.DS_Store": {
-        "content_type": "application/octet-stream",
+        "content_type": "application/javascript",
         "hash": "78f196ad847776cc3c92e0fdbeef1d00"
     },
     "/js/bootstrap.bundle.js": {
@@ -376,7 +376,7 @@
         "hash": "ea09df7efed9959f3e2c24ee8853745e"
     },
     "/js/bootstrap.bundle.js.map": {
-        "content_type": "application/octet-stream",
+        "content_type": "application/javascript",
         "hash": "7d98e7c10b92548a32804484ca0cec60"
     },
     "/js/bootstrap.bundle.min.js": {
@@ -384,7 +384,7 @@
         "hash": "62e633210885066c625c46081cc2b339"
     },
     "/js/bootstrap.bundle.min.js.map": {
-        "content_type": "application/octet-stream",
+        "content_type": "application/javascript",
         "hash": "ee429aca1041d7afe1930cc16e70de5e"
     },
     "/js/bootstrap.js": {
@@ -392,7 +392,7 @@
         "hash": "d9f096d1f708c35fdd9c78bd422883cc"
     },
     "/js/bootstrap.js.map": {
-        "content_type": "application/octet-stream",
+        "content_type": "application/javascript",
         "hash": "0cf44520594ee0226f84caf2c5dc200f"
     },
     "/js/bootstrap.min.js": {
@@ -400,7 +400,7 @@
         "hash": "ce6e785579ae4cb555c9de311d1b9271"
     },
     "/js/bootstrap.min.js.map": {
-        "content_type": "application/octet-stream",
+        "content_type": "application/javascript",
         "hash": "0fa2fd3370eb55b52e2b8cc28d9de0b2"
     },
     "/js/custom.js": {
