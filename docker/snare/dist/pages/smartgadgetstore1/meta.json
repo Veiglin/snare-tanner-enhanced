@@ -440,15 +440,15 @@
         "hash": "f64cb765ae188f3998bf076f2c7b78e3"
     },
     "/login.php": {
-        "content_type": "text/html",
-        "hash": "7059d9670b84a2822b5ef33e193f88c5"
+        "hash": "73dce75d92181ca956e737b3cb66db98",
+        "content_type": "text/html"
     },
     "/login.php?action=lostpassword": {
-        "content_type": "text/html",
-        "hash": "e3ba3fe8e612824a73add7dd724c5a0f"
+        "hash": "e3ba3fe8e612824a73add7dd724c5a0f",
+        "content_type": "text/html"
     },
     "/status_404": {
         "content_type": "text/html",
-        "hash": "a9ce868894f3ffe023459fc985808a86"
+        "hash": "5a2bce9d53f443761357fef4f5674ca7"
     }
 }
