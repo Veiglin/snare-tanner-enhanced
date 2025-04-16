@@ -107,9 +107,9 @@
         "content_type": "text/css",
         "hash": "7addb50fc3a912e3c8dbdf1fd15a0b52"
     },
-    "/e3ba3fe8e612824a73add7dd724c5a0f": {
-        "content_type": "application/octet-stream",
-        "hash": "43638b1ccc29b988b2938a5d36c38827"
+    "/wp-admin/load-styles.php?c=0&dir=ltr&load[]=dashicons,buttons,forms,l10n,login&ver=4.9.8": {
+        "hash": "71a104cd63ee955a811d73613d691c83",
+        "content_type": "text/css"
     },
     "/example.pdf": {
         "content_type": "application/pdf",
@@ -436,7 +436,7 @@
         "hash": "f64cb765ae188f3998bf076f2c7b78e3"
     },
     "/login.php": {
-        "content_type": "application/octet-stream",
+        "content_type": "text/html",
         "hash": "7059d9670b84a2822b5ef33e193f88c5"
     },
     "/login.php?action=lostpassword": {
