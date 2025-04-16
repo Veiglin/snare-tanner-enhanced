@@ -1,0 +1,76 @@
+<?php
+// Process form submission for forgot password or login
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['user_login'])) {
+        if (isset($_GET['action']) && $_GET['action'] == 'forgotpassword') {
+            // Process forgot password request (for now, just a success message)
+            echo "<p>Password reset link has been sent to your email.</p>";
+        } else {
+            // Process login request (for now, just redirect or show login success message)
+            echo "<p>Login successful. Redirecting...</p>";
+        }
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Login</title>
+    <link href="//s.w.org" rel="dns-prefetch"/>
+    <link href="/wp-admin/load-styles.php?c=0&dir=ltr&load[]=dashicons,buttons,forms,l10n,login&ver=4.9.8" media="all" rel="stylesheet" type="text/css"/>
+    <meta content="noindex,follow" name="robots"/>
+</head>
+<body class="login wp-core-ui locale-en-us">
+
+    <div id="login">
+        <h3><a href="https://wordpress.org/" tabindex="-1" title="Powered by WordPress">Powered by WordPress</a></h3>
+        
+        <?php if (isset($_GET['action']) && $_GET['action'] == 'forgotpassword'): ?>
+            <!-- Forgot Password Form -->
+            <p class="message">Please enter your username or email address. You will receive a link to create a new password via email.</p>
+            <form action="login.php?action=forgotpassword" id="lostpasswordform" method="post" name="lostpasswordform">
+                <p>
+                    <label for="user_login">Username or Email Address<br/>
+                    <input class="input" id="user_login" name="user_login" size="20" type="text" value=""/></label>
+                </p>
+                <p class="submit">
+                    <input class="button button-primary button-large" id="wp-submit" name="wp-submit" type="submit" value="Get New Password"/>
+                </p>
+            </form>
+            <p id="nav">
+                <a href="/login.php">Log in</a>
+            </p>
+        <?php else: ?>
+            <!-- Regular Login Form -->
+            <form action="login.php" id="loginform" method="post" name="loginform">
+                <p>
+                    <label for="user_login">Username or Email Address<br/>
+                    <input class="input" id="user_login" name="log" size="20" type="text" value=""/></label>
+                </p>
+                <p>
+                    <label for="user_pass">Password<br/>
+                    <input class="input" id="user_pass" name="pwd" size="20" type="password" value=""/></label>
+                </p>
+                <p class="forgetmenot">
+                    <label for="rememberme"><input id="rememberme" name="rememberme" type="checkbox" value="forever"/> Remember Me</label>
+                </p>
+                <p class="submit">
+                    <input class="button button-primary button-large" id="wp-submit" name="wp-submit" type="submit" value="Log In"/>
+                    <input name="redirect_to" type="hidden" value="/wp-admin/"/>
+                    <input name="testcookie" type="hidden" value="1"/>
+                </p>
+            </form>
+            <p id="nav">
+                <a href="/login.php?action=forgotpassword">Forgot your password?</a>
+            </p>
+        <?php endif; ?>
+
+        <p id="backtoblog"><a href="/">← Go back!</a></p>
+    </div>
+    <div class="clear"></div>
+
+</body>
+</html>

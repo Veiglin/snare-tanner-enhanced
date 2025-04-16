@@ -42,6 +42,10 @@ RUN apk -U upgrade && \
     mkdir /var/log/tanner && \
     mkdir /var/log/snare && \
     chown -R snare:snare /opt/snare /var/log/snare && \
+    mkdir -p /opt/snare-internal && \
+    cp /root/dist/start_snare.py /opt/snare-internal/ && \
+    chown snare:snare /opt/snare-internal/start_snare.py && \
+    chmod 500 /opt/snare-internal/start_snare.py && \
 #   
 # Clean up
     apk del --purge \
@@ -55,4 +59,4 @@ RUN apk -U upgrade && \
 # Start snare
 STOPSIGNAL SIGKILL
 USER snare:snare
-CMD snare --tanner tanner --debug true --auto-update false --host-ip 0.0.0.0 --port 443 --page-dir smartgadgetstore --breadcrumbs robots robots 404_page html_comments
+CMD ["python3", "/opt/snare-internal/start_snare.py"]
