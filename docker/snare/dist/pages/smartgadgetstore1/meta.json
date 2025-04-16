@@ -447,7 +447,7 @@
         "content_type": "text/html",
         "hash": "e3ba3fe8e612824a73add7dd724c5a0f"
     },
-    "/status_404.html": {
+    "/status_404": {
         "content_type": "text/html",
         "hash": "a9ce868894f3ffe023459fc985808a86"
     }
