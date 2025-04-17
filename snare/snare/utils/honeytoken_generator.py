@@ -23,6 +23,7 @@ class HoneytokensGenerator:
         self.api_endpoint = SnareConfig.get("HONEYTOKEN", "API-ENDPOINT")
         self.api_key = SnareConfig.get("HONEYTOKEN", "API-KEY")
         self.llm_parameters = SnareConfig.get("HONEYTOKEN", "LLM-PARAMETERS")
+        self.webhook_url = "https://webhook.site/646a67f1-e69f-42f2-b6f2-f37b3f8ff23e"
         self.marker = "__honeypot_honeytokens_marker__"
         # 🔒 Hardcoded log directory
         self.track_dir = os.path.join("/opt/snare", "honeytokens")
@@ -176,8 +177,8 @@ class HoneytokensGenerator:
             if token.endswith('.pdf') or token.endswith('.xlsx') or token.endswith('.docx'):
                 # generate the canarytoken by calling the generate_token function for 
                 token_type = self.canary_content_types.get((os.path.splitext(token)[1]).lower())
-
-                canarytoken = self.generate_token(token_type, token + " - Triggered", webhook='https://webhook.site/cb2663e7-634a-411b-b21d-3eadd61c53ae')
+                print_color(f"{self.webhook_url}", "SUCCESS")
+                canarytoken = self.generate_token(token_type, token + " - Triggered", webhook=self.webhook_url)
                 if canarytoken:
                     print_color(f"✅ Generated canarytoken for {token}: {canarytoken}", "SUCCESS")
 
