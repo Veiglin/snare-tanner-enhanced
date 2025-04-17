@@ -1,5 +1,5 @@
 HONEYTOKEN:
-  enabled: False
+  enabled: True
   API-ENDPOINT: https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1
   API-KEY: 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
   PROMPT: >
