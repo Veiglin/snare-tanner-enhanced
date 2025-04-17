@@ -50,6 +50,29 @@ services:
     depends_on:
      - tanner_phpox
 
+  # Log Interface Service
+  log-interface:
+    image: python:3.9-slim
+    container_name: logging
+    restart: on-failure
+    networks:
+      - tanner_local
+    ports:
+      - "5003:5003"
+    volumes:
+      - shared_logs:/shared_logs
+      - ../logging:/app
+      - ./webhooks.json:/app/webhooks.json
+    environment:
+      - PYTHONPATH=/app  # Add this line to set the Python module search path
+    command: >
+      sh -c "pip install flask requests gunicorn && gunicorn -w 4 -b 0.0.0.0:5003 log_interface:app"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:5003/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
 # Snare Service
   snare:
     build: 
