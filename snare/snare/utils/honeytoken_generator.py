@@ -23,7 +23,7 @@ class HoneytokensGenerator:
         self.api_endpoint = SnareConfig.get("HONEYTOKEN", "API-ENDPOINT")
         self.api_key = SnareConfig.get("HONEYTOKEN", "API-KEY")
         self.llm_parameters = SnareConfig.get("HONEYTOKEN", "LLM-PARAMETERS")
-        self.webhook_url = "https://webhook.site/646a67f1-e69f-42f2-b6f2-f37b3f8ff23e"
+        self.webhook_url = "http://128.251.49.251:5003/webhook"
         self.marker = "__honeypot_honeytokens_marker__"
         # 🔒 Hardcoded log directory
         self.track_dir = os.path.join("/opt/snare", "honeytokens")
