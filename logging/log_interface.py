@@ -2,6 +2,7 @@ from flask import Flask, jsonify, render_template, send_from_directory, request
 import os
 import logging
 from webhook_storage import load_webhooks, save_webhook
+from helpers import print_color
 
 logger = logging.getLogger("log_app_logger")
 
@@ -54,6 +55,8 @@ def tanner_report_log():
 def webhook():
     """Webhook endpoint to receive POST requests."""
     try:
+        print_color(f"Incoming webhook request: {request.data.decode('utf-8')}", "INFO")
+
         # Ensure the request has a JSON body
         if not request.is_json:
             return jsonify({"error": "Invalid Content-Type. Expected application/json"}), 400
@@ -63,7 +66,7 @@ def webhook():
             return jsonify({"error": "Invalid or missing JSON payload"}), 400
 
         # Log the received data
-        logger.info(f"Webhook triggered with data: {data}")
+        print_color(f"Webhook triggered with data: {data}", "INFO")
 
         # Save the webhook data to persistent storage
         save_webhook(data)
