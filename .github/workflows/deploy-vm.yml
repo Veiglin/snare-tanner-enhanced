@@ -84,7 +84,8 @@ jobs:
             sudo mkdir -p /home/azureuser/log/snare
             sudo mkdir -p /home/azureuser/log/tanner
             sudo mkdir -p /home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/docker/snare/dist/honeytokens
-
+            
+            sudo touch /home/azureuser/thesis_honeypot//${{ env.TAG_NAME }}/logging/webhooks.json
             sudo touch /home/azureuser/log/snare/snare.log
             sudo touch /home/azureuser/log/snare/snare.err
             sudo touch /home/azureuser/log/tanner/tanner.log
