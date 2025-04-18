@@ -1,5 +1,10 @@
 networks:
   tanner_local:
+    driver: bridge
+
+volumes:
+  shared_logs:
+    driver: local
 
 services:
 
@@ -44,8 +49,8 @@ services:
     command: tanner
     privileged: true
     volumes:
+     - shared_logs:/var/log/tanner
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
-     - /home/azureuser/log/tanner:/var/log/tanner:rw
      - /home/azureuser/files/tanner:/opt/tanner/files
     depends_on:
      - tanner_phpox
@@ -90,9 +95,7 @@ services:
     depends_on:
      - tanner
     volumes:
-     - /home/azureuser/log/snare/snare.log:/opt/snare/snare.log:rw
-     - /home/azureuser/log/snare/snare.err:/opt/snare/snare.err:rw
-     - /home/azureuser/log/snare:/var/log/snare
+     - shared_logs:/var/log/snare
      - /home/azureuser/credentials.xlsx:/opt/snare/files/credentials.xlsx
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
      - /etc/letsencrypt:/etc/letsencrypt:ro
