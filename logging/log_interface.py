@@ -2,7 +2,19 @@ from flask import Flask, jsonify, render_template, send_from_directory, request
 import os
 import logging
 from webhook_storage import load_webhooks, save_webhook
-from helpers import print_color
+
+def print_color(msg, mode="INFO", end="\n"):
+    colors = {
+        "INFO": "\033[97m",  # white
+        "ERROR": "\033[31m",  # red
+        "WARNING": "\033[33m",  # yellow
+    }
+    try:
+        color = colors[mode]
+    except KeyError:
+        color = colors["INFO"]
+    print(color + str(msg) + "\033[0m", end=end)
+
 
 logger = logging.getLogger("log_app_logger")
 
@@ -154,3 +166,5 @@ def clear_log(log_name):
     except Exception as e:
         logger.error(f"Failed to clear log '{log_name}': {e}")
         return jsonify({"error": f"Failed to clear log '{log_name}': {str(e)}"}), 500
+    
+
