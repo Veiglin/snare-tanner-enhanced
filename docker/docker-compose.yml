@@ -67,7 +67,7 @@ services:
     volumes:
       - shared_logs:/shared_logs
       - ../logging:/app
-      - ./webhooks.json:/app/webhooks.json
+      - ../webhooks.json:/app/webhooks.json
     environment:
       - PYTHONPATH=/app  # Add this line to set the Python module search path
     command: >
