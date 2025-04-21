@@ -98,7 +98,7 @@ class HoneytokensGenerator:
             meta[self.marker] = "DO NOT REMOVE — all entries after this are auto-generated honeytokens"
 
         # Pick a session path prefix once
-        prefix = random.choice(["logs", "files", "user\logs", "private\logs", "data", "private"])
+        prefix = random.choice(["wp-admin", "admin", "includes", "cgi-bin", "private", "search", "action", "modules", "filter\tips", "comment\reply", "node\add"])
         self.generated_paths = []  # store full paths like 'logs/vault2022.db'
         for name in filenames:
             full_path = os.path.join(prefix, name).replace("\\", "/")  # ensures it's slash-separated
