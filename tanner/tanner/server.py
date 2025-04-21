@@ -76,13 +76,14 @@ class TannerServer:
             attempted_username = post_data.get("log", "")
             attempted_password = post_data.get("pwd", "")
 
-            if attempted_username == self.weak_username and attempted_password == self.weak_password:
-                self.logger.warning("Honeytoken triggered due to weak credentials attempt")
-                # Add reason and credentials used to the data before passing to HoneyToken
-                data["honeytoken_trigger_reason"] = "Weak credential login attempt"
-                data["used_credentials"] = f"Username: {attempted_username}, Password: {attempted_password}"
-                ht = honeytoken.HoneyToken(data=data)
-                await ht.trigger_token_alert()
+            if TannerConfig.get("HONEYTOKEN", "enabled") is True:
+                if attempted_username == self.weak_username and attempted_password == self.weak_password:
+                    self.logger.warning("Honeytoken triggered due to weak credentials attempt")
+                    # Add reason and credentials used to the data before passing to HoneyToken
+                    data["honeytoken_trigger_reason"] = "Weak credential login attempt"
+                    data["used_credentials"] = f"Username: {attempted_username}, Password: {attempted_password}"
+                    ht = honeytoken.HoneyToken(data=data)
+                    await ht.trigger_token_alert()
 
             detection = await self.base_handler.handle(data, session)
             session.set_attack_type(path, detection["name"])
