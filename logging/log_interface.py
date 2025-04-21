@@ -1,7 +1,20 @@
 from flask import Flask, jsonify, render_template, send_from_directory, request
 import os
 import logging
-from webhook_storage import load_webhooks, save_webhook
+from webhook_storage import load_webhooks, save_webhook, clear_webhooks, download_webhook
+
+def print_color(msg, mode="INFO", end="\n"):
+    colors = {
+        "INFO": "\033[97m",  # white
+        "ERROR": "\033[31m",  # red
+        "WARNING": "\033[33m",  # yellow
+    }
+    try:
+        color = colors[mode]
+    except KeyError:
+        color = colors["INFO"]
+    print(color + str(msg) + "\033[0m", end=end)
+
 
 logger = logging.getLogger("log_app_logger")
 
@@ -54,6 +67,8 @@ def tanner_report_log():
 def webhook():
     """Webhook endpoint to receive POST requests."""
     try:
+        print_color(f"Incoming webhook request: {request.data.decode('utf-8')}", "INFO")
+
         # Ensure the request has a JSON body
         if not request.is_json:
             return jsonify({"error": "Invalid Content-Type. Expected application/json"}), 400
@@ -63,7 +78,7 @@ def webhook():
             return jsonify({"error": "Invalid or missing JSON payload"}), 400
 
         # Log the received data
-        logger.info(f"Webhook triggered with data: {data}")
+        print_color(f"Webhook triggered with data: {data}", "INFO")
 
         # Save the webhook data to persistent storage
         save_webhook(data)
@@ -151,3 +166,33 @@ def clear_log(log_name):
     except Exception as e:
         logger.error(f"Failed to clear log '{log_name}': {e}")
         return jsonify({"error": f"Failed to clear log '{log_name}': {str(e)}"}), 500
+    
+@app.route("/clear_webhooks", methods=["POST"])
+def clear_webhooks_route():
+    """Clear all webhooks."""
+    try:
+        # Clear the webhooks from persistent storage
+        clear_webhooks()
+        logger.info("Cleared all webhooks")
+        return jsonify({"message": "All webhooks cleared successfully"}), 200
+    except Exception as e:
+        logger.error(f"Failed to clear webhooks: {e}")
+        return jsonify({"error": f"Failed to clear webhooks: {str(e)}"}), 500
+
+@app.route("/download_webhooks", methods=["GET"])
+def download_webhook_route():
+    """Download the webhook storage file."""
+    try:
+        file_path = download_webhook()
+        if not file_path:
+            return jsonify({"error": "Webhook storage file does not exist"}), 404
+
+        return send_from_directory(
+            directory=os.path.dirname(file_path),
+            path=os.path.basename(file_path),
+            as_attachment=True
+        )
+    except Exception as e:
+        logger.error(f"Failed to download webhook storage file: {e}")
+        return jsonify({"error": f"Failed to download webhook storage file: {str(e)}"}), 500
+    
