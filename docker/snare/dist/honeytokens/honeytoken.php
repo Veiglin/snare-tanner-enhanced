@@ -1,11 +1,11 @@
 <?php
 // Set email to receive the alert
-//$to = "  ";  // Replace with your email address
+//$to = "...@gmail.com";  // Replace with your email address
 //$subject = "Honeypot Alert: Potential Intruder";
 
 
 //<?php
-$to = "  ";
+$to = "...@gmail.com";
 $subject = "Test Email";
 $message = "This is a test email.";
 $headers = "From: test@example.com\r\n";

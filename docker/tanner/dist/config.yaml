@@ -92,14 +92,13 @@ SESSIONS:
   delete_timeout: 300
 
 HONEYTOKEN:
-  enabled: True
-  absolute_path: ["/example.pdf", "/images/bullet_orange.png"]
+  enabled: False
+  absolute_path: []
   weak_credentials: 
-    username: "admin"
-    password: "admin"
+    username: ""
+    password: ""
   mail_recipient: 
-    -   
-    - cpalox@outlook.com
-  mail_sender: DoNotReply@mail.smartgadgetstore.live
-  connection_string: endpoint=https://honeytoken-communication-service.europe.communication.azure.com/;accesskey=  
-  maps_subscription_key:  
+    - ""
+  mail_sender:
+  connection_string:
+  maps_subscription_key:
