@@ -15,10 +15,10 @@
 <meta content="width=device-width" name="viewport"/>
 </head>
 <body class="login login-action-login wp-core-ui locale-en-us">
-	<div style="display: flex; flex-direction: column; align-items: center; margin-top: 40px;">
-		<h2 style="font-family: sans-serif; text-align: center; color: #555;">Admin Login</h2>
+	<div style="display: flex; flex-direction: column; align-items: center;">
+		<h2 style="font-family: sans-serif; text-align: center; margin-top: 200px; color: #555;">Admin Login</h2>
 	
-		<div id="login">
+		<div id="login" style="margin-top: -200px;">
 			<h1><a href="https://wordpress.org/" tabindex="-1" title="Powered by WordPress">Powered by WordPress</a></h1>
 			<form action="/admin/login.php" id="loginform" method="post" name="loginform">
 				<p>
