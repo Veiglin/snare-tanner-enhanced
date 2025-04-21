@@ -22,7 +22,7 @@
         // Fetch updates every 5 seconds
         setInterval(fetchWebhook, 5000);
 
-        function clearWebhook() {
+        function clearWebhooks() {
             if (confirm('Are you sure you want to clear this?')) {
                 fetch('/clear_webhooks', { method: 'POST' })
                     .then(response => response.json())
