@@ -1,7 +1,7 @@
 HONEYTOKEN:
   enabled: False
-  API-ENDPOINT: https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1
-  API-KEY: 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
+  API-ENDPOINT: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta
+  API-KEY: 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
   PROMPT: >
     You are generating bait filenames for a website called SmartGadgetStore.live, which sells smart gadgets and electronics online.
     Generate in total 5 files. The generated files should be realistic, code-friendly filenames (no spaces or special characters) that might contain sensitive internal data.
@@ -16,3 +16,4 @@ HONEYTOKEN:
     top_k: 50
     max_new_tokens: 100
   WEBHOOK-URL:
+
