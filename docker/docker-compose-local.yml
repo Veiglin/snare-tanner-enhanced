@@ -8,19 +8,6 @@ volumes:
 
 services:
 
-#  localtunnel:
-#    image: efrecon/localtunnel:latest
-#    container_name: localtunnel
-#    restart: on-failure
-#    depends_on:
-#      - log-interface
-#    networks:
-#      - tanner_local
-#    # Optional: expose inspection UI on 4040
-#    ports:
-#    #   - "4040:4040"
-#    command: lt --port log-interface:5003
-
 # Tanner Redis Service
   tanner_redis:
     build: ./redis

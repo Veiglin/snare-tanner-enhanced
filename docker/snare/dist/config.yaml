@@ -1,5 +1,5 @@
 HONEYTOKEN:
-  enabled: True
+  enabled: False
   API-ENDPOINT: https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1
   API-KEY: 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
   PROMPT: >
@@ -15,4 +15,4 @@ HONEYTOKEN:
     top_p: 0.95
     top_k: 50
     max_new_tokens: 100
-  
+  WEBHOOK-URL:

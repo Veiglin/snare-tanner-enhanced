@@ -1,5 +1,10 @@
 networks:
   tanner_local:
+    driver: bridge
+
+volumes:
+  shared_logs:
+    driver: local
 
 services:
 
@@ -44,11 +49,35 @@ services:
     command: tanner
     privileged: true
     volumes:
+     - shared_logs:/var/log/tanner
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
-     - /home/azureuser/log/tanner:/var/log/tanner:rw
      - /home/azureuser/files/tanner:/opt/tanner/files
     depends_on:
      - tanner_phpox
+
+  # Log Interface Service
+  log-interface:
+    image: python:3.9-slim
+    container_name: logging
+    restart: on-failure
+    networks:
+      - tanner_local
+    ports:
+      - "5003:5003"
+    volumes:
+      - shared_logs:/shared_logs
+      - ../logging:/app
+      - ../logging/webhooks.json:/app/webhooks.json
+    environment:
+      - PYTHONPATH=/app  # Add this line to set the Python module search path
+    command: >
+      sh -c "pip install flask requests gunicorn && gunicorn -w 4 -b 0.0.0.0:5003 log_interface:app"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:5003/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
 # Snare Service
   snare:
@@ -67,9 +96,7 @@ services:
     depends_on:
      - tanner
     volumes:
-     - /home/azureuser/log/snare/snare.log:/opt/snare/snare.log:rw
-     - /home/azureuser/log/snare/snare.err:/opt/snare/snare.err:rw
-     - /home/azureuser/log/snare:/var/log/snare
+     - shared_logs:/var/log/snare
      - /home/azureuser/credentials.xlsx:/opt/snare/files/credentials.xlsx
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
      - /etc/letsencrypt:/etc/letsencrypt:ro
