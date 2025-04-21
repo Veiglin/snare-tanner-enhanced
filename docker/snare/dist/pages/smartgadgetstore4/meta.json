@@ -454,5 +454,9 @@
     "/status_404": {
         "content_type": "text/html",
         "hash": "5a2bce9d53f443761357fef4f5674ca7"
+    },
+    "/admin/login.php": {
+        "hash": "5f404c514b42b2b2fa588f4c56a6e54b",
+        "content_type": "text/html"
     }
 }

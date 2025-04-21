@@ -75,6 +75,7 @@ class BreadcrumbsGenerator:
         ] + bait_lines + [
             "Disallow: /private/",
             "Disallow: /admin/",
+            "Disallow: /admin/login.php",
             "",
             "Sitemap: https://smartgadgetstore.live/sitemap.xml"
         ]
@@ -249,21 +250,10 @@ class BreadcrumbsGenerator:
             print_color("Breadcrumbing: Removed old breadcrumb from /status_404 page.", "INFO")
 
 
-
     def generate_html_comments_breadcrumb(self):
         """
-        Safely injects a breadcrumb HTML comment below a randomly selected existing harmless comment.
+        Safely injects a breadcrumb HTML comment below a randomly selected existing HTML comment in the file.
         """
-        html_comments = [
-            "banner bg main start", "header top section start", "logo section start",
-            "header section start", "header section end", "banner section start",
-            "banner section end", "banner bg main end", "fashion section start",
-            "fashion section end", "electronic section start", "electronic section end",
-            "jewellery section start", "jewellery section end", "footer section start",
-            "footer section end", "copyright section start", "copyright section end",
-            "Trigger Button(s)", "sidebar"
-        ]
-
         abs_url = "/index.html"
         hash_name = self.meta.get(abs_url, {}).get("hash")
 
@@ -279,13 +269,14 @@ class BreadcrumbsGenerator:
         with open(html_path, "r") as f:
             html_content = f.read()
 
-        # Randomly select one comment
-        selected_comment = random.choice(html_comments)
-        anchor_comment = f"<!-- {selected_comment} -->"
-
-        if anchor_comment not in html_content:
-            print_color(f"⚠️ Anchor comment '{anchor_comment}' not found. Skipping injection.", "WARNING")
+        # Find all HTML comments
+        all_comments = re.findall(r'<!--.*?-->', html_content)
+        if not all_comments:
+            print_color("⚠️ No HTML comments found in the file.", "WARNING")
             return
+
+        # Pick a random comment to inject after
+        anchor_comment = random.choice(all_comments)
 
         if not os.path.exists(self.honeytoken_path):
             print_color("⚠️ Honeytokens.txt not found.", "WARNING")
@@ -300,12 +291,14 @@ class BreadcrumbsGenerator:
         chosen_token = random.choice(tokens)
         comment = self._generate_html_comment_from_llm(chosen_token)
 
+        # Inject the generated comment after the anchor comment
         html_content = html_content.replace(anchor_comment, anchor_comment + "\n" + comment)
 
         with open(html_path, "w") as f:
             f.write(html_content)
 
-        print_color(f"Breadcrumbing: Injected comment after '{selected_comment}' for '/{chosen_token}'", "SUCCESS")
+        print_color(f"Breadcrumbing: Injected comment after '{anchor_comment}' for '/{chosen_token}'", "SUCCESS")
+
 
 
 

@@ -1,6 +1,6 @@
 HONEYTOKEN:
   enabled: False
-  API-ENDPOINT: https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1
+  API-ENDPOINT: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta
   API-KEY:   
   PROMPT: >
     You are generating bait filenames for a website called SmartGadgetStore.live, which sells smart gadgets and electronics online.
@@ -16,3 +16,4 @@ HONEYTOKEN:
     top_k: 50
     max_new_tokens: 100
   WEBHOOK-URL:
+
