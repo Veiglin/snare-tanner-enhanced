@@ -15,4 +15,4 @@ HONEYTOKEN:
     top_p: 0.95
     top_k: 50
     max_new_tokens: 100
-  
+  WEBHOOK-URL:
