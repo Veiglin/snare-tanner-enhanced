@@ -179,7 +179,7 @@ def clear_webhooks_route():
         logger.error(f"Failed to clear webhooks: {e}")
         return jsonify({"error": f"Failed to clear webhooks: {str(e)}"}), 500
 
-@app.route("/download_webhook", methods=["GET"])
+@app.route("/download_webhooks", methods=["GET"])
 def download_webhook_route():
     """Download the webhook storage file."""
     try:

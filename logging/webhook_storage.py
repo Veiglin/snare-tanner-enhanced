@@ -31,8 +31,7 @@ def save_webhook(webhook):
 def clear_webhooks():
     """Clear all webhooks from the persistent storage file."""
     try:
-        with open(WEBHOOK_STORAGE_FILE, "w") as f:
-            json.dump([], f)
+        open(WEBHOOK_STORAGE_FILE, "w").close()
     except IOError as e:
         print(f"Error clearing webhooks: {e}")
 
