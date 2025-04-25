@@ -197,7 +197,7 @@ if __name__ == '__main__':
     else:
         snare_helpers.add_meta_tag(args.page_dir, meta_info[args.index_page]['hash'], config, base_path)
     
-    #  check if breadcrumbs defined in parsed args
+    # check if breadcrumbs defined in parsed args
     if SnareConfig.get("HONEYTOKEN", "enabled") is True:
         # Initialize Generator for Honeylinks and Honeytokens
         honey_gen = HoneytokensGenerator(full_page_path, meta_info)
