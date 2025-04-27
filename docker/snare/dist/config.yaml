@@ -1,5 +1,6 @@
+enabled: False
+
 HONEYTOKEN:
-  enabled: False
   API-ENDPOINT: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta
   API-KEY:   
   PROMPT: >
@@ -18,6 +19,10 @@ HONEYTOKEN:
   WEBHOOK-URL:
 
 BREADCRUMB:
+  TYPES: 
+    - "robots"
+    - "404_page"
+    - "html_comments"
   API-ENDPOINT: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta
   API-KEY:   
   PROMPT-404-ERROR: >
