@@ -5,16 +5,20 @@ import random
 import requests
 import re
 
-
-
 from snare.utils.snare_helpers import print_color
+from snare.config import SnareConfig
 
 class BreadcrumbsGenerator:
-    def __init__(self, page_dir, meta, breadcrumb=None, hf_token=None):
+    def __init__(self, 
+                 page_dir, 
+                 meta, 
+                 breadcrumb=None):
         self.page_dir = page_dir
         self.meta = meta
         self.breadcrumb = breadcrumb or []
-        self.hf_token = hf_token
+        self.api_endpoint = SnareConfig.get("BREADCRUMB", "API-ENDPOINT")
+        self.api_key = SnareConfig.get("BREADCRUMB", "API-KEY")
+        self.llm_parameters = SnareConfig.get("BREADCRUMB", "LLM-PARAMETERS")
         self.model = "mistralai/Mistral-7B-Instruct-v0.1"
         self.honeytoken_path = "/opt/snare/honeytokens/Honeytokens.txt"
 
@@ -146,7 +150,7 @@ class BreadcrumbsGenerator:
         chosen_token = random.choice(tokens)
 
         # Generate breadcrumb from LLM
-        breadcrumb_line = self._generate_breadcrumb_from_llm(chosen_token)
+        breadcrumb_line = self._generate_404_content_from_llm(chosen_token)
 
         # Remove old breadcrumb if it exists
         html_content = html_content.replace("<p>This is a breadcrumb.</p>", "")
@@ -162,26 +166,14 @@ class BreadcrumbsGenerator:
         print_color(f"Breadcrumbing: Updated 404 page with breadcrumb referencing '/{chosen_token}'", "SUCCESS")
 
 
-    def _generate_breadcrumb_from_llm(self, honeytoken):
-        prompt = (
-            f"Write a short HTML bait line (in a <p> tag) that subtly hints at an internal file located at /{honeytoken}. "
-            f"It should look like something a developer accidentally left in, referencing the file path naturally."
-            f"Your goal is to lead a potential attacker to believe that this is a legitimate file path. "
-        )
-
+    def _generate_404_content_from_llm(self, honeytoken):
+        prompt = SnareConfig.get("BREADCRUMB", "PROMPT-404-ERROR").replace("{honeytoken}", honeytoken)
         response = requests.post(
             f"https://api-inference.huggingface.co/models/{self.model}",
-            headers={"Authorization": f"Bearer {self.hf_token}"},
+            headers={"Authorization": f"Bearer {self.api_key}"},
             json={
                 "inputs": prompt,
-                "parameters": {
-                    "temperature": 0.8,
-                    "do_sample": True,
-                    "top_p": 0.9,
-                    "top_k": 50,
-                    "max_new_tokens": 60,
-                    "return_full_text": False
-                }
+                "parameters": self.llm_parameters
             }
         )
 
@@ -300,28 +292,14 @@ class BreadcrumbsGenerator:
         print_color(f"Breadcrumbing: Injected comment after '{anchor_comment}' for '/{chosen_token}'", "SUCCESS")
 
 
-
-
     def _generate_html_comment_from_llm(self, honeytoken):
-        prompt = (
-            f"Write a realistic one-line HTML comment like a developer's note. "
-            f"It should mention /{honeytoken} as if it's a config file or temporary log. "
-            f"Do NOT include HTML tags or '--'. Make it look like leftover debug info."
-        )
-
+        prompt = SnareConfig.get("BREADCRUMB", "PROMPT-HTML-COMMENT").replace("{honeytoken}", honeytoken)
         response = requests.post(
             f"https://api-inference.huggingface.co/models/{self.model}",
-            headers={"Authorization": f"Bearer {self.hf_token}"},
+            headers={"Authorization": f"Bearer {self.api_key}"},
             json={
                 "inputs": prompt,
-                "parameters": {
-                    "temperature": 0.8,
-                    "do_sample": True,
-                    "top_p": 0.9,
-                    "top_k": 50,
-                    "max_new_tokens": 60,
-                    "return_full_text": False
-                }
+                "parameters": self.llm_parameters
             }
         )
 
