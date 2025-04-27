@@ -32,7 +32,7 @@ from snare.utils import snare_helpers
 from snare.utils.logger import Logger
 from snare.utils.snare_helpers import check_privileges, check_meta_file, print_color, str_to_bool
 from snare.utils.breadcrumbs_generator import BreadcrumbsGenerator
-from snare.utils.honeytoken_generator import HoneytokensGenerator
+from snare.utils.honeytokens_generator import HoneytokensGenerator
 from snare.config import SnareConfig
 
 def create_initial_config(base_path):
