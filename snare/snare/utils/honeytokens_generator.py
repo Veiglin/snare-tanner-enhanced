@@ -68,11 +68,10 @@ class HoneytokensGenerator:
         )
         if response.status_code != 200:
             self.logger.error(f"HuggingFace API Failed: {response.status_code} — {response.text}")
+            print_color(f"HuggingFace API Failed: {response.status_code} — {response.text}", "ERROR")
             return
         result = response.json()
         text = result[0]["generated_text"] if isinstance(result, list) and "generated_text" in result[0] else ""
-        print_color("HuggingFace Response:\n" + text.strip(), "INFO")
-
         filenames = self._extract_clean_filenames(text)
         print_color("Cleaned Filenames:\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
         return filenames
@@ -126,7 +125,7 @@ class HoneytokensGenerator:
         with open(self.meta_path, "w") as f:
             json.dump(meta, f, indent=4)
 
-        self.logger.info(f"Created {len(filenames)} honeytoken files in {self.page_dir}: {self.generated_paths}")
+        self.logger.debug(f"Created {len(filenames)} honeytoken files in {self.page_dir}: {self.generated_paths}")
 
     def write_trackfile(self):
         if not hasattr(self, "generated_paths"):
@@ -183,8 +182,7 @@ class HoneytokensGenerator:
             if token.endswith('.pdf') or token.endswith('.xlsx') or token.endswith('.docx'):
                 # generate the canarytoken by calling the generate_token function for 
                 token_type = self.canary_content_types.get((os.path.splitext(token)[1]).lower())
-                print_color(f"{self.webhook_url}", "SUCCESS")
-                canarytoken = self.generate_token(token_type, token + " - Triggered", webhook=self.webhook_url)
+                canarytoken = self._generate_token(token_type, token + " - Triggered", webhook=self.webhook_url)
                 if canarytoken:
                     print_color(f"Generated canarytoken for {token}: {canarytoken}", "SUCCESS")
 

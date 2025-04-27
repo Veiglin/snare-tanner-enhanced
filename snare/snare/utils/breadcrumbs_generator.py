@@ -31,7 +31,7 @@ class BreadcrumbsGenerator:
         self.clean_404_breadcrumb()
         # self.clean_html_comments_breadcrumb()
 
-        breadcrumb_types = SnareConfig.get("BREADCRUMB", "TYPES").split(",")
+        breadcrumb_types = SnareConfig.get("BREADCRUMB", "TYPES")
 
         for breadcrumb in breadcrumb_types:
             breadcrumb_types = breadcrumb.strip()
@@ -49,7 +49,7 @@ class BreadcrumbsGenerator:
         Generates or refreshes robots.txt with realistic bait paths.
         """
         file_name = "robots.txt"
-        hash_name = self.make_filename(file_name)
+        hash_name = self._make_filename(file_name)
         robots_path = os.path.join(self.page_dir, hash_name)
 
         # check if /robots.txt is in meta.json — if not, add it
@@ -96,9 +96,9 @@ class BreadcrumbsGenerator:
             json.dump(self.meta, meta_file, indent=4)
 
         if bait_sample:
-            self.logger.info(f"Added breadcrumbs in robots.txt with bait: {bait_sample}")
+            self.logger.debug(f"Added breadcrumbs in robots.txt with bait: {bait_sample}")
         else:
-            self.logger.info("Added breadcrumbs in robots.txt (no honeytokens found)")
+            self.logger.debug("Added breadcrumbs in robots.txt (no honeytokens found)")
 
     def generate_404_breadcrumb(self):
         """
@@ -162,7 +162,7 @@ class BreadcrumbsGenerator:
         with open(html_path, "w") as f:
             f.write(html_content)
 
-        self.logger.info(f"Updated 404 page with breadcrumb referencing '/{chosen_token}'")
+        self.logger.debug(f"Updated 404 page with breadcrumb referencing '/{chosen_token}'")
 
     def _generate_404_content_from_llm(self, honeytoken):
         prompt = SnareConfig.get("BREADCRUMB", "PROMPT-404-ERROR").replace("{honeytoken}", honeytoken)
@@ -208,7 +208,7 @@ class BreadcrumbsGenerator:
 
         if not hash_name:
             # Still create the meta entry for consistency
-            hash_name = self.make_filename(abs_url)
+            hash_name = self._make_filename(abs_url)
             self.meta[abs_url] = {
                 "hash": hash_name,
                 "content_type": "text/html"
@@ -283,7 +283,7 @@ class BreadcrumbsGenerator:
         with open(html_path, "w") as f:
             f.write(html_content)
 
-        self.logger.info(f"Injected breadcrumbs in HTML comment after '{anchor_comment}' for '/{chosen_token}'")
+        self.logger.debug(f"Injected breadcrumbs in HTML comment after '{anchor_comment}' for '/{chosen_token}'")
 
 
     def _generate_html_comment_from_llm(self, honeytoken):
@@ -339,6 +339,7 @@ class BreadcrumbsGenerator:
                 f.write(cleaned)
             print_color("Removed old HTML comment breadcrumb from index.html", "INFO")
 
+    @staticmethod
     def _make_filename(file_name):
         # Compute the MD5 hash of the content
         m = hashlib.md5()  
