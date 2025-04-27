@@ -1,6 +1,7 @@
 import os
 import hashlib
 import json
+import logging
 import random
 import requests
 import re
@@ -13,16 +14,15 @@ class BreadcrumbsGenerator:
                  page_dir, 
                  meta, 
                  breadcrumb=None):
+        self.logger = logging.getLogger(__name__)
         self.page_dir = page_dir
         self.meta = meta
         self.breadcrumb = breadcrumb or []
         self.api_endpoint = SnareConfig.get("BREADCRUMB", "API-ENDPOINT")
         self.api_key = SnareConfig.get("BREADCRUMB", "API-KEY")
         self.llm_parameters = SnareConfig.get("BREADCRUMB", "LLM-PARAMETERS")
-        self.model = "mistralai/Mistral-7B-Instruct-v0.1"
         self.honeytoken_path = "/opt/snare/honeytokens/Honeytokens.txt"
 
-    
     def generate_breadcrumbs(self):
         """
         Generates breadcrumbs for the given types.
@@ -41,7 +41,6 @@ class BreadcrumbsGenerator:
             else:
                 print_color("Breadcrumb type '{}' is not supported yet.".format(breadcrumb), "WARNING")
 
-
     def generate_robots_breadcrumb(self):
         """
         Generates or refreshes robots.txt with realistic bait paths.
@@ -50,7 +49,7 @@ class BreadcrumbsGenerator:
         hash_name = self.make_filename(file_name)
         robots_path = os.path.join(self.page_dir, hash_name)
 
-        # Check if /robots.txt is in meta.json — if not, add it
+        # check if /robots.txt is in meta.json — if not, add it
         abs_url = "/robots.txt"
         if abs_url not in self.meta:
             self.meta[abs_url] = {
@@ -58,11 +57,11 @@ class BreadcrumbsGenerator:
                 "content_type": "text/plain"
             }
         else:
-            # Already exists — clear old content
+            # already exists — clear old content
             with open(robots_path, "w") as f:
                 f.write("")
 
-        # Load bait from honeytokens
+        # load bait from honeytokens
         honeytoken_path = "/opt/snare/honeytokens/Honeytokens.txt"
         bait_lines = []
         bait_sample = []
@@ -84,11 +83,11 @@ class BreadcrumbsGenerator:
             "Sitemap: https://smartgadgetstore.live/sitemap.xml"
         ]
 
-        # Write the new content
+        # write the new content
         with open(robots_path, "w") as f:
             f.write("\n".join(lines))
 
-        # Save meta.json (in case it was just added)
+        # save meta.json (in case it was just added)
         meta_json_path = os.path.join(self.page_dir, "meta.json")
         with open(meta_json_path, "w") as meta_file:
             json.dump(self.meta, meta_file, indent=4)
@@ -98,21 +97,18 @@ class BreadcrumbsGenerator:
         else:
             print_color("Breadcrumbing: Refreshed robots.txt (no honeytokens found)", "SUCCESS")
 
-
     def generate_404_breadcrumb(self):
         """
         Rewrites the 404 page identified by '/status_404' in meta with a breadcrumb line
         generated using an LLM and one random honeytoken.
         If not found, creates the entry and file.
         """
-        import requests  # ensure this is imported at the top
-
         abs_url = "/status_404"
         hash_name = self.meta.get(abs_url, {}).get("hash")
 
         # If not found in meta, create it
         if not hash_name:
-            hash_name = self.make_filename(abs_url)
+            hash_name = self._make_filename(abs_url)
             self.meta[abs_url] = {
                 "hash": hash_name,
                 "content_type": "text/html"
@@ -169,7 +165,7 @@ class BreadcrumbsGenerator:
     def _generate_404_content_from_llm(self, honeytoken):
         prompt = SnareConfig.get("BREADCRUMB", "PROMPT-404-ERROR").replace("{honeytoken}", honeytoken)
         response = requests.post(
-            f"https://api-inference.huggingface.co/models/{self.model}",
+            self.api_endpoint,
             headers={"Authorization": f"Bearer {self.api_key}"},
             json={
                 "inputs": prompt,
@@ -200,9 +196,6 @@ class BreadcrumbsGenerator:
 
         except (KeyError, IndexError, TypeError):
             return f"<p>Access /{honeytoken} for diagnostics.</p>"
-
-
-
 
     def clean_404_breadcrumb(self):
         """
@@ -240,7 +233,6 @@ class BreadcrumbsGenerator:
             with open(html_path, "w") as f:
                 f.write(html_content)
             print_color("Breadcrumbing: Removed old breadcrumb from /status_404 page.", "INFO")
-
 
     def generate_html_comments_breadcrumb(self):
         """
@@ -295,7 +287,7 @@ class BreadcrumbsGenerator:
     def _generate_html_comment_from_llm(self, honeytoken):
         prompt = SnareConfig.get("BREADCRUMB", "PROMPT-HTML-COMMENT").replace("{honeytoken}", honeytoken)
         response = requests.post(
-            f"https://api-inference.huggingface.co/models/{self.model}",
+            self.api_endpoint,
             headers={"Authorization": f"Bearer {self.api_key}"},
             json={
                 "inputs": prompt,
@@ -321,8 +313,6 @@ class BreadcrumbsGenerator:
         except Exception:
             return f"<!-- dev ref /{honeytoken} -->"
 
-
-
     def clean_html_comments_breadcrumb(self):
         """
         Removes any HTML comment in /index.html that references a honeytoken path.
@@ -347,16 +337,11 @@ class BreadcrumbsGenerator:
                 f.write(cleaned)
             print_color("Breadcrumbing: Removed old HTML comment breadcrumb from index.html", "INFO")
 
-
-
-
-
-
-    @staticmethod
-    def make_filename(file_name):
+    def _make_filename(file_name):
         # Compute the MD5 hash of the content
         m = hashlib.md5()  
         m.update(file_name.encode("utf-8"))
         hash_name = m.hexdigest()
 
         return hash_name
+    
