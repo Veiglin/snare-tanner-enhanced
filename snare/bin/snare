@@ -197,19 +197,18 @@ if __name__ == '__main__':
     else:
         snare_helpers.add_meta_tag(args.page_dir, meta_info[args.index_page]['hash'], config, base_path)
     
-    # check if breadcrumbs defined in parsed args
+    # check if honeytokens is defined in config
     if SnareConfig.get("HONEYTOKEN", "enabled") is True:
-        # Initialize Generator for Honeylinks and Honeytokens
-        honey_gen = HoneytokensGenerator(full_page_path, meta_info)
+        honey_gen = HoneytokensGenerator(full_page_path, meta_info) # Initialize Generator for Honeylinks and Honeytokens
         honey_gen.cleanup_honeytokens()
         filenames = honey_gen.generate_filenames()
         honey_gen.create_honeytokens(filenames)
         honey_gen.write_trackfile()
         honey_gen.generate_canarytokens()
-        # 
+    
         with open(os.path.join(full_page_path, 'meta.json')) as meta:
             meta_info = json.load(meta)
-        breadcrumbs = BreadcrumbsGenerator(full_page_path, meta_info, args.breadcrumbs,     ")
+        breadcrumbs = BreadcrumbsGenerator(full_page_path, meta_info, args.breadcrumbs)
         breadcrumbs.generate_breadcrumbs()
     
     loop = asyncio.get_event_loop()
