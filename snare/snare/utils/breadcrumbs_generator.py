@@ -31,7 +31,10 @@ class BreadcrumbsGenerator:
         self.clean_404_breadcrumb()
         # self.clean_html_comments_breadcrumb()
 
-        for breadcrumb in self.breadcrumb:
+        breadcrumb_types = SnareConfig.get("BREADCRUMB", "TYPES").split(",")
+
+        for breadcrumb in breadcrumb_types:
+            breadcrumb_types = breadcrumb.strip()
             if breadcrumb == 'robots':
                 self.generate_robots_breadcrumb()
             elif breadcrumb == '404_page':
@@ -280,7 +283,7 @@ class BreadcrumbsGenerator:
         with open(html_path, "w") as f:
             f.write(html_content)
 
-        print_color(f"Breadcrumbing: Injected comment after '{anchor_comment}' for '/{chosen_token}'", "SUCCESS")
+        self.logger.info(f"Injected breadcrumbs in HTML comment after '{anchor_comment}' for '/{chosen_token}'")
 
 
     def _generate_html_comment_from_llm(self, honeytoken):
