@@ -28,9 +28,6 @@ class BreadcrumbsGenerator:
         Generates breadcrumbs for the given types.
         Always cleans up the 404 and robots.txt files regardless of generation flag.
         """
-        self.clean_404_breadcrumb()
-        # self.clean_html_comments_breadcrumb()
-
         breadcrumb_types = SnareConfig.get("BREADCRUMB", "TYPES")
 
         for breadcrumb in breadcrumb_types:
@@ -199,43 +196,6 @@ class BreadcrumbsGenerator:
         except (KeyError, IndexError, TypeError):
             return f"<p>Access /{honeytoken} for diagnostics.</p>"
 
-    def clean_404_breadcrumb(self):
-        """
-        Removes any existing breadcrumb line from the /status_404 page.
-        """
-        abs_url = "/status_404"
-        hash_name = self.meta.get(abs_url, {}).get("hash")
-
-        if not hash_name:
-            # Still create the meta entry for consistency
-            hash_name = self._make_filename(abs_url)
-            self.meta[abs_url] = {
-                "hash": hash_name,
-                "content_type": "text/html"
-            }
-            meta_json_path = os.path.join(self.page_dir, "meta.json")
-            with open(meta_json_path, "w") as meta_file:
-                json.dump(self.meta, meta_file, indent=4)
-            print_color(f"Created new meta entry for '{abs_url}'", "INFO")
-
-        html_path = os.path.join(self.page_dir, hash_name)
-
-        if not os.path.exists(html_path):
-            with open(html_path, "w") as f:
-                f.write("<html><body></body></html>")
-            return
-
-        # Read and clean the file
-        with open(html_path, "r") as f:
-            html_content = f.read()
-
-        breadcrumb = "<p>This is a breadcrumb.</p>"
-        if breadcrumb in html_content:
-            html_content = html_content.replace(breadcrumb, "")
-            with open(html_path, "w") as f:
-                f.write(html_content)
-            print_color("Removed old breadcrumb from /status_404 page.", "INFO")
-
     def generate_html_comments_breadcrumb(self):
         """
         Safely injects a breadcrumb HTML comment below a randomly selected existing HTML comment in the file.
@@ -314,30 +274,6 @@ class BreadcrumbsGenerator:
             return f"<!-- {text} -->"
         except Exception:
             return f"<!-- dev ref /{honeytoken} -->"
-
-    def clean_html_comments_breadcrumb(self):
-        """
-        Removes any HTML comment in /index.html that references a honeytoken path.
-        """
-        abs_url = "/index.html"
-        hash_name = self.meta.get(abs_url, {}).get("hash")
-        if not hash_name:
-            return
-
-        html_path = os.path.join(self.page_dir, hash_name)
-        if not os.path.exists(html_path):
-            return
-
-        with open(html_path, "r") as f:
-            html_content = f.read()
-
-        # Remove any HTML comment with a slash path inside (e.g., /logs/file.sql)
-        cleaned = re.sub(r"<!--.*?/[a-zA-Z0-9_\-/]+\.\w+.*?-->\n?", "", html_content, flags=re.DOTALL)
-
-        if cleaned != html_content:
-            with open(html_path, "w") as f:
-                f.write(cleaned)
-            print_color("Removed old HTML comment breadcrumb from index.html", "INFO")
 
     @staticmethod
     def _make_filename(file_name):
