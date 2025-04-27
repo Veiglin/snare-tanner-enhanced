@@ -20,8 +20,7 @@ cmd = [
     "--auto-update", "false",
     "--host-ip", "0.0.0.0",
     "--port", "443",
-    "--page-dir", selected_dir,
-    "--breadcrumbs", "robots", "robots", "404_page", "html_comments"
+    "--page-dir", selected_dir
 ]
 
 
