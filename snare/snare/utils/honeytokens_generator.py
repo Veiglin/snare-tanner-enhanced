@@ -165,7 +165,7 @@ class HoneytokensGenerator:
         print_color(f"Deleted {len(deleted_files)} honeytoken files and cleaned meta.json.", "INFO")
 
     def generate_canarytokens(self):
-        """"
+        """
         Generate canarytokens for the honeytokens in Honeytokens.txt
         The canarytokens are generated using the generate_token function and saved in the page_dir
         """
