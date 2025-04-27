@@ -5,13 +5,13 @@ import time
 import random
 import hashlib
 import requests
-from typing import Optional, Dict
-import requests, sys
+from typing import Optional
+import requests
 
 from snare.utils.snare_helpers import print_color
 from snare.config import SnareConfig
 
-TOKENS_URL='https://canarytokens.org'
+TOKENS_URL = 'https://canarytokens.org'
 TOKENS_DOWNLOAD_URL = 'https://canarytokens.org/d3aece8093b71007b5ccfedad91ebb11/download'
 
 class HoneytokensGenerator:
