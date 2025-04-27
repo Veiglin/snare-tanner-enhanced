@@ -93,9 +93,9 @@ class BreadcrumbsGenerator:
             json.dump(self.meta, meta_file, indent=4)
 
         if bait_sample:
-            print_color(f"Breadcrumbing: Refreshed robots.txt with bait: {bait_sample}", "SUCCESS")
+            self.logger.info(f"Added breadcrumbs in robots.txt with bait: {bait_sample}")
         else:
-            print_color("Breadcrumbing: Refreshed robots.txt (no honeytokens found)", "SUCCESS")
+            self.logger.info("Added breadcrumbs in robots.txt (no honeytokens found)")
 
     def generate_404_breadcrumb(self):
         """
@@ -133,14 +133,14 @@ class BreadcrumbsGenerator:
 
         # Load honeytokens
         if not os.path.exists(self.honeytoken_path):
-            print_color("⚠️ No Honeytokens.txt found. Cannot generate breadcrumb.", "WARNING")
+            print_color("No Honeytokens.txt found. Cannot generate breadcrumb.", "WARNING")
             return
 
         with open(self.honeytoken_path, "r") as f:
             tokens = [line.strip() for line in f if line.strip()]
 
         if not tokens:
-            print_color("⚠️ Honeytokens.txt is empty. Cannot generate breadcrumb.", "WARNING")
+            print_color("Honeytokens.txt is empty. Cannot generate breadcrumb.", "WARNING")
             return
 
         chosen_token = random.choice(tokens)
@@ -159,8 +159,7 @@ class BreadcrumbsGenerator:
         with open(html_path, "w") as f:
             f.write(html_content)
 
-        print_color(f"Breadcrumbing: Updated 404 page with breadcrumb referencing '/{chosen_token}'", "SUCCESS")
-
+        self.logger.info(f"Updated 404 page with breadcrumb referencing '/{chosen_token}'")
 
     def _generate_404_content_from_llm(self, honeytoken):
         prompt = SnareConfig.get("BREADCRUMB", "PROMPT-404-ERROR").replace("{honeytoken}", honeytoken)
@@ -174,7 +173,7 @@ class BreadcrumbsGenerator:
         )
 
         if response.status_code != 200:
-            print_color(f"⚠️ LLM API error {response.status_code}: {response.text}", "WARNING")
+            print_color(f"HuggingFace API Error {response.status_code}: {response.text}", "WARNING")
             return f"<p>Check /{honeytoken} for debug info.</p>"
 
         try:
@@ -214,7 +213,7 @@ class BreadcrumbsGenerator:
             meta_json_path = os.path.join(self.page_dir, "meta.json")
             with open(meta_json_path, "w") as meta_file:
                 json.dump(self.meta, meta_file, indent=4)
-            print_color(f"Breadcrumbing: Created new meta entry for '{abs_url}'", "INFO")
+            print_color(f"Created new meta entry for '{abs_url}'", "INFO")
 
         html_path = os.path.join(self.page_dir, hash_name)
 
@@ -232,7 +231,7 @@ class BreadcrumbsGenerator:
             html_content = html_content.replace(breadcrumb, "")
             with open(html_path, "w") as f:
                 f.write(html_content)
-            print_color("Breadcrumbing: Removed old breadcrumb from /status_404 page.", "INFO")
+            print_color("Removed old breadcrumb from /status_404 page.", "INFO")
 
     def generate_html_comments_breadcrumb(self):
         """
@@ -242,12 +241,12 @@ class BreadcrumbsGenerator:
         hash_name = self.meta.get(abs_url, {}).get("hash")
 
         if not hash_name:
-            print_color("⚠️ Meta entry for /index.html not found.", "WARNING")
+            print_color("Meta entry for /index.html not found.", "WARNING")
             return
 
         html_path = os.path.join(self.page_dir, hash_name)
         if not os.path.exists(html_path):
-            print_color(f"⚠️ index.html not found at {html_path}. Skipping injection.", "WARNING")
+            print_color(f"index.html not found at {html_path}. Skipping injection.", "WARNING")
             return
 
         with open(html_path, "r") as f:
@@ -256,20 +255,20 @@ class BreadcrumbsGenerator:
         # Find all HTML comments
         all_comments = re.findall(r'<!--.*?-->', html_content)
         if not all_comments:
-            print_color("⚠️ No HTML comments found in the file.", "WARNING")
+            print_color("No HTML comments found in the file.", "WARNING")
             return
 
         # Pick a random comment to inject after
         anchor_comment = random.choice(all_comments)
 
         if not os.path.exists(self.honeytoken_path):
-            print_color("⚠️ Honeytokens.txt not found.", "WARNING")
+            print_color("Honeytokens.txt not found.", "WARNING")
             return
 
         with open(self.honeytoken_path, "r") as f:
             tokens = [line.strip() for line in f if line.strip()]
         if not tokens:
-            print_color("⚠️ Honeytokens.txt is empty.", "WARNING")
+            print_color("Honeytokens.txt is empty.", "WARNING")
             return
 
         chosen_token = random.choice(tokens)
@@ -296,7 +295,7 @@ class BreadcrumbsGenerator:
         )
 
         if response.status_code != 200:
-            print_color(f"⚠️ Failed to fetch LLM comment: {response.status_code}", "WARNING")
+            print_color(f"Failed to fetch LLM comment: {response.status_code}", "WARNING")
             return f"<!-- dev note /{honeytoken} -->"
 
         try:
@@ -335,7 +334,7 @@ class BreadcrumbsGenerator:
         if cleaned != html_content:
             with open(html_path, "w") as f:
                 f.write(cleaned)
-            print_color("Breadcrumbing: Removed old HTML comment breadcrumb from index.html", "INFO")
+            print_color("Removed old HTML comment breadcrumb from index.html", "INFO")
 
     def _make_filename(file_name):
         # Compute the MD5 hash of the content
