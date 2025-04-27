@@ -196,7 +196,7 @@ if __name__ == '__main__':
         snare_helpers.add_meta_tag(args.page_dir, meta_info[args.index_page]['hash'], config, base_path)
     
     # check if honeytokens is defined in config
-    if SnareConfig.get("enabled") is True:
+    if SnareConfig.get("FEATURES", "enabled") is True:
         honey_gen = HoneytokensGenerator(full_page_path, meta_info) # Initialize Generator for Honeylinks and Honeytokens
         honey_gen.cleanup_honeytokens()
         filenames = honey_gen.generate_filenames()
