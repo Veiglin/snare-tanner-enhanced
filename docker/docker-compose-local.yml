@@ -5,6 +5,8 @@ networks:
 volumes:
   shared_logs:
     driver: local
+  ollama_data:
+    driver: local
 
 services:
 
@@ -94,10 +96,20 @@ services:
      - "443:443"
     image: "dtagdevsec/snare:24.04"
     depends_on:
-     - tanner
-     - log-interface
+    - tanner
+    - log-interface
+    - ollama
     volumes:
      - shared_logs:/var/log/snare
      - $HOME/credentials.xlsx:/opt/snare/files/credentials.xlsx
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
 
+  ollama:
+    build: ./ollama
+    container_name: ollama
+    networks:
+      - tanner_local
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama

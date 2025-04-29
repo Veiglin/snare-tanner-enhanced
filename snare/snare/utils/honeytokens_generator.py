@@ -58,23 +58,42 @@ class HoneytokensGenerator:
         """
         session_id = f"{random.randint(1000,9999)}_{int(time.time())}"
         prompt = SnareConfig.get("HONEYTOKEN", "PROMPT").replace("{session_id}", session_id)
-        response = requests.post(
-            self.api_endpoint,
-            headers={"Authorization": f"Bearer {self.api_key}"},
-            json={
-                "inputs": prompt,
-                "parameters": self.llm_parameters
+        #try:
+        #    response = requests.post(
+        #        self.api_endpoint,
+        #        headers={"Authorization": f"Bearer {self.api_key}"},
+        #        json={
+        #            "inputs": prompt,
+        #            "parameters": self.llm_parameters
+        #        }
+        #    )
+        #    if response.status_code == 200:
+        #        self.logger.debug(f"Response from HuggingFace API: {response.text}")
+        #        result = response.json()
+        #        text = result[0]["generated_text"] if isinstance(result, list) and "generated_text" in result[0] else ""
+        #        filenames = self._extract_clean_filenames(text)
+        #        print_color("Cleaned Filenames (from HuggingFace API):\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
+        #        return filenames
+        #except:
+        #    self.logger.debug(f"HuggingFace API failed with: {response.status_code} — {response.text}. Falling back to local model")
+        # Fallback to local Llama model
+        try:
+            payload = {
+                "model": "mistral",
+                "prompt": prompt
             }
-        )
-        if response.status_code != 200:
-            self.logger.error(f"HuggingFace API Failed: {response.status_code} — {response.text}")
-            print_color(f"HuggingFace API Failed: {response.status_code} — {response.text}", "ERROR")
+            response = requests.post("http://ollama:11434/api/generate", json=payload)
+            response.raise_for_status()
+            print_color(f"Response from local model: {response.text}", "SUCCESS")
+            text = response["message"]["content"]
+            filenames = self._extract_clean_filenames(text)
+            print_color("Cleaned Filenames (from local model):\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
+            return filenames
+    
+        except Exception as e:
+            self.logger.error(f"Local model failed. Unable to generate filenames. Error: {e}")
+            print_color(f"Local model failed. Unable to generate filenames. Error: {e}", "ERROR")
             return
-        result = response.json()
-        text = result[0]["generated_text"] if isinstance(result, list) and "generated_text" in result[0] else ""
-        filenames = self._extract_clean_filenames(text)
-        print_color("Cleaned Filenames:\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
-        return filenames
 
     def _extract_clean_filenames(self, text):
         lines = text.strip().split("\n")
