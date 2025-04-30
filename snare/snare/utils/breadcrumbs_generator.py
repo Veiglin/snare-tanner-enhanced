@@ -12,12 +12,11 @@ from snare.config import SnareConfig
 class BreadcrumbsGenerator:
     def __init__(self, 
                  page_dir, 
-                 meta, 
-                 breadcrumb=None):
+                 meta):
         self.logger = logging.getLogger(__name__)
         self.page_dir = page_dir
         self.meta = meta
-        self.breadcrumb = breadcrumb or []
+        self.used_canarytoken = []
         self.api_endpoint = SnareConfig.get("BREADCRUMB", "API-ENDPOINT")
         self.api_key = SnareConfig.get("BREADCRUMB", "API-KEY")
         self.llm_parameters = SnareConfig.get("BREADCRUMB", "LLM-PARAMETERS")
@@ -68,9 +67,17 @@ class BreadcrumbsGenerator:
         if os.path.exists(honeytoken_path):
             with open(honeytoken_path, "r") as f:
                 tokens = [line.strip() for line in f if line.strip()]
-                if tokens:
-                    bait_sample = random.sample(tokens, min(len(tokens), 3))
-                    bait_lines = [f"Disallow: /{token}" for token in bait_sample]
+                canarytokens = [token for token in tokens if token.endswith(('.pdf', '.xlsx', '.docs'))]
+                non_canarytokens = [token for token in tokens if token not in canarytokens]
+                
+                # Select one canarytoken and mark it as used
+                if canarytokens:
+                    chosen_canarytoken = random.choice([token for token in canarytokens if token not in self.used_canarytoken])
+                    self.used_canarytoken.append(chosen_canarytoken)
+                    bait_lines.append(f"Disallow: /{chosen_canarytoken}")
+
+                # Add other non-canarytokens
+                bait_lines.extend([f"Disallow: /{token}" for token in non_canarytokens])
 
         lines = [
             "User-agent: *",
@@ -139,11 +146,14 @@ class BreadcrumbsGenerator:
         with open(self.honeytoken_path, "r") as f:
             tokens = [line.strip() for line in f if line.strip()]
 
-        if not tokens:
-            print_color("Honeytokens.txt is empty. Cannot generate breadcrumb.", "WARNING")
+        # Filter out already used tokens
+        available_tokens = [token for token in tokens if token not in self.used_canarytoken]
+        if not available_tokens:
+            print_color("No available honeytokens for 404 breadcrumb.", "WARNING")
             return
 
-        chosen_token = random.choice(tokens)
+        chosen_token = random.choice(available_tokens)
+        self.used_canarytoken.append(chosen_token)
 
         # Generate breadcrumb from LLM
         breadcrumb_line = self._generate_404_content_from_llm(chosen_token)
@@ -230,11 +240,18 @@ class BreadcrumbsGenerator:
 
         with open(self.honeytoken_path, "r") as f:
             tokens = [line.strip() for line in f if line.strip()]
-        if not tokens:
-            print_color("Honeytokens.txt is empty.", "WARNING")
+            
+        # Filter out already used tokens
+        available_tokens = [token for token in tokens if token not in self.used_canarytoken]
+        if not available_tokens:
+            print_color("No available honeytokens for HTML comments.", "WARNING")
             return
 
-        chosen_token = random.choice(tokens)
+        # Select a unique token for the HTML comment
+        chosen_token = random.choice(available_tokens)
+        self.used_canarytoken.append(chosen_token)
+
+        # Generate the HTML comment
         comment = self._generate_html_comment_from_llm(chosen_token)
 
         # Inject the generated comment after the anchor comment
