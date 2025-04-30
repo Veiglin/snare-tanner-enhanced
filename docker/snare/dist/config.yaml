@@ -16,7 +16,7 @@ HONEYTOKEN:
     do_sample: true
     top_p: 0.95
     top_k: 50
-    max_new_tokens: 100
+    max_new_tokens: 50
   WEBHOOK-URL:   
 
 BREADCRUMB:
@@ -39,4 +39,4 @@ BREADCRUMB:
     do_sample: true
     top_p: 0.95
     top_k: 50
-    max_new_tokens: 100
+    max_new_tokens: 50
