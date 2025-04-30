@@ -57,7 +57,7 @@ class HoneytokensGenerator:
         The filenames are generated using the prompt defined in the config file.
         """
         session_id = f"{random.randint(1000,9999)}_{int(time.time())}"
-        prompt = SnareConfig.get("HONEYTOKEN", "PROMPT").replace("{session_id}", session_id)
+        prompt = SnareConfig.get("HONEYTOKEN", "PROMPT-FILENAMES").replace("{session_id}", session_id)
         response = requests.post(
             self.api_endpoint,
             headers={"Authorization": f"Bearer {self.api_key}"},
