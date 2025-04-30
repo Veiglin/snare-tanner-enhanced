@@ -4,13 +4,17 @@ FEATURES:
 HONEYTOKEN:
   API-ENDPOINT: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta
   API-KEY: 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
-  PROMPT: >
+  PROMPT-FILENAMES: >
     You are generating bait filenames for a website called SmartGadgetStore.live, which sells smart gadgets and electronics online.
     Generate in total 5 files. The generated files should be realistic, code-friendly filenames (no spaces or special characters) that might contain sensitive internal data.
     Examples include inventory backups, customer exports, admin data, supplier lists, or device configuration dumps.
-    Use believable extensions like .docx, .xlsx, .pdf, .db, .sql or .zip. It is required that there is one .docx, one .xlsx and one .pdf file.
+    Use believable extensions like .docx, .xlsx, .pdf, .db, .sql or .zip with minimum one .docx, one .xlsx and one .pdf file.
     Ensure all filenames look authentic and vary slightly each time.
     # Session ID: {session_id}
+  PROMPT-FILECONTENT: >
+    You are generating bait file content for a website called SmartGadgetStore.live, which sells smart gadgets and electronics online.
+    For each of the filenames {honeytoken} generated, create realistic and believable content that might be found in a file.
+    Examples of this could be inventory backups, customer exports, admin data, supplier lists, or device configuration dumps.
   LLM-PARAMETERS:
     temperature: 0.9
     do_sample: true
