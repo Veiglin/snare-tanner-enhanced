@@ -59,5 +59,5 @@ RUN apk -U upgrade && \
 # Start snare
 STOPSIGNAL SIGKILL
 USER snare:snare
-# CMD ["python3", "/opt/snare-internal/start_snare.py"]
-CMD snare --tanner tanner --debug true --auto-update false --host-ip 0.0.0.0 --port 443 --page-dir smartgadgetstore1
+CMD ["python3", "/opt/snare-internal/start_snare.py"]
+#CMD snare --tanner tanner --debug true --auto-update false --host-ip 0.0.0.0 --port 443 --page-dir smartgadgetstore1
