@@ -79,10 +79,24 @@ services:
       timeout: 5s
       retries: 3
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    networks:
+      - tanner_local
+    ports:
+      - "11434:11434"              # Ollama’s default API port
+    volumes:
+      - ollama_data:/root/.ollama # persist downloaded models
+    command: ["serve"]             # start the HTTP API
+
 # Snare Service
   snare:
     environment:
       - IS_LOCAL=true
+      - OLLAMA_HOST=ollama
+      - OLLAMA_PORT=11434
     build: 
       context: ../
       dockerfile: docker/snare/Dockerfile
@@ -103,13 +117,3 @@ services:
      - shared_logs:/var/log/snare
      - $HOME/credentials.xlsx:/opt/snare/files/credentials.xlsx
      - ./snare/dist/honeytokens:/opt/snare/honeytokens
-
-  ollama:
-    build: ./ollama
-    container_name: ollama
-    networks:
-      - tanner_local
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama

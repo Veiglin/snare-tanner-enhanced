@@ -204,10 +204,10 @@ if __name__ == '__main__':
         honey_gen.write_trackfile()
         honey_gen.generate_canarytokens()
     
-        with open(os.path.join(full_page_path, 'meta.json')) as meta:
-            meta_info = json.load(meta)
-        breadcrumbs = BreadcrumbsGenerator(full_page_path, meta_info)
-        breadcrumbs.generate_breadcrumbs()
+        #with open(os.path.join(full_page_path, 'meta.json')) as meta:
+        #    meta_info = json.load(meta)
+        #breadcrumbs = BreadcrumbsGenerator(full_page_path, meta_info)
+        #breadcrumbs.generate_breadcrumbs()
     
     loop = asyncio.get_event_loop()
     loop.run_until_complete(check_tanner())

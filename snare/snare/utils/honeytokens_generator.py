@@ -50,6 +50,9 @@ class HoneytokensGenerator:
             ".docx": "ms_word",
             ".xlsx": "ms_excel"
         }
+        host = os.getenv("OLLAMA_HOST", "localhost")
+        port = os.getenv("OLLAMA_PORT", "11434")
+        self.ollama_url = f"http://{host}:{port}/api/generate"
 
     def generate_filenames(self):
         """
@@ -80,16 +83,24 @@ class HoneytokensGenerator:
         try:
             payload = {
                 "model": "mistral",
-                "prompt": prompt
+                "prompt": prompt,
+                "parameters": {
+                    "max_tokens": self.llm_parameters.get("max_tokens", 50),
+                    "temperature": self.llm_parameters.get("temperature", 0.7),
+                    # add other parameters as needed
+                }
             }
-            response = requests.post("http://ollama:11434/api/generate", json=payload)
+            response = requests.post(self.ollama_url, json=payload)
             response.raise_for_status()
-            print_color(f"Response from local model: {response.text}", "SUCCESS")
-            text = response["message"]["content"]
+            data = response.json()
+
+            # Ollama returns an array of choices
+            text = data["choices"][0]["text"]
             filenames = self._extract_clean_filenames(text)
-            print_color("Cleaned Filenames (from local model):\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
+            print_color("Cleaned Filenames (from Ollama):\n" +
+                    "\n".join(f" - {name}" for name in filenames), "SUCCESS")
             return filenames
-    
+
         except Exception as e:
             self.logger.error(f"Local model failed. Unable to generate filenames. Error: {e}")
             print_color(f"Local model failed. Unable to generate filenames. Error: {e}", "ERROR")
