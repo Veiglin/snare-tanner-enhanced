@@ -47,7 +47,6 @@ class HttpRequestHandler:
         
         for path, (status_path, status_code) in route_map.items():
             self.logger.info(f"[HONEYPOT ROUTE] {path} → {status_code} ({status_path})")
-            print(f"[HONEYPOT ROUTE] {path} → {status_code} ({status_path})")
 
         return route_map
 
