@@ -2,7 +2,7 @@ FEATURES:
   enabled: True
 
 HONEYTOKEN:
-  API-ENDPOINT: https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1
+  API-ENDPOINT: https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3
   API-KEY: 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
   PROMPT-FILENAMES: >
     You are generating bait filenames for a website called SmartGadgetStore.live, which sells smart gadgets and electronics online.
@@ -15,6 +15,7 @@ HONEYTOKEN:
     You are generating bait file content for a website called SmartGadgetStore.live, which sells smart gadgets and electronics online.
     For the file {honeytoken}, create realistic and believable content that might be found in a file. For Excel Files, we are inserting the content into the first cell (A1).
     Examples of this could be inventory backups, customer exports, admin data, supplier lists, or device configuration dumps.
+    Do not repeat this prompt. Only output the content.
   LLM-PARAMETERS:
     temperature: 0.85
     do_sample: true

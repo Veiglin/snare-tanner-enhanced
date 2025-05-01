@@ -202,7 +202,7 @@ class HoneytokensGenerator:
                     print_color(f"Saved canarytoken file as {hashed_filename}", "SUCCESS")
 
                     # generate content for the honeytoken file
-                    honeytoken_content = self._generate_honeytoken_content(token)
+                    honeytoken_content = self._generate_honeytoken_content_llm(token)
                     if honeytoken_content:
                         # append the generated content to the canarytoken file with xlwings
                         if token.endswith('.xlsx'):
@@ -261,44 +261,25 @@ class HoneytokensGenerator:
         else:
             self.logger.error(f"Failed to download content: {response.status_code} - {response.text}")
     
-    def _add_content_xlsx(self, filename, honeytoken_content):
+    def _add_content_xlsx(self, hashed_filename, honeytoken_content):
         """
         Add content to an xlsx file using xlwings.
         """
-        if os.path.exists(self.meta_path):
-            with open(self.meta_path, "r") as f:
-                meta = json.load(f)
-        
-        # find the hash value for the filename
-        for key, entry in meta.items():
-            if key.endswith(filename):
-                hash_val = entry.get("hash", "").lower()
-                break
-        
-        token_path = os.path.join(self.page_dir, hash_val)
+        token_path = os.path.join(self.page_dir, hashed_filename)
         with xw.App(visible=False) as app:
             wb = app.books.open(token_path)
             ws = wb.sheets[0]
             ws.range("A1").value = honeytoken_content
             wb.save()
             wb.close()
-            
+
         print_color(f"Successfully injected fake data into: {token_path}", "SUCCESS")
 
-    def _add_content_docx(self, filename, honeytoken_content):
+    def _add_content_docx(self, hashed_filename, honeytoken_content):
         """
         Add content to a docx file using xlwings.
         """
-        if os.path.exists(self.meta_path):
-            with open(self.meta_path, "r") as f:
-                meta = json.load(f)
-        
-        # find the hash value for the filename
-        for key, entry in meta.items():
-            if key.endswith(filename):
-                hash_val = entry.get("hash", "").lower()
-                break
-        token_path = os.path.join(self.page_dir, hash_val)
+        token_path = os.path.join(self.page_dir, hashed_filename)
         temp_dir = token_path + "_unzip"
 
         # Unzip .docx
