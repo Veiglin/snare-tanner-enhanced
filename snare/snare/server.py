@@ -39,6 +39,16 @@ class HttpRequestHandler:
 
     async def handle_request(self, request):
         self.logger.info("Request path: {0}".format(request.path_qs))
+
+        if request.path == "/400":
+            return await self.serve_error_page("/status_400", 400)
+        if request.path == "/401":
+            return await self.serve_error_page("/status_401", 401)
+        if request.path == "/403":
+            return await self.serve_error_page("/status_403", 403)
+        if request.path == "/500":
+            return await self.serve_error_page("/status_500", 500)
+
         data = self.tanner_handler.create_data(request, 200)
         if request.method == "POST":
             post_data = await request.post()
@@ -79,6 +89,7 @@ class HttpRequestHandler:
         aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(self.dir))
         middleware = SnareMiddleware(
             error_404=self.meta["/status_404"].get("hash"),
+            error_500=self.meta["/status_500"].get("hash"),
             headers=self.meta["/status_404"].get("headers", []),
             server_header=self.run_args.server_header,
         )
@@ -110,3 +121,24 @@ class HttpRequestHandler:
 
     async def stop(self):
         await self.runner.cleanup()
+    
+    async def serve_error_page(self, status_path, status_code):
+        try:
+            file_hash = self.meta[status_path]["hash"]
+            file_path = os.path.join(self.dir, file_hash)
+            with open(file_path, "rb") as f:
+                content = f.read()
+        except Exception:
+            content = f"Error {status_code}".encode()
+
+        headers = {}
+        if self.run_args.server_header:
+            headers["Server"] = self.run_args.server_header
+
+        for header in self.meta.get(status_path, {}).get("headers", []):
+            for k, v in header.items():
+                headers[k] = v
+
+        return web.Response(body=content, status=status_code, headers=headers)
+
+
