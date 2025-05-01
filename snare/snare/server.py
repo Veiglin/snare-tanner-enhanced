@@ -4,6 +4,7 @@ import aiohttp_jinja2
 import jinja2
 import ssl
 import os
+import random
 
 from aiohttp import web
 from aiohttp.web import StaticResource as StaticRoute
@@ -21,6 +22,34 @@ class HttpRequestHandler:
         self.logger = logging.getLogger(__name__)
         self.sroute = StaticRoute(name=None, prefix="/", directory=self.dir)
         self.tanner_handler = TannerHandler(run_args, meta, snare_uuid)
+        self.dynamic_routes = self.generate_dynamic_route_map("/opt/snare/honeytokens/common.txt")
+
+    def generate_dynamic_route_map(self, wordlist_path):
+        try:
+            with open(wordlist_path, "r") as f:
+                words = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+        except Exception as e:
+            self.logger.error(f"Failed to load wordlist: {e}")
+            return {}
+
+        random.shuffle(words)
+        sampled = words[:200]  # Limit to avoid overload
+
+        route_map = {}
+        for path in sampled:
+            full_path = "/" + path.lstrip("/")
+            choice = random.choices(
+                ["401", "403", "500"],
+                weights=[0.4, 0.4, 0.2],
+                k=1
+            )[0]
+            route_map[full_path] = (f"/status_{choice}", int(choice))
+        
+        for path, (status_path, status_code) in route_map.items():
+            self.logger.info(f"[HONEYPOT ROUTE] {path} → {status_code} ({status_path})")
+            print(f"[HONEYPOT ROUTE] {path} → {status_code} ({status_path})")
+
+        return route_map
 
     async def submit_slurp(self, data):
         try:
@@ -39,14 +68,21 @@ class HttpRequestHandler:
 
     async def handle_request(self, request):
         self.logger.info("Request path: {0}".format(request.path_qs))
+        path = request.path
 
-        if request.path == "/400":
+        # Dynamic route error handling
+        if path in self.dynamic_routes:
+            status_path, status_code = self.dynamic_routes[path]
+            self.logger.info(f"[HONEYPOT] dynamic trap triggered: {path} → {status_code}")
+            return await self.serve_error_page(status_path, status_code)
+
+        if path == "/400":
             return await self.serve_error_page("/status_400", 400)
-        if request.path == "/401":
+        if path == "/401":
             return await self.serve_error_page("/status_401", 401)
-        if request.path == "/403":
+        if path == "/403":
             return await self.serve_error_page("/status_403", 403)
-        if request.path == "/500":
+        if path == "/500":
             return await self.serve_error_page("/status_500", 500)
 
         data = self.tanner_handler.create_data(request, 200)
@@ -88,6 +124,9 @@ class HttpRequestHandler:
         app.add_routes([web.route("*", "/{tail:.*}", self.handle_request)])
         aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(self.dir))
         middleware = SnareMiddleware(
+            error_400=self.meta["/status_400"].get("hash"),
+            error_401=self.meta["/status_401"].get("hash"),
+            error_403=self.meta["/status_403"].get("hash"),
             error_404=self.meta["/status_404"].get("hash"),
             error_500=self.meta["/status_500"].get("hash"),
             headers=self.meta["/status_404"].get("headers", []),
@@ -98,22 +137,17 @@ class HttpRequestHandler:
         self.runner = web.AppRunner(app)
         await self.runner.setup()
 
-        # Check if the application is running locally
         is_local = os.getenv("IS_LOCAL", "false").lower() == "true"
 
         if not is_local:
-            # Create an SSL context with your certificate and key.
             ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
             ssl_context.load_cert_chain(
                 certfile='/etc/letsencrypt/live/smartgadgetstore.live/fullchain.pem',
                 keyfile='/etc/letsencrypt/live/smartgadgetstore.live/privkey.pem'
             )
-
             site = web.TCPSite(self.runner, self.run_args.host_ip, self.run_args.port, ssl_context=ssl_context)
         else:
-            # No SSL for local environment
             site = web.TCPSite(self.runner, self.run_args.host_ip, self.run_args.port)
-
 
         await site.start()
         names = sorted(str(s.name) for s in self.runner.sites)
@@ -121,7 +155,7 @@ class HttpRequestHandler:
 
     async def stop(self):
         await self.runner.cleanup()
-    
+
     async def serve_error_page(self, status_path, status_code):
         try:
             file_hash = self.meta[status_path]["hash"]
@@ -140,5 +174,3 @@ class HttpRequestHandler:
                 headers[k] = v
 
         return web.Response(body=content, status=status_code, headers=headers)
-
-
