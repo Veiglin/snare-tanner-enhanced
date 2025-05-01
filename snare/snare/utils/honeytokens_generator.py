@@ -8,6 +8,11 @@ import hashlib
 import requests
 from typing import Optional
 import requests
+import xlwings as xw
+
+import zipfile
+import shutil
+from xml.etree import ElementTree as ET
 
 from snare.utils.snare_helpers import print_color
 from snare.config import SnareConfig
@@ -188,13 +193,27 @@ class HoneytokensGenerator:
 
                     # download the canarytoken file
                     canarytoken_content = self._downloaded_token_file(token_type, canarytoken['auth_token'], canarytoken['token'])
-
+                    
                     # save the canarytoken file in the hashed filename within the page_dir
                     hashed_filename = self._md5_hash(token)
                     hashed_filename = os.path.join(self.page_dir, hashed_filename)
                     with open(hashed_filename, "wb") as f:
                         f.write(canarytoken_content)
                     print_color(f"Saved canarytoken file as {hashed_filename}", "SUCCESS")
+
+                    # generate content for the honeytoken file
+                    honeytoken_content = self._generate_honeytoken_content(token)
+                    if honeytoken_content:
+                        # append the generated content to the canarytoken file with xlwings
+                        if token.endswith('.xlsx'):
+                            self._add_content_xlsx(hashed_filename, honeytoken_content)
+                        elif token.endswith('.docx'):
+                            self._add_content_docx(hashed_filename, honeytoken_content)
+                        #elif token.endswith('.pdf'):
+                        #    self._add_content_pdf(hashed_filename, honeytoken_content)
+                        print_color(f"Appended content to {hashed_filename}", "SUCCESS")
+                    else:
+                        self.logger.error(f"Failed to generate content for {token}")
                 else:
                     self.logger.error(f"Failed to generate canarytoken for {token}")
             else:
@@ -241,4 +260,101 @@ class HoneytokensGenerator:
             return response.content
         else:
             self.logger.error(f"Failed to download content: {response.status_code} - {response.text}")
+    
+    def _add_content_xlsx(self, filename, honeytoken_content):
+        """
+        Add content to an xlsx file using xlwings.
+        """
+        if os.path.exists(self.meta_path):
+            with open(self.meta_path, "r") as f:
+                meta = json.load(f)
+        
+        # find the hash value for the filename
+        for key, entry in meta.items():
+            if key.endswith(filename):
+                hash_val = entry.get("hash", "").lower()
+                break
+        
+        token_path = os.path.join(self.page_dir, hash_val)
+        with xw.App(visible=False) as app:
+            wb = app.books.open(token_path)
+            ws = wb.sheets[0]
+            ws.range("A1").value = honeytoken_content
+            wb.save()
+            wb.close()
+            
+        print_color(f"Successfully injected fake data into: {token_path}", "SUCCESS")
+
+    def _add_content_docx(self, filename, honeytoken_content):
+        """
+        Add content to a docx file using xlwings.
+        """
+        if os.path.exists(self.meta_path):
+            with open(self.meta_path, "r") as f:
+                meta = json.load(f)
+        
+        # find the hash value for the filename
+        for key, entry in meta.items():
+            if key.endswith(filename):
+                hash_val = entry.get("hash", "").lower()
+                break
+        token_path = os.path.join(self.page_dir, hash_val)
+        temp_dir = token_path + "_unzip"
+
+        # Unzip .docx
+        with zipfile.ZipFile(token_path, 'r') as zip_ref:
+            zip_ref.extractall(temp_dir)
+
+        # Parse and inject into document.xml
+        doc_xml_path = os.path.join(temp_dir, "word", "document.xml")
+        ET.register_namespace("w", "http://schemas.openxmlformats.org/wordprocessingml/2006/main")
+        tree = ET.parse(doc_xml_path)
+        root = tree.getroot()
+
+        def make_paragraph(text):
+            ns = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+            p = ET.Element(f"{{{ns}}}p")
+            r = ET.SubElement(p, f"{{{ns}}}r")
+            t = ET.SubElement(r, f"{{{ns}}}t")
+            t.text = text
+            return p
+
+        root.append(make_paragraph(honeytoken_content))
+        tree.write(doc_xml_path, xml_declaration=True, encoding="UTF-8")
+
+        # Repack .docx preserving exact structure
+        tmp_docx = token_path + ".tmp"
+        with zipfile.ZipFile(tmp_docx, 'w', zipfile.ZIP_DEFLATED) as new_zip:
+            for folder, _, files in os.walk(temp_dir):
+                for file in files:
+                    full_path = os.path.join(folder, file)
+                    rel_path = os.path.relpath(full_path, temp_dir)
+                    new_zip.write(full_path, rel_path)
+
+        shutil.move(tmp_docx, token_path)
+        shutil.rmtree(temp_dir)
+        print_color(f"Successfully injected fake data into: {token_path}", "SUCCESS")
+        
+    
+    def _generate_honeytoken_content_llm(self, filename):
+        """
+        Generate content for a honeytoken file using the LLM API.
+        """
+        prompt = SnareConfig.get("HONEYTOKEN", "PROMPT-FILECONTENT").replace("{honeytoken}", filename)
+        response = requests.post(
+            self.api_endpoint,
+            headers={"Authorization": f"Bearer {self.api_key}"},
+            json={
+                "inputs": prompt,
+                "parameters": self.llm_parameters
+            }
+        )
+
+        if response.status_code != 200:
+            self.logger.error(f"Failed to generate content for {filename}: {response.status_code} — {response.text}")
+            return f"Placeholder content for {filename}"
+
+        result = response.json()
+        print_color(f"Generated content for {filename}:\n{result}", "SUCCESS")
+        return result[0]["generated_text"] if isinstance(result, list) and "generated_text" in result[0] else f"Generated content for {filename}"
     
