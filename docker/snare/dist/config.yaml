@@ -1,5 +1,5 @@
 FEATURES:
-  enabled: False
+  enabled: True
 
 HONEYTOKEN:
   API-ENDPOINT: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta
@@ -26,8 +26,8 @@ HONEYTOKEN:
 BREADCRUMB:
   TYPES: 
     - "robots"
-    - "404_page"
-    - "html_comments"
+    # - "404_page"
+    # - "html_comments"
   API-ENDPOINT: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta
   API-KEY: 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
   PROMPT-404-ERROR: >

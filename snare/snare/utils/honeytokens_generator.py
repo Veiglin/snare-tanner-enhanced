@@ -195,6 +195,12 @@ class HoneytokensGenerator:
                     with open(hashed_filename, "wb") as f:
                         f.write(canarytoken_content)
                     print_color(f"Saved canarytoken file as {hashed_filename}", "SUCCESS")
+
+                    # Immediately inject content into newly downloaded token
+                    if token.endswith(".docx"):
+                        self._inject_docx(hashed_path)
+                    elif token.endswith(".xlsx"):
+                        self._inject_xlsx(hashed_path)
                 else:
                     self.logger.error(f"Failed to generate canarytoken for {token}")
             else:
@@ -241,4 +247,80 @@ class HoneytokensGenerator:
             return response.content
         else:
             self.logger.error(f"Failed to download content: {response.status_code} - {response.text}")
+
+    def _inject_docx(self, filepath):
+        temp_dir = filepath + "_tmp"
+
+        with zipfile.ZipFile(filepath, 'r') as zip_ref:
+            zip_ref.extractall(temp_dir)
+
+        doc_xml_path = os.path.join(temp_dir, "word", "document.xml")
+        ET.register_namespace('w', "http://schemas.openxmlformats.org/wordprocessingml/2006/main")
+        tree = ET.parse(doc_xml_path)
+        root = tree.getroot()
+
+        def make_paragraph(text):
+            ns = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+            p = ET.Element(f"{{{ns}}}p")
+            r = ET.SubElement(p, f"{{{ns}}}r")
+            t = ET.SubElement(r, f"{{{ns}}}t")
+            t.text = saxutils.escape(text)
+            return p
+
+        root.append(make_paragraph("=== Auto-Generated Passwords ==="))
+        for user, pwd in [("admin", "admin123"), ("john", "hunter2"), ("guest", "guest123")]:
+            root.append(make_paragraph(f"{user}: {pwd}"))
+
+        tree.write(doc_xml_path, encoding="UTF-8", xml_declaration=True)
+
+        tmp_output = filepath + ".tmp"
+        with zipfile.ZipFile(tmp_output, 'w', zipfile.ZIP_DEFLATED) as docx_zip:
+            for folder, _, files in os.walk(temp_dir):
+                for file in files:
+                    full_path = os.path.join(folder, file)
+                    rel_path = os.path.relpath(full_path, temp_dir)
+                    docx_zip.write(full_path, rel_path)
+
+        shutil.move(tmp_output, filepath)
+        shutil.rmtree(temp_dir)
+
+    def _inject_xlsx(self, filepath):
+        temp_dir = filepath + "_tmp"
+
+        with zipfile.ZipFile(filepath, 'r') as zip_ref:
+            zip_ref.extractall(temp_dir)
+
+        sheet_xml = os.path.join(temp_dir, "xl", "worksheets", "sheet1.xml")
+        tree = ET.parse(sheet_xml)
+        root = tree.getroot()
+        ns = {"x": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
+        ET.register_namespace('', ns["x"])
+
+        sheet_data = root.find("x:sheetData", ns)
+        start_row = len(sheet_data.findall("x:row", ns)) + 1
+
+        def make_row(row_idx, text):
+            row = ET.Element(f"{{{ns['x']}}}row", r=str(row_idx))
+            cell = ET.SubElement(row, f"{{{ns['x']}}}c", r=f"A{row_idx}", t="inlineStr")
+            is_elem = ET.SubElement(cell, f"{{{ns['x']}}}is")
+            t_elem = ET.SubElement(is_elem, f"{{{ns['x']}}}t")
+            t_elem.text = saxutils.escape(text)
+            return row
+
+        sheet_data.append(make_row(start_row, "=== Auto-Generated Passwords ==="))
+        for i, (user, pwd) in enumerate([("admin", "admin123"), ("john", "hunter2"), ("guest", "guest123")], start=1):
+            sheet_data.append(make_row(start_row + i, f"{user}: {pwd}"))
+
+        tree.write(sheet_xml, encoding="UTF-8", xml_declaration=True)
+
+        tmp_output = filepath + ".tmp"
+        with zipfile.ZipFile(tmp_output, 'w', zipfile.ZIP_DEFLATED) as xlsx_zip:
+            for folder, _, files in os.walk(temp_dir):
+                for file in files:
+                    full_path = os.path.join(folder, file)
+                    rel_path = os.path.relpath(full_path, temp_dir)
+                    xlsx_zip.write(full_path, rel_path)
+
+        shutil.move(tmp_output, filepath)
+        shutil.rmtree(temp_dir)
     
