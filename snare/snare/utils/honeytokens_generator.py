@@ -22,6 +22,7 @@ class HoneytokensGenerator:
         self.logger = logging.getLogger(__name__)
         self.page_dir = page_dir
         self.meta = meta
+        self.api_provider = SnareConfig.get("HONEYTOKEN", "API-PROVIDER")
         self.api_endpoint = SnareConfig.get("HONEYTOKEN", "API-ENDPOINT")
         self.api_key = SnareConfig.get("HONEYTOKEN", "API-KEY")
         self.llm_parameters = SnareConfig.get("HONEYTOKEN", "LLM-PARAMETERS")
@@ -58,24 +59,65 @@ class HoneytokensGenerator:
         """
         session_id = f"{random.randint(1000,9999)}_{int(time.time())}"
         prompt = SnareConfig.get("HONEYTOKEN", "PROMPT-FILENAMES").replace("{session_id}", session_id)
+        if self.api_provider == "huggingface":
+            text = self._call_huggingface_api(prompt)
+        elif self.api_provider == "gemini":
+            text = self._call_gemini_api(prompt)
+        filenames = self._extract_clean_filenames(text)
+        print_color("Cleaned Filenames:\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
+        return filenames
+        
+    def _call_huggingface_api(self, prompt):
+        """
+        Make an API call to Hugging Face.
+        """
+        api_endpoint = SnareConfig.get("HONEYTOKEN", "API-ENDPOINT")
+        api_key = SnareConfig.get("HONEYTOKEN", "API-KEY")
         response = requests.post(
-            self.api_endpoint,
-            headers={"Authorization": f"Bearer {self.api_key}"},
+            api_endpoint,
+            headers={"Authorization": f"Bearer {api_key}"},
             json={
                 "inputs": prompt,
                 "parameters": self.llm_parameters
             }
         )
         if response.status_code != 200:
-            self.logger.error(f"HuggingFace API Failed: {response.status_code} — {response.text}")
-            print_color(f"HuggingFace API Failed: {response.status_code} — {response.text}", "ERROR")
-            return
+            self.logger.error(f"Hugging Face API Failed: {response.status_code} — {response.text}")
+            return None
         result = response.json()
         text = result[0]["generated_text"] if isinstance(result, list) and "generated_text" in result[0] else ""
-        filenames = self._extract_clean_filenames(text)
-        print_color("Cleaned Filenames:\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
-        return filenames
+        return text
 
+    def _call_gemini_api(self, prompt):
+        """
+        Make an API call to Gemini.
+        """
+        api_endpoint = SnareConfig.get("HONEYTOKEN", "API-ENDPOINT")
+        api_key = SnareConfig.get("HONEYTOKEN", "API-KEY")
+        headers = {"Content-Type": "application/json"}
+        payload = {
+            "contents": [{
+                "parts": [{"text": prompt}]
+            }],
+            "generationConfig": {
+                "temperature": self.llm_parameters["temperature"],
+                "topP": self.llm_parameters["top_p"],
+                "topK": self.llm_parameters["top_k"],
+                "maxOutputTokens": self.llm_parameters["max_new_tokens"]
+            },
+        }
+        response = requests.post(
+            f"{api_endpoint}:generateContent?key={api_key}",
+            headers=headers,
+            json=payload
+        )
+        if response.status_code != 200:
+            self.logger.error(f"Gemini API Failed: {response.status_code} — {response.text}")
+            return None
+        result = response.json()
+        text = result["candidates"][0]["content"]["parts"][0]["text"]
+        return text
+    
     def _extract_clean_filenames(self, text):
         lines = text.strip().split("\n")
         cleaned = []
@@ -108,7 +150,7 @@ class HoneytokensGenerator:
             meta[self.marker] = "DO NOT REMOVE — all entries after this are auto-generated honeytokens"
 
         # pick a session path prefix once
-        prefix = random.choice(["wp-admin", "admin", "includes", "cgi-bin", "private", "search", "action", "modules", "filter\tips", "comment\reply", "node\add"])
+        prefix = random.choice(["wp-admin", "admin", "includes", "cgi-bin", "private", "search", "action", "modules", "filter/tips", "comment/reply", "node/add"])
         self.generated_paths = []  # store full paths like 'logs/vault2022.db'
         for name in filenames:
             full_path = os.path.join(prefix, name).replace("\\", "/")  # ensures it's slash-separated
