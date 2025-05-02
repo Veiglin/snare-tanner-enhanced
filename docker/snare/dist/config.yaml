@@ -1,9 +1,9 @@
 FEATURES:
-  enabled: True
+  enabled: False
 
 HONEYTOKEN:
   API-ENDPOINT: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta
-  API-KEY: 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
+  API-KEY: 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
   PROMPT-FILENAMES: >
     You are generating bait filenames for a website called SmartGadgetStore.live, which sells smart gadgets and electronics online.
     Generate in total 5 files. The generated files should be realistic, code-friendly filenames (no spaces or special characters) that might contain sensitive internal data.
@@ -29,7 +29,7 @@ BREADCRUMB:
     - "404_page"
     - "html_comments"
   API-ENDPOINT: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta
-  API-KEY: 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
+  API-KEY: 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
   PROMPT-404-ERROR: >
     Write a short HTML bait line (in a <p> tag) that subtly hints at an internal file located at /{honeytoken}. 
     It should look like something a developer accidentally left in, referencing the file path naturally.
