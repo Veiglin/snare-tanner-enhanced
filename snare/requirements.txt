@@ -5,3 +5,4 @@ cssutils==1.0.2
 gitpython==3.1.30
 pycodestyle==2.4.0
 pyyaml
+xlwings
