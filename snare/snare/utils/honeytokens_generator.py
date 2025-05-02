@@ -102,7 +102,8 @@ class HoneytokensGenerator:
             "generationConfig": {
                 "temperature": self.llm_parameters["temperature"],
                 "topP": self.llm_parameters["top_p"],
-                "topK": self.llm_parameters["top_k"]
+                "topK": self.llm_parameters["top_k"],
+                "maxOutputTokens": self.llm_parameters["max_new_tokens"]
             },
         }
         response = requests.post(
