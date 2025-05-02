@@ -1,3 +1,4 @@
-user/logs/SmartGadgetStore_inventory_backup_2021-06-15_1219.xlsx
-user/logs/SGS_Customer_List_2021-06-22_1339.zip
-user/logs/SGS_Supplier_List_2021-06-27_1745.sql
+modules/smartgadgetstore_admin_users_20210801.xlsx
+modules/smartgadgetstore_customer_export_20210731.xlsx
+modules/smartgadgetstore_device_config_dumps_20210801.zip
+modules/smartgadgetstore_inventory_backup_20210801.sql

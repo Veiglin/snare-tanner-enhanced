@@ -1,5 +1,5 @@
 FEATURES:
-  enabled: True
+  enabled: False
 
 HONEYTOKEN:
   API-ENDPOINT: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta
