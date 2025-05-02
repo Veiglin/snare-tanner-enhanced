@@ -76,6 +76,7 @@ class HoneytokensGenerator:
             print_color(f"HuggingFace API Failed: {response.status_code} — {response.text}", "ERROR")
             return
         result = response.json()
+        print_color(f"Generated result:\n{result}", "SUCCESS")
         text = result[0]["generated_text"] if isinstance(result, list) and "generated_text" in result[0] else ""
         filenames = self._extract_clean_filenames(text)
         print_color("Cleaned Filenames:\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
@@ -113,7 +114,7 @@ class HoneytokensGenerator:
             meta[self.marker] = "DO NOT REMOVE — all entries after this are auto-generated honeytokens"
 
         # pick a session path prefix once
-        prefix = random.choice(["wp-admin", "admin", "includes", "cgi-bin", "private", "search", "action", "modules", "filter\tips", "comment\reply", "node\add"])
+        prefix = random.choice(["wp-admin", "admin", "includes", "cgi-bin", "private", "search", "action", "modules", "filter/tips", "comment/reply", "node/add"])
         self.generated_paths = []  # store full paths like 'logs/vault2022.db'
         for name in filenames:
             full_path = os.path.join(prefix, name).replace("\\", "/")  # ensures it's slash-separated
@@ -182,7 +183,9 @@ class HoneytokensGenerator:
             honeytokens = f.read().splitlines()
         
         # go through the honeytokens and generate a canarytoken for those that are pdf, xlsx, docx
-        for token in honeytokens:
+        for full_token in honeytokens:
+            # ensure to extract only the filename
+            token = os.path.basename(full_token)
             # check if the token is a pdf, xlsx, docx
             if token.endswith('.pdf') or token.endswith('.xlsx') or token.endswith('.docx'):
                 # generate the canarytoken by calling the generate_token function for 
@@ -201,16 +204,17 @@ class HoneytokensGenerator:
                         f.write(canarytoken_content)
                     print_color(f"Saved canarytoken file as {hashed_filename}", "SUCCESS")
 
-                    # generate content for the honeytoken file
-                    honeytoken_content = self._generate_honeytoken_content_llm(token)
+                    # append the generated content to the canarytoken file with xlwings
+                    honeytoken_content = None
+                    #if token.endswith('.xlsx'):
+                    #     honeytoken_content = self._generate_honeytoken_content_llm(token)
+                    #    self._add_content_xlsx(hashed_filename, honeytoken_content)
+                    if token.endswith('.docx'):
+                        honeytoken_content = self._generate_honeytoken_content_llm(token)
+                        self._add_content_docx(hashed_filename, honeytoken_content)
+                    #elif token.endswith('.pdf'):
+                    #    self._add_content_pdf(hashed_filename, honeytoken_content)
                     if honeytoken_content:
-                        # append the generated content to the canarytoken file with xlwings
-                        if token.endswith('.xlsx'):
-                            self._add_content_xlsx(hashed_filename, honeytoken_content)
-                        elif token.endswith('.docx'):
-                            self._add_content_docx(hashed_filename, honeytoken_content)
-                        #elif token.endswith('.pdf'):
-                        #    self._add_content_pdf(hashed_filename, honeytoken_content)
                         print_color(f"Appended content to {hashed_filename}", "SUCCESS")
                     else:
                         self.logger.error(f"Failed to generate content for {token}")
