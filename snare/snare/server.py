@@ -33,7 +33,7 @@ class HttpRequestHandler:
             return {}
 
         random.shuffle(words)
-        sampled = words[:200]  # Limit to avoid overload
+        sampled = words[:100]  # Limit to avoid overload
 
         route_map = {}
         for path in sampled:
