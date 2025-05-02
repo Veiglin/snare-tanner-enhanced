@@ -1,8 +1,9 @@
 FEATURES:
-  enabled: False
+  enabled: True
 
 HONEYTOKEN:
-  API-ENDPOINT: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta
+  API-PROVIDER: gemini # Options: huggingface, gemini
+  API-ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash
   API-KEY:   
   PROMPT-FILENAMES: >
     You are generating bait filenames for a website called SmartGadgetStore.live, which sells smart gadgets and electronics online.
@@ -20,7 +21,9 @@ HONEYTOKEN:
     do_sample: true
     top_p: 0.95
     top_k: 50
-    max_new_tokens: 100
+    min_new_tokens: 50 # Only supported for HuggingFace
+    max_new_tokens: 150 # Only supported for HuggingFace
+    return_full_text: false # Only supported for HuggingFace
   WEBHOOK-URL:   
 
 BREADCRUMB:
@@ -28,6 +31,7 @@ BREADCRUMB:
     - "robots"
     - "404_page"
     - "html_comments"
+  API-PROVIDER: huggingface # Options: huggingface, gemini
   API-ENDPOINT: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta
   API-KEY:   
   PROMPT-404-ERROR: >
@@ -43,4 +47,6 @@ BREADCRUMB:
     do_sample: true
     top_p: 0.95
     top_k: 50
-    max_new_tokens: 50
+    min_new_tokens: 20
+    max_new_tokens: 70
+    return_full_text: false
