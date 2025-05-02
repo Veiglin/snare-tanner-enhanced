@@ -19,7 +19,7 @@ HONEYTOKEN:
     temperature: 0.9
     top_p: 0.95
     top_k: 50
-    max_new_tokens: 150 # Only supported for HuggingFace
+    max_new_tokens: 200
     do_sample: true # Only supported for HuggingFace
     return_full_text: false # Only supported for HuggingFace
   WEBHOOK-URL:   
