@@ -122,6 +122,7 @@ class HoneytokensGenerator:
         lines = text.strip().split("\n")
         cleaned = []
         for line in lines:
+            line = re.sub(r"^\*\*|\*\*$", "", line)  # Remove surrounding ** if present
             line = re.sub(r"^[-*\s#\d\.\)]*\s*", "", line)
             line = re.sub(r"^.*?:\s*", "", line)
             line = line.replace(" ", "_")
