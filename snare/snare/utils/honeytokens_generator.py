@@ -63,6 +63,7 @@ class HoneytokensGenerator:
             text = self._call_huggingface_api(prompt)
         elif self.api_provider == "gemini":
             text = self._call_gemini_api(prompt)
+            print_color(f"Gemini API response: {text}", "SUCCESS")
         filenames = self._extract_clean_filenames(text)
         print_color("Cleaned Filenames:\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
         return filenames
@@ -122,6 +123,7 @@ class HoneytokensGenerator:
         lines = text.strip().split("\n")
         cleaned = []
         for line in lines:
+            line = re.sub(r"^\*\*|\*\*$", "", line)  # Remove surrounding ** if present
             line = re.sub(r"^[-*\s#\d\.\)]*\s*", "", line)
             line = re.sub(r"^.*?:\s*", "", line)
             line = line.replace(" ", "_")
