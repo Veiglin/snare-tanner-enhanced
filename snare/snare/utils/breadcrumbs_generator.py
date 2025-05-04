@@ -38,11 +38,11 @@ class BreadcrumbsGenerator:
             if breadcrumb == 'robots':
                 self.generate_robots_breadcrumb()
             elif breadcrumb == '404_page':
-                self.generate_404_breadcrumb()
+                self.generate_error_pages_breadcrumb()
             elif breadcrumb == 'html_comments':
                 self.generate_html_comments_breadcrumb()
             else:
-                print_color("Breadcrumb type '{}' is not supported yet.".format(breadcrumb), "WARNING")
+                self.logger.info("Breadcrumb type '{}' is not supported yet.".format(breadcrumb), "WARNING")
 
     def generate_robots_breadcrumb(self):
         """
@@ -107,13 +107,24 @@ class BreadcrumbsGenerator:
         else:
             self.logger.error("No bait lines added in Honeytokens.txt. Cannot generate robots.txt breadcrumbs.")
 
-    def generate_404_breadcrumb(self):
+    def generate_error_pages_breadcrumb(self):
         """
-        Rewrites the 404 page identified by '/status_404' in meta with a breadcrumb line
-        generated using an LLM and one random honeytoken.
-        If not found, creates the entry and file.
+        Rewrites the 404 page and one other random error page (400, 401, 403, 500)
+        with a breadcrumb line generated using an LLM and one random honeytoken.
+        Creates entries and files if they don't exist.
         """
-        abs_url = "/status_404"
+        self._generate_status_breadcrumb("/status_404")
+
+        # Pick one more random error page
+        other_status_pages = ["/status_400", "/status_401", "/status_403", "/status_500"]
+        random_status = random.choice(other_status_pages)
+        self._generate_status_breadcrumb(random_status)
+        print_color(f"Breadcrumbs generated for {random_status}", "INFO")
+
+    def _generate_status_breadcrumb(self, abs_url):
+        """
+        Shared logic to generate a breadcrumb for a given status page (e.g., /status_404, /status_401).
+        """
         hash_name = self.meta.get(abs_url, {}).get("hash")
 
         # If not found in meta, create it
@@ -124,56 +135,48 @@ class BreadcrumbsGenerator:
                 "content_type": "text/html"
             }
 
-            # Save updated meta.json
             meta_json_path = os.path.join(self.page_dir, "meta.json")
             with open(meta_json_path, "w") as meta_file:
                 json.dump(self.meta, meta_file, indent=4)
-            print_color(f"Breadcrumbing: Created new meta entry for '{abs_url}'", "INFO")
+            self.logger.info(f"Breadcrumbing: Meta.json not found. Created new meta entry for '{abs_url}'", "INFO")
 
         html_path = os.path.join(self.page_dir, hash_name)
 
-        # If file doesn't exist, create a basic HTML structure
         if not os.path.exists(html_path):
             with open(html_path, "w") as f:
                 f.write("<html><body></body></html>")
 
-        # Read current content
         with open(html_path, "r") as f:
             html_content = f.read()
 
-        # Load honeytokens
         if not os.path.exists(self.honeytoken_path):
-            print_color("No Honeytokens.txt found. Cannot generate breadcrumb.", "WARNING")
+            self.logger.info("No Honeytokens.txt found. Cannot generate breadcrumb.", "WARNING")
             return
 
         with open(self.honeytoken_path, "r") as f:
             tokens = [line.strip() for line in f if line.strip()]
 
-        # Filter out already used tokens
         available_tokens = [token for token in tokens if token not in self.used_canarytoken]
         if not available_tokens:
-            self.logger.warning("No available honeytokens for error page breadcrumbs. Choosing a random bait file")
-            # use non-canarytokens if no canarytokens are available
+            self.logger.info("No available honeytokens for error page breadcrumbs. Choosing a random bait file")
             available_tokens = [token for token in tokens if token not in self.used_canarytoken and not token.endswith(('.pdf', '.xlsx', '.docx'))]
 
         chosen_token = random.choice(available_tokens)
         self.used_canarytoken.append(chosen_token)
 
-        # Generate breadcrumb from LLM
         breadcrumb_line = self._generate_404_content_from_llm(chosen_token)
 
-        # Remove old breadcrumb if it exists
         html_content = html_content.replace("<p>This is a breadcrumb.</p>", "")
         if "</body>" in html_content:
             html_content = html_content.replace("</body>", breadcrumb_line + "\n</body>")
         else:
             html_content += "\n" + breadcrumb_line
 
-        # Save updated HTML
         with open(html_path, "w") as f:
             f.write(html_content)
 
-        self.logger.debug(f"Updated 404 page with breadcrumb referencing '/{chosen_token}'")
+        self.logger.error(f"Updated {abs_url} with breadcrumb referencing '/{chosen_token}'")
+
 
     def _generate_404_content_from_llm(self, honeytoken):
         prompt = SnareConfig.get("BREADCRUMB", "PROMPT-404-ERROR").replace("{honeytoken}", honeytoken)
@@ -221,7 +224,7 @@ class BreadcrumbsGenerator:
     
     def _generate_gemini_content(self, prompt):
         """
-        Generates content using the Gemini API.
+        Generates content using the Gemini API with retry logic (2 retries, 2 seconds delay).
         """
         headers = {"Content-Type": "application/json"}
         payload = {
@@ -235,19 +238,30 @@ class BreadcrumbsGenerator:
                 "maxOutputTokens": self.llm_parameters["max_new_tokens"]
             },
         }
-        response = requests.post(
-            f"{self.api_endpoint}:generateContent?key={self.api_key}",
-            headers=headers,
-            json=payload
-        )
 
-        if response.status_code != 200:
-            self.logger.error(f"Gemini API Failed: {response.status_code} — {response.text}")
-            return None
+        max_attempts = 3
+        delay_seconds = 2
 
-        result = response.json()
-        text = result["candidates"][0]["content"]["parts"][0]["text"]
-        return text
+        for attempt in range(1, max_attempts + 1):
+            try:
+                response = requests.post(
+                    f"{self.api_endpoint}:generateContent?key={self.api_key}",
+                    headers=headers,
+                    json=payload
+                )
+                if response.status_code == 200:
+                    result = response.json()
+                    return result["candidates"][0]["content"]["parts"][0]["text"]
+                else:
+                    print_color(f"⚠️ Gemini API attempt {attempt} failed: {response.status_code} — {response.text}", "WARNING")
+            except Exception as e:
+                print_color(f"⚠️ Gemini API attempt {attempt} raised exception: {str(e)}", "WARNING")
+
+            if attempt < max_attempts:
+                time.sleep(delay_seconds)
+
+        print_color("❌ Gemini API failed after multiple attempts.", "ERROR")
+        return None
 
     def generate_html_comments_breadcrumb(self):
         """
@@ -257,12 +271,12 @@ class BreadcrumbsGenerator:
         hash_name = self.meta.get(abs_url, {}).get("hash")
 
         if not hash_name:
-            print_color("Meta entry for /index.html not found.", "WARNING")
+            self.logger.info("Meta entry for /index.html not found.", "WARNING")
             return
 
         html_path = os.path.join(self.page_dir, hash_name)
         if not os.path.exists(html_path):
-            print_color(f"index.html not found at {html_path}. Skipping injection.", "WARNING")
+            self.logger.info(f"index.html not found at {html_path}. Skipping injection.", "WARNING")
             return
 
         with open(html_path, "r") as f:
@@ -271,14 +285,14 @@ class BreadcrumbsGenerator:
         # Find all HTML comments
         all_comments = re.findall(r'<!--.*?-->', html_content)
         if not all_comments:
-            print_color("No HTML comments found in the file.", "WARNING")
+            self.logger.info("No HTML comments found in the file.", "WARNING")
             return
 
         # Pick a random comment to inject after
         anchor_comment = random.choice(all_comments)
 
         if not os.path.exists(self.honeytoken_path):
-            print_color("Honeytokens.txt not found.", "WARNING")
+            self.logger.info("Honeytokens.txt not found.", "WARNING")
             return
 
         with open(self.honeytoken_path, "r") as f:

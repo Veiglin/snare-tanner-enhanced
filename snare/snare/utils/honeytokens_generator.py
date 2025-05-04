@@ -8,6 +8,10 @@ import hashlib
 import requests
 from typing import Optional
 import requests
+import zipfile
+import shutil
+import xml.etree.ElementTree as ET
+from xml.sax import saxutils
 
 from snare.utils.snare_helpers import print_color
 from snare.config import SnareConfig
@@ -57,8 +61,35 @@ class HoneytokensGenerator:
         Generate filenames using the HuggingFace API.
         The filenames are generated using the prompt defined in the config file.
         """
-        session_id = f"{random.randint(1000,9999)}_{int(time.time())}"
-        prompt = SnareConfig.get("HONEYTOKEN", "PROMPT-FILENAMES").replace("{session_id}", session_id)
+        session_variants = [
+            "Make them look realistic enough to fool a junior employee.",
+            "Add a touch of urgency, as if the files were hastily generated before a data breach.",
+            "Generate filenames that suggest high-value internal data.",
+            "Add subtle typos to mimic real human-created filenames.",
+            "Include hints that the files may contain payment or billing data.",
+            "Mimic filenames you'd find in a disgruntled employee's backup folder.",
+            "Make filenames that sound like they belong to a shady reseller.",
+            "These files should appear to be exports from a misconfigured admin panel.",
+            "Generate filenames a tech-savvy intern might name while cutting corners.",
+            "Suggest these files were auto-exported by outdated internal tools.",
+            "Use naming that implies secret supplier pricing or vendor deals.",
+            "Pretend these were pulled during a compliance audit and never cleaned up.",
+            "Make them look like reports prepared for a board meeting.",
+            "Make filenames that feel 'too confidential' to be in a public directory.",
+            "Give filenames that a hacker might think hold admin credentials.",
+            "Mimic a leak from someone trying to expose shady practices.",
+            "Make them just boring enough to avoid suspicion, but still clickable.",
+            "Generate filenames that feel 'forgotten but dangerous'.",
+            "Pretend these were copied quickly during an office shutdown.",
+            "Include clues that this is from an older abandoned staging server.",
+            "Generate as if the files were archived manually by someone non-technical.",
+            "Imply customer PII may be inside, without being too obvious.",
+            "These filenames should provoke curiosity and suspicion.",
+            "Make the files look like juicy but plausible corporate documents.",
+            "Name them like attachments from a whistleblower email."
+        ]
+        session = random.choice(session_variants)
+        prompt = SnareConfig.get("HONEYTOKEN", "PROMPT-FILENAMES").replace("{session}", session)
         if self.api_provider == "huggingface":
             text = self._call_huggingface_api(prompt)
         elif self.api_provider == "gemini":
@@ -90,7 +121,7 @@ class HoneytokensGenerator:
 
     def _call_gemini_api(self, prompt):
         """
-        Make an API call to Gemini.
+        Make an API call to Gemini with retry logic (2 retries, 2 seconds delay).
         """
         api_endpoint = SnareConfig.get("HONEYTOKEN", "API-ENDPOINT")
         api_key = SnareConfig.get("HONEYTOKEN", "API-KEY")
@@ -106,17 +137,31 @@ class HoneytokensGenerator:
                 "maxOutputTokens": self.llm_parameters["max_new_tokens"]
             },
         }
-        response = requests.post(
-            f"{api_endpoint}:generateContent?key={api_key}",
-            headers=headers,
-            json=payload
-        )
-        if response.status_code != 200:
-            self.logger.error(f"Gemini API Failed: {response.status_code} — {response.text}")
-            return None
-        result = response.json()
-        text = result["candidates"][0]["content"]["parts"][0]["text"]
-        return text
+
+        max_attempts = 3
+        delay_seconds = 2
+
+        for attempt in range(1, max_attempts + 1):
+            try:
+                response = requests.post(
+                    f"{api_endpoint}:generateContent?key={api_key}",
+                    headers=headers,
+                    json=payload
+                )
+                if response.status_code == 200:
+                    result = response.json()
+                    return result["candidates"][0]["content"]["parts"][0]["text"]
+                else:
+                    print_color(f"Gemini API attempt {attempt} failed: {response.status_code} — {response.text}")
+            except Exception as e:
+                print_color(f"Gemini API attempt {attempt} raised exception: {e}")
+
+            if attempt < max_attempts:
+                time.sleep(delay_seconds)
+
+        self.logger.error("Gemini API failed after multiple attempts.")
+        return None
+
     
     def _extract_clean_filenames(self, text):
         lines = text.strip().split("\n")
@@ -238,6 +283,13 @@ class HoneytokensGenerator:
                     with open(hashed_filename, "wb") as f:
                         f.write(canarytoken_content)
                     print_color(f"Saved canarytoken file as {hashed_filename}", "SUCCESS")
+
+                    # Immediately inject content into newly downloaded token
+                    if token.endswith(".docx"):
+                        self._inject_docx(filepath=hashed_filename, honeytoken=token)
+                    elif token.endswith(".xlsx"):
+                        self._inject_xlsx(filepath=hashed_filename, honeytoken=token)
+
                 else:
                     self.logger.error(f"Failed to generate canarytoken for {token}")
             else:
@@ -284,4 +336,204 @@ class HoneytokensGenerator:
             return response.content
         else:
             self.logger.error(f"Failed to download content: {response.status_code} - {response.text}")
+
+    def _inject_docx(self, filepath, honeytoken):
+        temp_dir = filepath + "_tmp"
+
+        with zipfile.ZipFile(filepath, 'r') as zip_ref:
+            zip_ref.extractall(temp_dir)
+
+        doc_xml_path = os.path.join(temp_dir, "word", "document.xml")
+        ET.register_namespace('w', "http://schemas.openxmlformats.org/wordprocessingml/2006/main")
+        tree = ET.parse(doc_xml_path)
+        root = tree.getroot()
+        body = root.find("{http://schemas.openxmlformats.org/wordprocessingml/2006/main}body")
+        children = list(body)
+
+        if children and children[-1].tag.endswith("sectPr"):
+            sectPr = children[-1]
+            body.remove(sectPr)
+        else:
+            sectPr = None
+
+        def make_paragraph(text):
+            ns = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+            p = ET.Element(f"{{{ns}}}p")
+            r = ET.SubElement(p, f"{{{ns}}}r")
+            t = ET.SubElement(r, f"{{{ns}}}t")
+            t.text = saxutils.escape(text)
+            return p
+
+        lines = self._generate_fake_content_from_llm(honeytoken, "docx")
+        for line in lines:
+            body.append(make_paragraph(line))
+
+        if sectPr is not None:
+            body.append(sectPr)
+
+        tree.write(doc_xml_path, encoding="UTF-8", xml_declaration=True)
+
+        tmp_output = filepath + ".tmp"
+        with zipfile.ZipFile(tmp_output, 'w', zipfile.ZIP_DEFLATED) as docx_zip:
+            for folder, _, files in os.walk(temp_dir):
+                for file in files:
+                    full_path = os.path.join(folder, file)
+                    rel_path = os.path.relpath(full_path, temp_dir)
+                    docx_zip.write(full_path, rel_path)
+
+        shutil.move(tmp_output, filepath)
+        shutil.rmtree(temp_dir)
+
+
+
+    def _inject_xlsx(self, filepath, honeytoken):
+        temp_dir = filepath + "_tmp"
+
+        with zipfile.ZipFile(filepath, 'r') as zip_ref:
+            zip_ref.extractall(temp_dir)
+
+        sheet_xml = os.path.join(temp_dir, "xl", "worksheets", "sheet1.xml")
+        tree = ET.parse(sheet_xml)
+        root = tree.getroot()
+        ns = {"x": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
+        ET.register_namespace('', ns["x"])
+
+        sheet_data = root.find("x:sheetData", ns)
+        dimension = root.find("x:dimension", ns)
+
+        def col_letter(n):
+            result = ''
+            while n > 0:
+                n, remainder = divmod(n - 1, 26)
+                result = chr(65 + remainder) + result
+            return result
+
+        def make_row(row_idx, values):
+            row = ET.Element(f"{{{ns['x']}}}row", attrib={"r": str(row_idx), "spans": f"1:{len(values)}"})
+            for col_idx, val in enumerate(values):
+                col = col_letter(col_idx + 1)
+                cell = ET.SubElement(row, f"{{{ns['x']}}}c", attrib={"r": f"{col}{row_idx}", "t": "inlineStr"})
+                is_elem = ET.SubElement(cell, f"{{{ns['x']}}}is")
+                t_elem = ET.SubElement(is_elem, f"{{{ns['x']}}}t")
+                t_elem.text = saxutils.escape(val)
+            return row
+
+        existing_rows = sheet_data.findall("x:row", ns)
+        start_row = max((int(row.attrib.get("r", "0")) for row in existing_rows), default=0) + 1
+
+        rows = self._generate_fake_content_from_llm(honeytoken, "xlsx")
+
+        for i, line in enumerate(rows):
+            values = [v.strip() for v in line.split(",") if v.strip()]
+            sheet_data.append(make_row(start_row + i, values))
+
+        last_row = start_row + len(rows) - 1
+        last_col = col_letter(max(len(r.split(",")) for r in rows)) if rows else "A"
+        if dimension is not None:
+            dimension.set("ref", f"A1:{last_col}{last_row}")
+
+        tree.write(sheet_xml, encoding="UTF-8", xml_declaration=True, method="xml")
+
+        tmp_output = filepath + ".tmp"
+        with zipfile.ZipFile(tmp_output, 'w', zipfile.ZIP_DEFLATED) as xlsx_zip:
+            for folder, _, files in os.walk(temp_dir):
+                for file in files:
+                    full_path = os.path.join(folder, file)
+                    rel_path = os.path.relpath(full_path, temp_dir)
+                    xlsx_zip.write(full_path, rel_path)
+
+        shutil.move(tmp_output, filepath)
+        shutil.rmtree(temp_dir)
+
+
+    def _generate_fake_content_from_llm(self, honeytoken: str, filetype: str):
+        """
+        Generate realistic fake content for XML injection based on honeytoken filename.
+        Uses prompts from config with {honeytoken} placeholder.
+        Returns a list of clean lines.
+        """
+        options = [
+            "realistic as the CEO that you are.",
+            "boring..",
+            "juicy wow!",
+            "tempting for a thief!!",
+            "simple and clean.",
+            "as bland as an IT compliance report.",
+            "dripping with secrets.",
+            "convincingly corporate.",
+            "leaking subtle danger.",
+            "quietly explosive.",
+            "like it fell off the back of a server.",
+            "barely legal.",
+            "flashy enough to get flagged by an intern.",
+            "low-key shady.",
+            "tempting like a forbidden folder.",
+            "desperate for a double-click.",
+            "one wrong click away from disaster.",
+            "suspiciously tidy.",
+            "hacked-together brilliance.",
+            "just corporate enough to be overlooked.",
+            "too good to be left in plain sight.",
+            "enticing to someone who knows what to look for.",
+            "so juicy it should be encrypted.",
+            "hidden in plain sight.",
+            "ready to blow the whistle.",
+            "like evidence waiting to be found.",
+            "seductive in a spreadsheet kind of way.",
+            "a little too confidential.",
+            "like it belongs in a courtroom.",
+            "mistakenly public.",
+            "so official it hurts.",
+            "a digital honeytrap.",
+            "cryptic but obvious.",
+            "named for mischief.",
+            "almost believable.",
+            "from the dark side of the SharePoint.",
+            "familiar but threatening.",
+            "ticking with legal implications.",
+            "worthy of blackmail.",
+            "bait for the bold.",
+            "quietly screaming 'look at me'.",
+            "the filename equivalent of clickbait.",
+            "designed to cause a breach report.",
+            "innocent enough to be deadly.",
+            "sweet as social engineering bait.",
+            "just boring enough to be ignored — or not.",
+            "suspenseful like a spy novel title.",
+            "like a mistake someone made at 2 AM.",
+            "a juicy secret disguised as compliance."
+        ]
+        dynamic = random.choice(options)
+        if filetype == "docx":
+            prompt = (
+                SnareConfig.get("HONEYTOKEN", "PROMPT-DOCX")
+                .replace("{honeytoken}", honeytoken)
+                .replace("{dynamic}", dynamic)
+            )
+        elif filetype == "xlsx":
+            prompt = (
+                SnareConfig.get("HONEYTOKEN", "PROMPT-XLSX")
+                .replace("{honeytoken}", honeytoken)
+                .replace("{dynamic}", dynamic)
+            )
+        else:
+            return []
+
+
+        # Call the LLM
+        if self.api_provider == "huggingface":
+            text = self._call_huggingface_api(prompt)
+        elif self.api_provider == "gemini":
+            text = self._call_gemini_api(prompt)
+        else:
+            return []
+
+        try:
+            # Clean up response lines
+            lines = [line.strip() for line in text.strip().splitlines() if line.strip()]
+            return lines
+        except Exception as e:
+            self.logger.error(f"Failed to process fake content from LLM: {e}")
+            return []
+
     
