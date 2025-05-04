@@ -29,6 +29,9 @@ class BreadcrumbsGenerator:
         Always cleans up the 404 and robots.txt files regardless of generation flag.
         """
         breadcrumb_types = SnareConfig.get("BREADCRUMB", "TYPES")
+        if not breadcrumb_types:
+            print_color("No breadcrumb types specified. Skipping breadcrumb generation.", "WARNING")
+            return
 
         for breadcrumb in breadcrumb_types:
             breadcrumb_types = breadcrumb.strip()
