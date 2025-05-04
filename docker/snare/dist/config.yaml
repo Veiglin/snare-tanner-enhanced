@@ -30,7 +30,7 @@ HONEYTOKEN:
     max_new_tokens: 200
     do_sample: true # Only supported for HuggingFace
     return_full_text: false # Only supported for HuggingFace
-  WEBHOOK-URL: https://webhook.site/a1012a3d-76aa-413d-b947-c07d2d966cf6
+  WEBHOOK-URL: https://webhook.site/3352f88c-51cb-4cda-9548-009fd3aead6f
 
 BREADCRUMB:
   TYPES: 
