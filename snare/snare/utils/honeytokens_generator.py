@@ -8,6 +8,10 @@ import hashlib
 import requests
 from typing import Optional
 import requests
+import zipfile
+import shutil
+import xml.etree.ElementTree as ET
+from xml.sax import saxutils
 
 from snare.utils.snare_helpers import print_color
 from snare.config import SnareConfig
@@ -240,9 +244,10 @@ class HoneytokensGenerator:
 
                     # Immediately inject content into newly downloaded token
                     if token.endswith(".docx"):
-                        self._inject_docx(hashed_path)
+                        self._inject_docx(hashed_filename)
                     elif token.endswith(".xlsx"):
-                        self._inject_xlsx(hashed_path)
+                        self._inject_xlsx(hashed_filename)
+
                 else:
                     self.logger.error(f"Failed to generate canarytoken for {token}")
             else:
@@ -301,6 +306,15 @@ class HoneytokensGenerator:
         tree = ET.parse(doc_xml_path)
         root = tree.getroot()
 
+        body = root.find("{http://schemas.openxmlformats.org/wordprocessingml/2006/main}body")
+        children = list(body)
+
+        if children and children[-1].tag.endswith("sectPr"):
+            sectPr = children[-1]
+            body.remove(sectPr)
+        else:
+            sectPr = None
+
         def make_paragraph(text):
             ns = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
             p = ET.Element(f"{{{ns}}}p")
@@ -309,9 +323,12 @@ class HoneytokensGenerator:
             t.text = saxutils.escape(text)
             return p
 
-        root.append(make_paragraph("=== Auto-Generated Passwords ==="))
+        body.append(make_paragraph("=== Auto-Generated Passwords ==="))
         for user, pwd in [("admin", "admin123"), ("john", "hunter2"), ("guest", "guest123")]:
-            root.append(make_paragraph(f"{user}: {pwd}"))
+            body.append(make_paragraph(f"{user}: {pwd}"))
+
+        if sectPr is not None:
+            body.append(sectPr)
 
         tree.write(doc_xml_path, encoding="UTF-8", xml_declaration=True)
 
@@ -326,6 +343,7 @@ class HoneytokensGenerator:
         shutil.move(tmp_output, filepath)
         shutil.rmtree(temp_dir)
 
+
     def _inject_xlsx(self, filepath):
         temp_dir = filepath + "_tmp"
 
@@ -339,21 +357,45 @@ class HoneytokensGenerator:
         ET.register_namespace('', ns["x"])
 
         sheet_data = root.find("x:sheetData", ns)
-        start_row = len(sheet_data.findall("x:row", ns)) + 1
+        dimension = root.find("x:dimension", ns)
 
-        def make_row(row_idx, text):
-            row = ET.Element(f"{{{ns['x']}}}row", r=str(row_idx))
-            cell = ET.SubElement(row, f"{{{ns['x']}}}c", r=f"A{row_idx}", t="inlineStr")
-            is_elem = ET.SubElement(cell, f"{{{ns['x']}}}is")
-            t_elem = ET.SubElement(is_elem, f"{{{ns['x']}}}t")
-            t_elem.text = saxutils.escape(text)
+        def col_letter(n):
+            result = ''
+            while n > 0:
+                n, remainder = divmod(n - 1, 26)
+                result = chr(65 + remainder) + result
+            return result
+
+        def make_row(row_idx, values):
+            row = ET.Element(f"{{{ns['x']}}}row", attrib={"r": str(row_idx), "spans": f"1:{len(values)}"})
+            for col_idx, val in enumerate(values):
+                col = col_letter(col_idx + 1)
+                cell = ET.SubElement(row, f"{{{ns['x']}}}c", attrib={"r": f"{col}{row_idx}", "t": "inlineStr"})
+                is_elem = ET.SubElement(cell, f"{{{ns['x']}}}is")
+                t_elem = ET.SubElement(is_elem, f"{{{ns['x']}}}t")
+                t_elem.text = saxutils.escape(val)
             return row
 
-        sheet_data.append(make_row(start_row, "=== Auto-Generated Passwords ==="))
-        for i, (user, pwd) in enumerate([("admin", "admin123"), ("john", "hunter2"), ("guest", "guest123")], start=1):
-            sheet_data.append(make_row(start_row + i, f"{user}: {pwd}"))
+        existing_rows = sheet_data.findall("x:row", ns)
+        start_row = max((int(row.attrib.get("r", "0")) for row in existing_rows), default=0) + 1
 
-        tree.write(sheet_xml, encoding="UTF-8", xml_declaration=True)
+        new_rows = [
+            make_row(start_row, ["=== Auto-Generated Passwords ==="]),
+            make_row(start_row + 1, ["admin", "admin123"]),
+            make_row(start_row + 2, ["john", "hunter2"]),
+            make_row(start_row + 3, ["guest", "guest123"])
+        ]
+
+        for row in new_rows:
+            sheet_data.append(row)
+
+        # Update <dimension> tag
+        last_row = start_row + len(new_rows) - 1
+        last_col = col_letter(2)  # Assuming two columns max (A and B)
+        if dimension is not None:
+            dimension.set("ref", f"A1:{last_col}{last_row}")
+
+        tree.write(sheet_xml, encoding="UTF-8", xml_declaration=True, method="xml")
 
         tmp_output = filepath + ".tmp"
         with zipfile.ZipFile(tmp_output, 'w', zipfile.ZIP_DEFLATED) as xlsx_zip:
