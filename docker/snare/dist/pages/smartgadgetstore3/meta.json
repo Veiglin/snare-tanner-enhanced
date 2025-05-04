@@ -447,9 +447,25 @@
         "hash": "e3ba3fe8e612824a73add7dd724c5a0f",
         "content_type": "text/html"
     },
+    "/status_400": {
+        "content_type": "text/html",
+        "hash": "5d7e7652b9cfb8d8d9fa9602f2ed0efe"
+    },
+    "/status_401": {
+        "content_type": "text/html",
+        "hash": "a75ed9a62c8e44bc58f32d10551b3855"
+    },
+    "/status_403": {
+        "content_type": "text/html",
+        "hash": "05a190c1ac225372f0c0c0c74b07a687"
+    },
     "/status_404": {
         "content_type": "text/html",
         "hash": "5a2bce9d53f443761357fef4f5674ca7"
+    },
+    "/status_500": {
+        "content_type": "text/html",
+        "hash": "c6e0e90edba7b3d7d91dc07d9e10fc34"
     },
     "/admin/login.php": {
         "hash": "5f404c514b42b2b2fa588f4c56a6e54b",
