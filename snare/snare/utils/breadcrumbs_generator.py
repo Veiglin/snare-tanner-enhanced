@@ -221,7 +221,7 @@ class BreadcrumbsGenerator:
     
     def _generate_gemini_content(self, prompt):
         """
-        Generates content using the Gemini API.
+        Generates content using the Gemini API with retry logic (2 retries, 2 seconds delay).
         """
         headers = {"Content-Type": "application/json"}
         payload = {
@@ -235,19 +235,30 @@ class BreadcrumbsGenerator:
                 "maxOutputTokens": self.llm_parameters["max_new_tokens"]
             },
         }
-        response = requests.post(
-            f"{self.api_endpoint}:generateContent?key={self.api_key}",
-            headers=headers,
-            json=payload
-        )
 
-        if response.status_code != 200:
-            self.logger.error(f"Gemini API Failed: {response.status_code} — {response.text}")
-            return None
+        max_attempts = 3
+        delay_seconds = 2
 
-        result = response.json()
-        text = result["candidates"][0]["content"]["parts"][0]["text"]
-        return text
+        for attempt in range(1, max_attempts + 1):
+            try:
+                response = requests.post(
+                    f"{self.api_endpoint}:generateContent?key={self.api_key}",
+                    headers=headers,
+                    json=payload
+                )
+                if response.status_code == 200:
+                    result = response.json()
+                    return result["candidates"][0]["content"]["parts"][0]["text"]
+                else:
+                    print_color(f"⚠️ Gemini API attempt {attempt} failed: {response.status_code} — {response.text}", "WARNING")
+            except Exception as e:
+                print_color(f"⚠️ Gemini API attempt {attempt} raised exception: {str(e)}", "WARNING")
+
+            if attempt < max_attempts:
+                time.sleep(delay_seconds)
+
+        print_color("❌ Gemini API failed after multiple attempts.", "ERROR")
+        return None
 
     def generate_html_comments_breadcrumb(self):
         """

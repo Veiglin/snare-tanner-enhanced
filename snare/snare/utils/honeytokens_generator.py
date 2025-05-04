@@ -61,14 +61,41 @@ class HoneytokensGenerator:
         Generate filenames using the HuggingFace API.
         The filenames are generated using the prompt defined in the config file.
         """
-        session_id = f"{random.randint(1000,9999)}_{int(time.time())}"
-        prompt = SnareConfig.get("HONEYTOKEN", "PROMPT-FILENAMES").replace("{session_id}", session_id)
+        session_variants = [
+            "Make them look realistic enough to fool a junior employee.",
+            "Add a touch of urgency, as if the files were hastily generated before a data breach.",
+            "Generate filenames that suggest high-value internal data.",
+            "Add subtle typos to mimic real human-created filenames.",
+            "Include hints that the files may contain payment or billing data.",
+            "Mimic filenames you'd find in a disgruntled employee's backup folder.",
+            "Make filenames that sound like they belong to a shady reseller.",
+            "These files should appear to be exports from a misconfigured admin panel.",
+            "Generate filenames a tech-savvy intern might name while cutting corners.",
+            "Suggest these files were auto-exported by outdated internal tools.",
+            "Use naming that implies secret supplier pricing or vendor deals.",
+            "Pretend these were pulled during a compliance audit and never cleaned up.",
+            "Make them look like reports prepared for a board meeting.",
+            "Make filenames that feel 'too confidential' to be in a public directory.",
+            "Give filenames that a hacker might think hold admin credentials.",
+            "Mimic a leak from someone trying to expose shady practices.",
+            "Make them just boring enough to avoid suspicion, but still clickable.",
+            "Generate filenames that feel 'forgotten but dangerous'.",
+            "Pretend these were copied quickly during an office shutdown.",
+            "Include clues that this is from an older abandoned staging server.",
+            "Generate as if the files were archived manually by someone non-technical.",
+            "Imply customer PII may be inside, without being too obvious.",
+            "These filenames should provoke curiosity and suspicion.",
+            "Make the files look like juicy but plausible corporate documents.",
+            "Name them like attachments from a whistleblower email."
+        ]
+        session = random.choice(session_variants)
+        prompt = SnareConfig.get("HONEYTOKEN", "PROMPT-FILENAMES").replace("{session}", session)
         if self.api_provider == "huggingface":
             text = self._call_huggingface_api(prompt)
         elif self.api_provider == "gemini":
             text = self._call_gemini_api(prompt)
         filenames = self._extract_clean_filenames(text)
-        self.logger.info("Cleaned Filenames:\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
+        print_color("Cleaned Filenames:\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
         return filenames
         
     def _call_huggingface_api(self, prompt):
@@ -94,7 +121,7 @@ class HoneytokensGenerator:
 
     def _call_gemini_api(self, prompt):
         """
-        Make an API call to Gemini.
+        Make an API call to Gemini with retry logic (2 retries, 2 seconds delay).
         """
         api_endpoint = SnareConfig.get("HONEYTOKEN", "API-ENDPOINT")
         api_key = SnareConfig.get("HONEYTOKEN", "API-KEY")
@@ -110,17 +137,31 @@ class HoneytokensGenerator:
                 "maxOutputTokens": self.llm_parameters["max_new_tokens"]
             },
         }
-        response = requests.post(
-            f"{api_endpoint}:generateContent?key={api_key}",
-            headers=headers,
-            json=payload
-        )
-        if response.status_code != 200:
-            self.logger.error(f"Gemini API Failed: {response.status_code} — {response.text}")
-            return None
-        result = response.json()
-        text = result["candidates"][0]["content"]["parts"][0]["text"]
-        return text
+
+        max_attempts = 3
+        delay_seconds = 2
+
+        for attempt in range(1, max_attempts + 1):
+            try:
+                response = requests.post(
+                    f"{api_endpoint}:generateContent?key={api_key}",
+                    headers=headers,
+                    json=payload
+                )
+                if response.status_code == 200:
+                    result = response.json()
+                    return result["candidates"][0]["content"]["parts"][0]["text"]
+                else:
+                    print_color(f"Gemini API attempt {attempt} failed: {response.status_code} — {response.text}")
+            except Exception as e:
+                print_color(f"Gemini API attempt {attempt} raised exception: {e}")
+
+            if attempt < max_attempts:
+                time.sleep(delay_seconds)
+
+        self.logger.error("Gemini API failed after multiple attempts.")
+        return None
+
     
     def _extract_clean_filenames(self, text):
         lines = text.strip().split("\n")
@@ -175,17 +216,17 @@ class HoneytokensGenerator:
 
     def write_trackfile(self):
         if not hasattr(self, "generated_paths"):
-            self.logger.info("No honeytokens generated in this session. Skipping log update.", "WARNING")
+            print_color("No honeytokens generated in this session. Skipping log update.", "WARNING")
             return
         with open(self.track_path, "w") as f:
             for name in self.generated_paths:
                 f.write(name + "\n")
                 
-        self.logger.info(f"Honeytokens.txt updated with {len(self.generated_paths)} filenames at {self.track_path}", "INFO")
+        print_color(f"Honeytokens.txt updated with {len(self.generated_paths)} filenames at {self.track_path}", "INFO")
 
     def cleanup_honeytokens(self):
         if not os.path.exists(self.meta_path):
-            self.logger.info("meta.json not found. Nothing to clean.", "WARNING")
+            print_color("meta.json not found. Nothing to clean.", "WARNING")
             return
         with open(self.meta_path, "r") as f:
             meta = json.load(f)
@@ -208,7 +249,7 @@ class HoneytokensGenerator:
         with open(self.meta_path, "w") as f:
             json.dump(updated_meta, f, indent=4)
 
-        self.logger.info(f"Deleted {len(deleted_files)} honeytoken files and cleaned meta.json.", "INFO")
+        print_color(f"Deleted {len(deleted_files)} honeytoken files and cleaned meta.json.", "INFO")
 
     def generate_canarytokens(self):
         """
@@ -217,7 +258,7 @@ class HoneytokensGenerator:
         """
         # load Honeytokens.txt
         if not os.path.exists(self.track_path):
-            self.logger.info("Honeytokens.txt not found. Nothing to generate.", "WARNING")
+            print_color("Honeytokens.txt not found. Nothing to generate.", "WARNING")
             return
         with open(self.track_path, "r") as f:
             honeytokens = f.read().splitlines()
@@ -230,7 +271,7 @@ class HoneytokensGenerator:
                 token_type = self.canary_content_types.get((os.path.splitext(token)[1]).lower())
                 canarytoken = self._generate_token(token_type, token + " - Triggered", webhook=self.webhook_url)
                 if canarytoken:
-                    self.logger.info(f"Generated canarytoken for {token}: {canarytoken}", "SUCCESS")
+                    print_color(f"Generated canarytoken for {token}: {canarytoken}", "SUCCESS")
 
                     # download the canarytoken file
                     canarytoken_content = self._downloaded_token_file(token_type, canarytoken['auth_token'], canarytoken['token'])
@@ -240,7 +281,7 @@ class HoneytokensGenerator:
                     hashed_filename = os.path.join(self.page_dir, hashed_filename)
                     with open(hashed_filename, "wb") as f:
                         f.write(canarytoken_content)
-                    self.logger.info(f"Saved canarytoken file as {hashed_filename}", "SUCCESS")
+                    print_color(f"Saved canarytoken file as {hashed_filename}", "SUCCESS")
 
                     # Immediately inject content into newly downloaded token
                     if token.endswith(".docx"):
@@ -251,7 +292,7 @@ class HoneytokensGenerator:
                 else:
                     self.logger.error(f"Failed to generate canarytoken for {token}")
             else:
-                self.logger.info(f"Skipping non-supported file type: {token}", "WARNING")
+                print_color(f"Skipping non-supported file type: {token}", "WARNING")
 
     def _generate_token(self, type: str, memo : str, webhook: str = '') -> Optional[str]:
         req_data = {
@@ -290,7 +331,7 @@ class HoneytokensGenerator:
 
         # check if the request was successful
         if response.status_code == 200:
-            self.logger.info(f"File content successfully downloaded", "INFO")
+            print_color(f"File content successfully downloaded", "INFO")
             return response.content
         else:
             self.logger.error(f"Failed to download content: {response.status_code} - {response.text}")
@@ -410,18 +451,69 @@ class HoneytokensGenerator:
         Uses prompts from config with {honeytoken} placeholder.
         Returns a list of clean lines.
         """
-        session_id = f"{random.randint(1000,9999)}_{int(time.time())}"
+        options = [
+            "realistic as the CEO that you are.",
+            "boring..",
+            "juicy wow!",
+            "tempting for a thief!!",
+            "simple and clean.",
+            "as bland as an IT compliance report.",
+            "dripping with secrets.",
+            "convincingly corporate.",
+            "leaking subtle danger.",
+            "quietly explosive.",
+            "like it fell off the back of a server.",
+            "barely legal.",
+            "flashy enough to get flagged by an intern.",
+            "low-key shady.",
+            "tempting like a forbidden folder.",
+            "desperate for a double-click.",
+            "one wrong click away from disaster.",
+            "suspiciously tidy.",
+            "hacked-together brilliance.",
+            "just corporate enough to be overlooked.",
+            "too good to be left in plain sight.",
+            "enticing to someone who knows what to look for.",
+            "so juicy it should be encrypted.",
+            "hidden in plain sight.",
+            "ready to blow the whistle.",
+            "like evidence waiting to be found.",
+            "seductive in a spreadsheet kind of way.",
+            "a little too confidential.",
+            "like it belongs in a courtroom.",
+            "mistakenly public.",
+            "so official it hurts.",
+            "a digital honeytrap.",
+            "cryptic but obvious.",
+            "named for mischief.",
+            "almost believable.",
+            "from the dark side of the SharePoint.",
+            "familiar but threatening.",
+            "ticking with legal implications.",
+            "worthy of blackmail.",
+            "bait for the bold.",
+            "quietly screaming 'look at me'.",
+            "the filename equivalent of clickbait.",
+            "designed to cause a breach report.",
+            "innocent enough to be deadly.",
+            "sweet as social engineering bait.",
+            "just boring enough to be ignored — or not.",
+            "suspenseful like a spy novel title.",
+            "like a mistake someone made at 2 AM.",
+            "a juicy secret disguised as compliance."
+        ]
+        dynamic = random.choice(options)
         if filetype == "docx":
             prompt = (
                 SnareConfig.get("HONEYTOKEN", "PROMPT-DOCX")
                 .replace("{honeytoken}", honeytoken)
-                .replace("{session_id}", session_id)
+                .replace("{dynamic}", dynamic)
             )
         elif filetype == "xlsx":
             prompt = (
                 SnareConfig.get("HONEYTOKEN", "PROMPT-XLSX")
                 .replace("{honeytoken}", honeytoken)
-                .replace("{session_id}", session_id)
+                .replace("{dynamic}", dynamic)
             )
         else:
             return []

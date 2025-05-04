@@ -1,5 +1,5 @@
-comment/reply/supplier_price_list_Q3_2024.xlsx
-comment/reply/customer_data_export_202408.csv.zip
-comment/reply/website_configuration_backup_20240815.sql
-comment/reply/smartgadgetstore_employee_handbook_v2.docx
-comment/reply/returns_and_warranty_claims_summary_August.pdf
+wp-admin/urgent_inventory_backup_20240726.db
+wp-admin/customer_export_june2024_PII.xlsx
+wp-admin/confidential_supplier_agreement_terms.pdf
+wp-admin/admin_panel_security_audit_notes.docx
+wp-admin/device_config_dump_v3.sql

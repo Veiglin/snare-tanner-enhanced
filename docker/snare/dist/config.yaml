@@ -9,28 +9,26 @@ HONEYTOKEN:
     You are generating bait filenames for a website called SmartGadgetStore.live, which sells smart gadgets and electronics online.
     Generate in total 5 files. The generated files should be realistic, code-friendly filenames (no spaces or special characters) that might contain sensitive internal data.
     Examples include inventory backups, customer exports, admin data, supplier lists, or device configuration dumps.
+    {session}
     Use only the file types .docx, .xlsx, .pdf, .db, .sql or .zip and ensure there is minumum one .docx, one .xlsx and one .pdf file.
-    # Session ID: {session_id}
   PROMPT-DOCX: >
     Given the file name {honeytoken}, generate content for a realistic-looking internal document that would plausibly appear in a document with that name.
     The tone should match the filename — e.g., meeting notes, credentials, export summaries, or sensitive business context.
-    The content should be for a smart gadget store.
+    The content should be for a smart gadget store. Make it {dynamic}.
     Do not explain your answer, just return the document's content.
-    # Session ID: {session_id}
   PROMPT-XLSX: >
-    Given the file name {honeytoken}, generate 5 to 10 rows of realistic-looking spreadsheet data that would plausibly appear in an internal file with that name.
+    Your task is to generate realistic-looking Excel spreadsheet data for a file named {honeytoken}, need between 10 to 20 rows of data.
     Format each row as a comma-separated line, using appropriate column headers based on the filename.
-    Keep the data believable for a smart gadget store.
+    The content should be for a smart gadget store. Make it {dynamic}.
     Do not explain your answer, just return the raw spreadsheet data.
-    # Session ID: {session_id}
   LLM-PARAMETERS:
-    temperature: 1.2
+    temperature: 1
     top_p: 0.98
-    top_k: 100
-    max_new_tokens: 200
+    top_k: 50
+    max_new_tokens: 400
     do_sample: true # Only supported for HuggingFace
     return_full_text: false # Only supported for HuggingFace
-  WEBHOOK-URL: https://webhook.site/3352f88c-51cb-4cda-9548-009fd3aead6f
+  WEBHOOK-URL: https://webhook.site/a1012a3d-76aa-413d-b947-c07d2d966cf6
 
 BREADCRUMB:
   TYPES: 
@@ -50,9 +48,9 @@ BREADCRUMB:
     It should mention /{honeytoken} as if it's a config file or temporary log.
     Do NOT include HTML tags or '--'. Make it look like leftover debug info."
   LLM-PARAMETERS:
-    temperature: 1.2
+    temperature: 1
     top_p: 0.98
-    top_k: 100
-    max_new_tokens: 40
+    top_k: 40
+    max_new_tokens: 50
     do_sample: true # Only supported for HuggingFace
     return_full_text: false # Only supported for HuggingFace
