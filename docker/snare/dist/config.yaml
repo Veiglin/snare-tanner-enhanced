@@ -2,30 +2,34 @@ FEATURES:
   enabled: True
 
 HONEYTOKEN:
-  API-ENDPOINT: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta
-  API-KEY: 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
-  PROMPT: >
+  API-PROVIDER: gemini # Options: huggingface, gemini
+  API-ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash
+  API-KEY: AIzaSyC-QsN2PPv9CBFgRSLRnJq5l4CynuBioVM
+  PROMPT-FILENAMES: >
     You are generating bait filenames for a website called SmartGadgetStore.live, which sells smart gadgets and electronics online.
     Generate in total 5 files. The generated files should be realistic, code-friendly filenames (no spaces or special characters) that might contain sensitive internal data.
     Examples include inventory backups, customer exports, admin data, supplier lists, or device configuration dumps.
-    Use believable extensions like .docx, .xlsx, .pdf, .db, .sql or .zip.
+    Use only the file types .docx, .xlsx, .pdf, .db, .sql or .zip and ensure there is minumum one .docx, one .xlsx and one .pdf file.
     Ensure all filenames look authentic and vary slightly each time.
     # Session ID: {session_id}
+  PROMPT-FILECONTENT: >
+    You are generating bait file content for a website called SmartGadgetStore.live, which sells smart gadgets and electronics online.
+    For each of the filenames {honeytoken} generated, create realistic and believable content that might be found in a file.
+    Examples of this could be inventory backups, customer exports, admin data, supplier lists, or device configuration dumps.
   LLM-PARAMETERS:
-    temperature: 0.9
-    do_sample: true
+    temperature: 1.3
     top_p: 0.95
     top_k: 50
-    max_new_tokens: 100
+    max_new_tokens: 400
+    do_sample: true # Only supported for HuggingFace
+    return_full_text: false # Only supported for HuggingFace
   WEBHOOK-URL: https://webhook.site/3352f88c-51cb-4cda-9548-009fd3aead6f
 
 BREADCRUMB:
-  TYPES: 
-    - "robots"
-    - "404_page"
-    - "html_comments"
-  API-ENDPOINT: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta
-  API-KEY: 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
+  TYPES: # Options: robots, 404_page, html_comments
+  API-PROVIDER: gemini # Options: huggingface, gemini
+  API-ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash
+  API-KEY: AIzaSyC-QsN2PPv9CBFgRSLRnJq5l4CynuBioVM
   PROMPT-404-ERROR: >
     Write a short HTML bait line (in a <p> tag) that subtly hints at an internal file located at /{honeytoken}. 
     It should look like something a developer accidentally left in, referencing the file path naturally.
@@ -36,7 +40,8 @@ BREADCRUMB:
     Do NOT include HTML tags or '--'. Make it look like leftover debug info."
   LLM-PARAMETERS:
     temperature: 0.9
-    do_sample: true
     top_p: 0.95
     top_k: 50
-    max_new_tokens: 100
+    max_new_tokens: 50
+    do_sample: true # Only supported for HuggingFace
+    return_full_text: false # Only supported for HuggingFace

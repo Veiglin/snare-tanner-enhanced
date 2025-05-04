@@ -12,12 +12,12 @@ from snare.config import SnareConfig
 class BreadcrumbsGenerator:
     def __init__(self, 
                  page_dir, 
-                 meta, 
-                 breadcrumb=None):
+                 meta):
         self.logger = logging.getLogger(__name__)
         self.page_dir = page_dir
         self.meta = meta
-        self.breadcrumb = breadcrumb or []
+        self.used_canarytoken = []
+        self.api_provider = SnareConfig.get("BREADCRUMB", "API-PROVIDER")
         self.api_endpoint = SnareConfig.get("BREADCRUMB", "API-ENDPOINT")
         self.api_key = SnareConfig.get("BREADCRUMB", "API-KEY")
         self.llm_parameters = SnareConfig.get("BREADCRUMB", "LLM-PARAMETERS")
@@ -29,6 +29,9 @@ class BreadcrumbsGenerator:
         Always cleans up the 404 and robots.txt files regardless of generation flag.
         """
         breadcrumb_types = SnareConfig.get("BREADCRUMB", "TYPES")
+        if not breadcrumb_types:
+            print_color("No breadcrumb types specified. Skipping breadcrumb generation.", "WARNING")
+            return
 
         for breadcrumb in breadcrumb_types:
             breadcrumb_types = breadcrumb.strip()
@@ -64,13 +67,20 @@ class BreadcrumbsGenerator:
         # load bait from honeytokens
         honeytoken_path = "/opt/snare/honeytokens/Honeytokens.txt"
         bait_lines = []
-        bait_sample = []
         if os.path.exists(honeytoken_path):
             with open(honeytoken_path, "r") as f:
                 tokens = [line.strip() for line in f if line.strip()]
-                if tokens:
-                    bait_sample = random.sample(tokens, min(len(tokens), 3))
-                    bait_lines = [f"Disallow: /{token}" for token in bait_sample]
+                canarytokens = [token for token in tokens if token.endswith(('.pdf', '.xlsx', '.docx'))]
+                non_canarytokens = [token for token in tokens if token not in canarytokens]
+                
+                # Select one canarytoken and mark it as used
+                if canarytokens:
+                    chosen_canarytoken = random.choice([token for token in canarytokens if token not in self.used_canarytoken])
+                    self.used_canarytoken.append(chosen_canarytoken)
+                    bait_lines.append(f"Disallow: /{chosen_canarytoken}")
+
+                # Add other non-canarytokens
+                bait_lines.extend([f"Disallow: /{token}" for token in non_canarytokens])
 
         lines = [
             "User-agent: *",
@@ -92,10 +102,10 @@ class BreadcrumbsGenerator:
         with open(meta_json_path, "w") as meta_file:
             json.dump(self.meta, meta_file, indent=4)
 
-        if bait_sample:
-            self.logger.debug(f"Added breadcrumbs in robots.txt with bait: {bait_sample}")
+        if bait_lines:
+            self.logger.debug(f"Added breadcrumbs in robots.txt with bait lines: {bait_lines}")
         else:
-            self.logger.debug("Added breadcrumbs in robots.txt (no honeytokens found)")
+            self.logger.error("No bait lines added in Honeytokens.txt. Cannot generate robots.txt breadcrumbs.")
 
     def generate_404_breadcrumb(self):
         """
@@ -139,11 +149,15 @@ class BreadcrumbsGenerator:
         with open(self.honeytoken_path, "r") as f:
             tokens = [line.strip() for line in f if line.strip()]
 
-        if not tokens:
-            print_color("Honeytokens.txt is empty. Cannot generate breadcrumb.", "WARNING")
-            return
+        # Filter out already used tokens
+        available_tokens = [token for token in tokens if token not in self.used_canarytoken]
+        if not available_tokens:
+            self.logger.warning("No available honeytokens for error page breadcrumbs. Choosing a random bait file")
+            # use non-canarytokens if no canarytokens are available
+            available_tokens = [token for token in tokens if token not in self.used_canarytoken and not token.endswith(('.pdf', '.xlsx', '.docx'))]
 
-        chosen_token = random.choice(tokens)
+        chosen_token = random.choice(available_tokens)
+        self.used_canarytoken.append(chosen_token)
 
         # Generate breadcrumb from LLM
         breadcrumb_line = self._generate_404_content_from_llm(chosen_token)
@@ -163,6 +177,32 @@ class BreadcrumbsGenerator:
 
     def _generate_404_content_from_llm(self, honeytoken):
         prompt = SnareConfig.get("BREADCRUMB", "PROMPT-404-ERROR").replace("{honeytoken}", honeytoken)
+        # Call the LLM API
+        if self.api_provider == "huggingface":
+            text = self._generate_huggingface_content(prompt)
+        elif self.api_provider == "gemini":
+            text = self._generate_gemini_content(prompt)
+        try:
+            # Remove preamble text like "Here's a possible solution:"
+            if ":" in text:
+                text = text.split(":", 1)[1].strip()
+
+            # Ensure the honeytoken path is mentioned
+            if f"/{honeytoken}" not in text:
+                text += f" (see /{honeytoken})"
+
+            # Wrap in a clean <p> tag if not already
+            if not text.startswith("<p>"):
+                text = f"<p>{text}</p>"
+            return text
+
+        except: # Fallback for a static response
+            return f"<p>Access /{honeytoken} for diagnostics.</p>"
+    
+    def _generate_huggingface_content(self, prompt):
+        """
+        Generates content using the HuggingFace API.
+        """
         response = requests.post(
             self.api_endpoint,
             headers={"Authorization": f"Bearer {self.api_key}"},
@@ -173,28 +213,41 @@ class BreadcrumbsGenerator:
         )
 
         if response.status_code != 200:
-            print_color(f"HuggingFace API Error {response.status_code}: {response.text}", "WARNING")
-            return f"<p>Check /{honeytoken} for debug info.</p>"
+            self.logger.error(f"HuggingFace API Error {response.status_code}: {response.text}")
+            return None
+        
+        text = response.json()[0]["generated_text"].strip()
+        return text
+    
+    def _generate_gemini_content(self, prompt):
+        """
+        Generates content using the Gemini API.
+        """
+        headers = {"Content-Type": "application/json"}
+        payload = {
+            "contents": [{
+                "parts": [{"text": prompt}]
+            }],
+            "generationConfig": {
+                "temperature": self.llm_parameters["temperature"],
+                "topP": self.llm_parameters["top_p"],
+                "topK": self.llm_parameters["top_k"],
+                "maxOutputTokens": self.llm_parameters["max_new_tokens"]
+            },
+        }
+        response = requests.post(
+            f"{self.api_endpoint}:generateContent?key={self.api_key}",
+            headers=headers,
+            json=payload
+        )
 
-        try:
-            raw = response.json()[0]["generated_text"].strip()
+        if response.status_code != 200:
+            self.logger.error(f"Gemini API Failed: {response.status_code} — {response.text}")
+            return None
 
-            # Remove preamble text like "Here's a possible solution:"
-            if ":" in raw:
-                raw = raw.split(":", 1)[1].strip()
-
-            # Ensure the honeytoken path is mentioned
-            if f"/{honeytoken}" not in raw:
-                raw += f" (see /{honeytoken})"
-
-            # Wrap in a clean <p> tag if not already
-            if not raw.startswith("<p>"):
-                raw = f"<p>{raw}</p>"
-
-            return raw
-
-        except (KeyError, IndexError, TypeError):
-            return f"<p>Access /{honeytoken} for diagnostics.</p>"
+        result = response.json()
+        text = result["candidates"][0]["content"]["parts"][0]["text"]
+        return text
 
     def generate_html_comments_breadcrumb(self):
         """
@@ -230,11 +283,19 @@ class BreadcrumbsGenerator:
 
         with open(self.honeytoken_path, "r") as f:
             tokens = [line.strip() for line in f if line.strip()]
-        if not tokens:
-            print_color("Honeytokens.txt is empty.", "WARNING")
-            return
+            
+        # Filter out already used tokens
+        available_tokens = [token for token in tokens if token not in self.used_canarytoken]
+        if not available_tokens:
+            self.logger.warning("No available honeytokens for HTML comments breadcrumbs. Choosing a random bait file")
+            # use non-canarytokens if no canarytokens are available
+            available_tokens = [token for token in tokens if token not in self.used_canarytoken and not token.endswith(('.pdf', '.xlsx', '.docx'))]
 
-        chosen_token = random.choice(tokens)
+        # Select a unique token for the HTML comment
+        chosen_token = random.choice(available_tokens)
+        self.used_canarytoken.append(chosen_token)
+
+        # Generate the HTML comment
         comment = self._generate_html_comment_from_llm(chosen_token)
 
         # Inject the generated comment after the anchor comment
@@ -248,22 +309,12 @@ class BreadcrumbsGenerator:
 
     def _generate_html_comment_from_llm(self, honeytoken):
         prompt = SnareConfig.get("BREADCRUMB", "PROMPT-HTML-COMMENT").replace("{honeytoken}", honeytoken)
-        response = requests.post(
-            self.api_endpoint,
-            headers={"Authorization": f"Bearer {self.api_key}"},
-            json={
-                "inputs": prompt,
-                "parameters": self.llm_parameters
-            }
-        )
-
-        if response.status_code != 200:
-            print_color(f"Failed to fetch LLM comment: {response.status_code}", "WARNING")
-            return f"<!-- dev note /{honeytoken} -->"
+        if self.api_provider == "huggingface":
+            text = self._generate_huggingface_content(prompt)
+        elif self.api_provider == "gemini":
+            text = self._generate_gemini_content(prompt)
 
         try:
-            text = response.json()[0]["generated_text"].strip()
-
             # Clean invalid syntax
             text = text.split(":", 1)[1].strip() if ":" in text else text
             text = text.replace("--", "–").replace("\n", " ").strip()
@@ -272,7 +323,7 @@ class BreadcrumbsGenerator:
                 text += f" /{honeytoken}"
 
             return f"<!-- {text} -->"
-        except Exception:
+        except:
             return f"<!-- dev ref /{honeytoken} -->"
 
     @staticmethod
