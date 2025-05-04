@@ -68,7 +68,7 @@ class HoneytokensGenerator:
         elif self.api_provider == "gemini":
             text = self._call_gemini_api(prompt)
         filenames = self._extract_clean_filenames(text)
-        print_color("Cleaned Filenames:\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
+        self.logger.info("Cleaned Filenames:\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
         return filenames
         
     def _call_huggingface_api(self, prompt):
@@ -175,17 +175,17 @@ class HoneytokensGenerator:
 
     def write_trackfile(self):
         if not hasattr(self, "generated_paths"):
-            print_color("No honeytokens generated in this session. Skipping log update.", "WARNING")
+            self.logger.info("No honeytokens generated in this session. Skipping log update.", "WARNING")
             return
         with open(self.track_path, "w") as f:
             for name in self.generated_paths:
                 f.write(name + "\n")
                 
-        print_color(f"Honeytokens.txt updated with {len(self.generated_paths)} filenames at {self.track_path}", "INFO")
+        self.logger.info(f"Honeytokens.txt updated with {len(self.generated_paths)} filenames at {self.track_path}", "INFO")
 
     def cleanup_honeytokens(self):
         if not os.path.exists(self.meta_path):
-            print_color("meta.json not found. Nothing to clean.", "WARNING")
+            self.logger.info("meta.json not found. Nothing to clean.", "WARNING")
             return
         with open(self.meta_path, "r") as f:
             meta = json.load(f)
@@ -208,7 +208,7 @@ class HoneytokensGenerator:
         with open(self.meta_path, "w") as f:
             json.dump(updated_meta, f, indent=4)
 
-        print_color(f"Deleted {len(deleted_files)} honeytoken files and cleaned meta.json.", "INFO")
+        self.logger.info(f"Deleted {len(deleted_files)} honeytoken files and cleaned meta.json.", "INFO")
 
     def generate_canarytokens(self):
         """
@@ -217,7 +217,7 @@ class HoneytokensGenerator:
         """
         # load Honeytokens.txt
         if not os.path.exists(self.track_path):
-            print_color("Honeytokens.txt not found. Nothing to generate.", "WARNING")
+            self.logger.info("Honeytokens.txt not found. Nothing to generate.", "WARNING")
             return
         with open(self.track_path, "r") as f:
             honeytokens = f.read().splitlines()
@@ -230,7 +230,7 @@ class HoneytokensGenerator:
                 token_type = self.canary_content_types.get((os.path.splitext(token)[1]).lower())
                 canarytoken = self._generate_token(token_type, token + " - Triggered", webhook=self.webhook_url)
                 if canarytoken:
-                    print_color(f"Generated canarytoken for {token}: {canarytoken}", "SUCCESS")
+                    self.logger.info(f"Generated canarytoken for {token}: {canarytoken}", "SUCCESS")
 
                     # download the canarytoken file
                     canarytoken_content = self._downloaded_token_file(token_type, canarytoken['auth_token'], canarytoken['token'])
@@ -240,18 +240,18 @@ class HoneytokensGenerator:
                     hashed_filename = os.path.join(self.page_dir, hashed_filename)
                     with open(hashed_filename, "wb") as f:
                         f.write(canarytoken_content)
-                    print_color(f"Saved canarytoken file as {hashed_filename}", "SUCCESS")
+                    self.logger.info(f"Saved canarytoken file as {hashed_filename}", "SUCCESS")
 
                     # Immediately inject content into newly downloaded token
                     if token.endswith(".docx"):
-                        self._inject_docx(hashed_filename)
+                        self._inject_docx(filepath=hashed_filename, honeytoken=token)
                     elif token.endswith(".xlsx"):
-                        self._inject_xlsx(hashed_filename)
+                        self._inject_xlsx(filepath=hashed_filename, honeytoken=token)
 
                 else:
                     self.logger.error(f"Failed to generate canarytoken for {token}")
             else:
-                print_color(f"Skipping non-supported file type: {token}", "WARNING")
+                self.logger.info(f"Skipping non-supported file type: {token}", "WARNING")
 
     def _generate_token(self, type: str, memo : str, webhook: str = '') -> Optional[str]:
         req_data = {
@@ -290,12 +290,12 @@ class HoneytokensGenerator:
 
         # check if the request was successful
         if response.status_code == 200:
-            print_color(f"File content successfully downloaded", "INFO")
+            self.logger.info(f"File content successfully downloaded", "INFO")
             return response.content
         else:
             self.logger.error(f"Failed to download content: {response.status_code} - {response.text}")
 
-    def _inject_docx(self, filepath):
+    def _inject_docx(self, filepath, honeytoken):
         temp_dir = filepath + "_tmp"
 
         with zipfile.ZipFile(filepath, 'r') as zip_ref:
@@ -305,7 +305,6 @@ class HoneytokensGenerator:
         ET.register_namespace('w', "http://schemas.openxmlformats.org/wordprocessingml/2006/main")
         tree = ET.parse(doc_xml_path)
         root = tree.getroot()
-
         body = root.find("{http://schemas.openxmlformats.org/wordprocessingml/2006/main}body")
         children = list(body)
 
@@ -323,9 +322,9 @@ class HoneytokensGenerator:
             t.text = saxutils.escape(text)
             return p
 
-        body.append(make_paragraph("=== Auto-Generated Passwords ==="))
-        for user, pwd in [("admin", "admin123"), ("john", "hunter2"), ("guest", "guest123")]:
-            body.append(make_paragraph(f"{user}: {pwd}"))
+        lines = self._generate_fake_content_from_llm(honeytoken, "docx")
+        for line in lines:
+            body.append(make_paragraph(line))
 
         if sectPr is not None:
             body.append(sectPr)
@@ -344,7 +343,8 @@ class HoneytokensGenerator:
         shutil.rmtree(temp_dir)
 
 
-    def _inject_xlsx(self, filepath):
+
+    def _inject_xlsx(self, filepath, honeytoken):
         temp_dir = filepath + "_tmp"
 
         with zipfile.ZipFile(filepath, 'r') as zip_ref:
@@ -379,19 +379,14 @@ class HoneytokensGenerator:
         existing_rows = sheet_data.findall("x:row", ns)
         start_row = max((int(row.attrib.get("r", "0")) for row in existing_rows), default=0) + 1
 
-        new_rows = [
-            make_row(start_row, ["=== Auto-Generated Passwords ==="]),
-            make_row(start_row + 1, ["admin", "admin123"]),
-            make_row(start_row + 2, ["john", "hunter2"]),
-            make_row(start_row + 3, ["guest", "guest123"])
-        ]
+        rows = self._generate_fake_content_from_llm(honeytoken, "xlsx")
 
-        for row in new_rows:
-            sheet_data.append(row)
+        for i, line in enumerate(rows):
+            values = [v.strip() for v in line.split(",") if v.strip()]
+            sheet_data.append(make_row(start_row + i, values))
 
-        # Update <dimension> tag
-        last_row = start_row + len(new_rows) - 1
-        last_col = col_letter(2)  # Assuming two columns max (A and B)
+        last_row = start_row + len(rows) - 1
+        last_col = col_letter(max(len(r.split(",")) for r in rows)) if rows else "A"
         if dimension is not None:
             dimension.set("ref", f"A1:{last_col}{last_row}")
 
@@ -407,4 +402,45 @@ class HoneytokensGenerator:
 
         shutil.move(tmp_output, filepath)
         shutil.rmtree(temp_dir)
+
+
+    def _generate_fake_content_from_llm(self, honeytoken: str, filetype: str):
+        """
+        Generate realistic fake content for XML injection based on honeytoken filename.
+        Uses prompts from config with {honeytoken} placeholder.
+        Returns a list of clean lines.
+        """
+        session_id = f"{random.randint(1000,9999)}_{int(time.time())}"
+        if filetype == "docx":
+            prompt = (
+                SnareConfig.get("HONEYTOKEN", "PROMPT-DOCX")
+                .replace("{honeytoken}", honeytoken)
+                .replace("{session_id}", session_id)
+            )
+        elif filetype == "xlsx":
+            prompt = (
+                SnareConfig.get("HONEYTOKEN", "PROMPT-XLSX")
+                .replace("{honeytoken}", honeytoken)
+                .replace("{session_id}", session_id)
+            )
+        else:
+            return []
+
+
+        # Call the LLM
+        if self.api_provider == "huggingface":
+            text = self._call_huggingface_api(prompt)
+        elif self.api_provider == "gemini":
+            text = self._call_gemini_api(prompt)
+        else:
+            return []
+
+        try:
+            # Clean up response lines
+            lines = [line.strip() for line in text.strip().splitlines() if line.strip()]
+            return lines
+        except Exception as e:
+            self.logger.error(f"Failed to process fake content from LLM: {e}")
+            return []
+
     

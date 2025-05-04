@@ -1,5 +1,5 @@
-node/add/customer_data_export_Q3_2024.xlsx
-node/add/supplier_pricelist_v2_confidential.pdf
-node/add/inventory_backup_20240726.db
-node/add/admin_user_access_log_report.docx
-node/add/device_config_dumps_august.zip
+comment/reply/supplier_price_list_Q3_2024.xlsx
+comment/reply/customer_data_export_202408.csv.zip
+comment/reply/website_configuration_backup_20240815.sql
+comment/reply/smartgadgetstore_employee_handbook_v2.docx
+comment/reply/returns_and_warranty_claims_summary_August.pdf

@@ -6,7 +6,7 @@ import random
 import requests
 import re
 
-from snare.utils.snare_helpers import print
+from snare.utils.snare_helpers import print_color
 from snare.config import SnareConfig
 
 class BreadcrumbsGenerator:
@@ -39,7 +39,7 @@ class BreadcrumbsGenerator:
             elif breadcrumb == 'html_comments':
                 self.generate_html_comments_breadcrumb()
             else:
-                print("Breadcrumb type '{}' is not supported yet.".format(breadcrumb), "WARNING")
+                self.logger.info("Breadcrumb type '{}' is not supported yet.".format(breadcrumb), "WARNING")
 
     def generate_robots_breadcrumb(self):
         """
@@ -116,6 +116,7 @@ class BreadcrumbsGenerator:
         other_status_pages = ["/status_400", "/status_401", "/status_403", "/status_500"]
         random_status = random.choice(other_status_pages)
         self._generate_status_breadcrumb(random_status)
+        print_color(f"Breadcrumbs generated for {random_status}", "INFO")
 
     def _generate_status_breadcrumb(self, abs_url):
         """
@@ -134,7 +135,7 @@ class BreadcrumbsGenerator:
             meta_json_path = os.path.join(self.page_dir, "meta.json")
             with open(meta_json_path, "w") as meta_file:
                 json.dump(self.meta, meta_file, indent=4)
-            print(f"Breadcrumbing: Created new meta entry for '{abs_url}'", "INFO")
+            self.logger.info(f"Breadcrumbing: Meta.json not found. Created new meta entry for '{abs_url}'", "INFO")
 
         html_path = os.path.join(self.page_dir, hash_name)
 
@@ -146,7 +147,7 @@ class BreadcrumbsGenerator:
             html_content = f.read()
 
         if not os.path.exists(self.honeytoken_path):
-            print("No Honeytokens.txt found. Cannot generate breadcrumb.", "WARNING")
+            self.logger.info("No Honeytokens.txt found. Cannot generate breadcrumb.", "WARNING")
             return
 
         with open(self.honeytoken_path, "r") as f:
@@ -256,12 +257,12 @@ class BreadcrumbsGenerator:
         hash_name = self.meta.get(abs_url, {}).get("hash")
 
         if not hash_name:
-            print("Meta entry for /index.html not found.", "WARNING")
+            self.logger.info("Meta entry for /index.html not found.", "WARNING")
             return
 
         html_path = os.path.join(self.page_dir, hash_name)
         if not os.path.exists(html_path):
-            print(f"index.html not found at {html_path}. Skipping injection.", "WARNING")
+            self.logger.info(f"index.html not found at {html_path}. Skipping injection.", "WARNING")
             return
 
         with open(html_path, "r") as f:
@@ -270,14 +271,14 @@ class BreadcrumbsGenerator:
         # Find all HTML comments
         all_comments = re.findall(r'<!--.*?-->', html_content)
         if not all_comments:
-            print("No HTML comments found in the file.", "WARNING")
+            self.logger.info("No HTML comments found in the file.", "WARNING")
             return
 
         # Pick a random comment to inject after
         anchor_comment = random.choice(all_comments)
 
         if not os.path.exists(self.honeytoken_path):
-            print("Honeytokens.txt not found.", "WARNING")
+            self.logger.info("Honeytokens.txt not found.", "WARNING")
             return
 
         with open(self.honeytoken_path, "r") as f:

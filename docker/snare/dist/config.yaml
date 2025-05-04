@@ -11,10 +11,18 @@ HONEYTOKEN:
     Examples include inventory backups, customer exports, admin data, supplier lists, or device configuration dumps.
     Use only the file types .docx, .xlsx, .pdf, .db, .sql or .zip and ensure there is minumum one .docx, one .xlsx and one .pdf file.
     # Session ID: {session_id}
-  PROMPT-FILECONTENT: >
-    You are generating bait file content for a website called SmartGadgetStore.live, which sells smart gadgets and electronics online.
-    For each of the filenames {honeytoken} generated, create realistic and believable content that might be found in a file.
-    Examples of this could be inventory backups, customer exports, admin data, supplier lists, or device configuration dumps.
+  PROMPT-DOCX: >
+    Given the file name {honeytoken}, generate content for a realistic-looking internal document that would plausibly appear in a document with that name.
+    The tone should match the filename — e.g., meeting notes, credentials, export summaries, or sensitive business context.
+    The content should be for a smart gadget store.
+    Do not explain your answer, just return the document's content.
+    # Session ID: {session_id}
+  PROMPT-XLSX: >
+    Given the file name {honeytoken}, generate 5 to 10 rows of realistic-looking spreadsheet data that would plausibly appear in an internal file with that name.
+    Format each row as a comma-separated line, using appropriate column headers based on the filename.
+    Keep the data believable for a smart gadget store.
+    Do not explain your answer, just return the raw spreadsheet data.
+    # Session ID: {session_id}
   LLM-PARAMETERS:
     temperature: 1.2
     top_p: 0.98
@@ -33,9 +41,10 @@ BREADCRUMB:
   API-ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash
   API-KEY: AIzaSyC-QsN2PPv9CBFgRSLRnJq5l4CynuBioVM
   PROMPT-404-ERROR: >
-    Write a short HTML bait line (in a <p> tag) that subtly hints at an internal file located at /{honeytoken}. 
-    It should look like something a developer accidentally left in, referencing the file path naturally.
-    Your goal is to lead a potential attacker to believe that this is a legitimate file path. 
+    Generate a single-line HTML <p> element that appears to be a leftover developer note or debug message.
+    It should subtly mention a file path at /{honeytoken}.
+    Keep it realistic and brief — like a developer accidentally left a comment in the HTML.
+    Do not explain the line, just return the raw <p> tag.
   PROMPT-HTML-COMMENT: >
     Write a realistic one-line HTML comment like a developer's note.
     It should mention /{honeytoken} as if it's a config file or temporary log.
