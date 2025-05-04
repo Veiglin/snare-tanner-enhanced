@@ -197,17 +197,21 @@ if __name__ == '__main__':
     
     # check if honeytokens is defined in config
     if SnareConfig.get("FEATURES", "enabled") is True:
-        honey_gen = HoneytokensGenerator(full_page_path, meta_info) # Initialize Generator for Honeylinks and Honeytokens
-        honey_gen.cleanup_honeytokens()
+        honey_gen = HoneytokensGenerator(full_page_path, meta_info)
         filenames = honey_gen.generate_filenames()
-        honey_gen.create_honeytokens(filenames)
-        honey_gen.write_trackfile()
-        honey_gen.generate_canarytokens()
-    
-        with open(os.path.join(full_page_path, 'meta.json')) as meta:
-            meta_info = json.load(meta)
-        breadcrumbs = BreadcrumbsGenerator(full_page_path, meta_info)
-        breadcrumbs.generate_breadcrumbs()
+        if filenames:  # Only proceed if filenames were generated
+            honey_gen.cleanup_honeytokens()
+            honey_gen.create_honeytokens(filenames)
+            honey_gen.write_trackfile()
+            honey_gen.generate_canarytokens()
+
+            with open(os.path.join(full_page_path, 'meta.json')) as meta:
+                meta_info = json.load(meta)
+            breadcrumbs = BreadcrumbsGenerator(full_page_path, meta_info)
+            breadcrumbs.generate_breadcrumbs()
+        else:
+            print_color("❌ Failed to generate bait filenames. Skipping honeytoken regeneration.", "ERROR")
+
     
     loop = asyncio.get_event_loop()
     loop.run_until_complete(check_tanner())
