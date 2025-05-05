@@ -1,10 +1,10 @@
 # Enhancing SNARE/TANNER with Breadcrumbing and Honeytokens utilizing LLMs
 
-This honeypot framework builds upon the SNARE/TANNER honeypot from T-Pot which is designed attract and log interactions on web applications. Within this framework, we extend and enhance SNARE/TANNER by integrating breadcrumbing technics and honeytokens deploy utilizing LLMs for a better and deeper deceptive honeypot framework. 
+This honeypot framework builds upon the [SNARE](https://github.com/mushorg/snare)/[TANNER](https://github.com/mushorg/tanner/tree/main) honeypot from [T-Pot](https://github.com/telekom-security/tpotce/tree/master) which is designed attract and log interactions on web applications. Within this framework, we extend and enhance SNARE/TANNER by integrating breadcrumbing technics and honeytokens deploy utilizing LLMs for a better and deeper deceptive honeypot framework. 
 
 ## Key Features
 
-- **Build Upon SNARE/TANNER**: This framework extends SNARE/TANNER honeypot from T-Pot by introducing more advanced deception techniques.
+- **Build Upon SNARE/TANNER**: This framework extends SNARE/TANNER honeypot from T-Pot by introducing more advanced deception technique features using breadcrumbing and honeytoken deployment while integrating LLM for generating them.
 
 - **Breadcrumbs**: This framework have an implemented mechanism to deploy breadcrumbs within a web application utilzing the three different strategies: `robots.txt`, `error pages`, and `html inline comments`.
 
@@ -33,7 +33,7 @@ FEATURES:
 HONEYTOKEN:
   API-PROVIDER: gemini # Options: huggingface, gemini
   API-ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash
-  API-KEY:   
+  API-KEY: foobar123
   PROMPT-FILENAMES: >
     You are generating bait filenames for a website called SmartGadgetStore.live, which sells smart gadgets and electronics online.
     Generate in total 5 files. The generated files should be realistic, code-friendly filenames (no spaces or special characters) that might contain sensitive internal data.
@@ -50,15 +50,15 @@ HONEYTOKEN:
     top_p: 0.95
     top_k: 50
     max_new_tokens: 400
-    do_sample: true # Only supported for HuggingFace
-    return_full_text: false # Only supported for HuggingFace
+    do_sample: true # Only for HuggingFace
+    return_full_text: false # Only for HuggingFace
   WEBHOOK-URL:   
 
 BREADCRUMB:
   TYPES: # Options: robots, 404_page, html_comments
   API-PROVIDER: gemini # Options: huggingface, gemini
   API-ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash
-  API-KEY:   
+  API-KEY: foobar123
   PROMPT-404-ERROR: >
     Write a short HTML bait line (in a <p> tag) that subtly hints at an internal file located at /{honeytoken}. 
     It should look like something a developer accidentally left in, referencing the file path naturally.
@@ -72,24 +72,39 @@ BREADCRUMB:
     top_p: 0.95
     top_k: 50
     max_new_tokens: 50
-    do_sample: true # Only supported for HuggingFace
-    return_full_text: false # Only supported for HuggingFace
+    do_sample: true # Only for HuggingFace
+    return_full_text: false # Only for HuggingFace
 ```
 
-### Running Locally with Docker
+### Running Locally with Docker without a TLS-certificate
 
 1. Build the Docker compose file:
      ```bash
-     
+     docker compose -f docker/docker-compose-local.yml build
      ```
+     
 2. Run the Docker compose file:
      ```bash
+     docker compose -f docker/docker-compose-local.yml up
+     ```
+
+### Running with Docker using a TLS-certificate
+
+1. Build the Docker compose file:
+     ```bash
+     docker compose -f docker/docker-compose.yml build
+     ```
      
+2. Run the Docker compose file:
+     ```bash
+     docker compose -f docker/docker-compose.yml up
      ```
 
 ### Logging Interface
 
 The logging interface provides real-time insights into honeypot activity. 
+
+
 
 
 Key features include:
