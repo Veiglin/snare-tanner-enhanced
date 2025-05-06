@@ -109,11 +109,12 @@ def render_log(log_name):
 
     try:
         with open(log_path, "r") as f:
-            # Read the log lines and reverse them
-            log_lines = f.readlines()
-            log_lines.reverse()
-            log_content = "<br>".join(line.strip() for line in log_lines)  # Convert to HTML-friendly format
-
+            lines = [line.rstrip() for _, line in zip(range(1000), f)]
+        log_content = "<br>".join(lines)
+#             Read the log lines and reverse them
+#             log_lines = f.readlines()
+#             log_lines.reverse()
+#             log_content = "<br>".join(line.strip() for line in log_lines)  # Convert to HTML-friendly format
         return render_template(f"{log_name}_viewer.html", 
                                log_name=log_name, 
                                log_content=log_content
@@ -200,6 +201,36 @@ def download_webhook_route():
         logger.error(f"Failed to download webhook storage file: {e}")
         return jsonify({"error": f"Failed to download webhook storage file: {str(e)}"}), 500
     
+@app.route("/logs/<log_name>/batch/<int:offset>")
+def load_log_batch(log_name, offset):
+    log_path = LOG_FILES.get(log_name)
+    if not log_path or not os.path.exists(log_path):
+        return jsonify({"error": f"Log file '{log_name}' not found"}), 404
+
+    try:
+        with open(log_path, "r") as f:
+            lines = f.readlines()
+            batch = lines[offset:offset + 1000]
+            return jsonify({
+                "lines": [line.rstrip() for line in batch],
+                "next_offset": offset + 1000 if offset + 1000 < len(lines) else None
+            })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/webhooks/batch/<int:offset>")
+def load_webhook_batch(offset):
+    try:
+        with open("webhooks.json", "r") as f:
+            webhooks = json.load(f)
+        batch = webhooks[offset:offset + 100]
+        return jsonify({
+            "webhooks": batch,
+            "next_offset": offset + 100 if offset + 100 < len(webhooks) else None
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/wipe_all", methods=["POST"])
 def wipe_all():
     """Wipe all logs and webhooks."""
@@ -218,3 +249,4 @@ def wipe_all():
     except Exception as e:
         logger.error(f"Failed to wipe all data: {e}")
         return jsonify({"error": f"Failed to wipe all data: {str(e)}"}), 500
+
