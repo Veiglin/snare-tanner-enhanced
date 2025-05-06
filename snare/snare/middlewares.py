@@ -2,6 +2,7 @@ import aiohttp_jinja2
 import multidict
 from aiohttp import web
 
+from snare.config import SnareConfig
 
 class SnareMiddleware:
     def __init__(self, error_404, error_500=None, error_400=None, error_401=None, error_403=None, headers=[], server_header=""):
@@ -56,13 +57,21 @@ class SnareMiddleware:
         return error_middleware
 
     def setup_middlewares(self, app):
-        error_middleware = self.create_error_middleware(
-            {
-                400: self.handle_400,
-                401: self.handle_401,
-                403: self.handle_403,
-                404: self.handle_404,
-                500: self.handle_500,
-            }
-        )
+        if SnareConfig.get("FEATURES", "enabled") is True:
+            error_middleware = self.create_error_middleware(
+                {
+                    400: self.handle_400,
+                    401: self.handle_401,
+                    403: self.handle_403,
+                    404: self.handle_404,
+                    500: self.handle_500,
+                }
+            )
+        else:
+            error_middleware = self.create_error_middleware(
+                {
+                    404: self.handle_404,
+                    500: self.handle_500,
+                }
+            )
         app.middlewares.append(error_middleware)
