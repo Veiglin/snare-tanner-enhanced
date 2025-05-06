@@ -109,7 +109,8 @@ def render_log(log_name):
 
     try:
         with open(log_path, "r") as f:
-            log_content = f.read().replace("\n", "<br>")
+            lines = [line.rstrip() for _, line in zip(range(1000), f)]
+        log_content = "<br>".join(lines)
         return render_template(f"{log_name}_viewer.html", 
                                log_name=log_name, 
                                log_content=log_content
@@ -195,4 +196,19 @@ def download_webhook_route():
     except Exception as e:
         logger.error(f"Failed to download webhook storage file: {e}")
         return jsonify({"error": f"Failed to download webhook storage file: {str(e)}"}), 500
-    
+@app.route("/logs/<log_name>/batch/<int:offset>")
+def load_log_batch(log_name, offset):
+    log_path = LOG_FILES.get(log_name)
+    if not log_path or not os.path.exists(log_path):
+        return jsonify({"error": f"Log file '{log_name}' not found"}), 404
+
+    try:
+        with open(log_path, "r") as f:
+            lines = f.readlines()
+            batch = lines[offset:offset + 1000]
+            return jsonify({
+                "lines": [line.rstrip() for line in batch],
+                "next_offset": offset + 1000 if offset + 1000 < len(lines) else None
+            })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

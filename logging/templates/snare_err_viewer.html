@@ -2,25 +2,138 @@
 <html>
 <head>
     <title>Snare Error Log</title>
-    <script>
-        function fetchLog() {
-            // Fetch the latest log content from the server
-            fetch(window.location.href)
-                .then(response => response.text())
-                .then(html => {
-                    // Parse the returned HTML and extract the updated log content
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const newContent = doc.querySelector('pre').innerHTML;
-
-                    // Update the log content on the current page
-                    document.querySelector('pre').innerHTML = newContent;
-                })
-                .catch(error => console.error('Error fetching log:', error));
+    <style>
+        h1 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            z-index: 1000;
+            margin: 0;
+            padding: 20px 0;
+            text-align: center;
+            font-size: 1.8em;
+            border-bottom: 1px solid #ccc;
+        }
+        pre {
+            margin-top: 80px;
+            padding: 20px;
+        }
+        .button {
+            position: fixed;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease, background-color 0.3s ease;
+            cursor: pointer;
+        }
+        .button:hover {
+            transform: scale(1.1);
+        }
+        .download-button {
+            bottom: 20px;
+            background: #007bff;
+        }
+        .download-button:hover {
+            background: #0056b3;
+        }
+        .clear-button {
+            bottom: 100px;
+            background: #dc3545;
+        }
+        .clear-button:hover {
+            background: #c82333;
+        }
+        #show-more {
+            position: relative;
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            background-color: #e0e0e0;
+            color: #333;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
-        // Fetch updates every 5 seconds
-        setInterval(fetchLog, 5000);
+        #show-more:hover {
+            background-color: #d5d5d5;
+            transform: translateY(-2px);
+        }
+
+        .spinner {
+            margin-left: 10px;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #999;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Snare Error Log</h1>
+    <pre>{{ log_content|safe }}</pre>
+    <a href="/" style="display:block;text-align:left;margin:10px 0;font-weight:bold;color:#007bff;">&larr; Back to Home</a>
+
+    <button id="show-more" onclick="loadMoreLines()">
+        <span class="label">Show More</span>
+        <span class="spinner" style="display: none;"></span>
+    </button>
+    <a href="/" class="button download-button" title="Download Log">
+        <p>&#x2B07;</p>
+    </a>
+    <button class="button clear-button" title="Clear Log" onclick="clearLog()">
+        <p>&#x1F5D1;</p>
+    </button>
+    <script>
+        let offset = 500;
+        function loadMoreLines() {
+            const spinner = document.querySelector("#show-more .spinner");
+            const label = document.querySelector("#show-more .label");
+            spinner.style.display = "inline-block";
+            label.textContent = "Loading...";
+
+            fetch(`/logs/snare_err/batch/${offset}`)
+                .then(res => res.json())
+                .then(data => {
+                    const pre = document.querySelector("pre");
+                    pre.innerHTML += "<br>" + data.lines.join("<br>");
+                    offset = data.next_offset || offset;
+
+                    if (!data.next_offset) {
+                        document.getElementById("show-more").style.display = "none";
+                    }
+                })
+                .catch(err => console.error("Failed to load more lines:", err))
+                .finally(() => {
+                    if (document.getElementById("show-more")) {
+                        spinner.style.display = "none";
+                        label.textContent = "Show More";
+                    }
+                });
+        }
+
 
         function clearLog() {
             if (confirm('Are you sure you want to clear this?')) {
@@ -29,7 +142,7 @@
                     .then(data => {
                         if (data.message) {
                             alert(data.message);
-                            document.querySelector('pre').innerHTML = ''; // Clear the log content on the page
+                            document.querySelector('pre').innerHTML = '';
                         } else if (data.error) {
                             alert(data.error);
                         }
@@ -38,73 +151,5 @@
             }
         }
     </script>
-    <style>
-    /* Style for the download button */
-    .download-button {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        cursor: pointer;
-        text-decoration: none;
-    }
-    .download-button:hover {
-        background-color: #0056b3;
-    }
-    /* Icon inside the button */
-    .download-button i {
-        font-size: 24px;
-    }
-    /* Style for the clear button */
-    .clear-button {
-        position: fixed;
-        bottom: 100px; /* Adjust to hover above the download button */
-        right: 20px;
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        cursor: pointer;
-        text-decoration: none;
-    }
-
-    .clear-button:hover {
-        background-color: #c82333;
-    }
-
-    /* Icon inside the button */
-    .clear-button i {
-        font-size: 24px;
-    }
-    </style>
-</head>
-<body>
-    <h1>Snare Error Log</h1>
-    <pre>{{ log_content|safe }}</pre>
-    <a href="/">Back to Home</a>
-    <!-- Download button -->
-    <a href="/download/snare_err" class="download-button" title="Download Log">
-        <i>&#x2B07;</i>
-    </a>
-
-    <!-- Clear button -->
-    <button class="clear-button" title="Clear Log" onclick="clearLog()">
-        <i>&#x1F5D1;</i> <!-- Unicode for trash icon -->
-    </button>
 </body>
 </html>

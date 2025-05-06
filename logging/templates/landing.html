@@ -1,36 +1,122 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>SNARE/TANNER - Log and Webhook Viewer</title>
+    <meta charset="UTF-8">
+    <title>SNARE/TANNER - Monitoring Interface</title>
+    <link rel="icon" href="{{ url_for('static', filename='Logo_small.png') }}" type="image/png">
     <style>
         body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
         }
+
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo img {
+            height: 120px;
+        }
+
         .container {
+            background: white;
+            padding: 40px 60px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             text-align: center;
+            width: calc(100% - 400px);  /* subtracts 200px left and right */
+            max-width: 600px;           /* optional max width for large screens */
+            margin-left: auto;
+            margin-right: auto;
         }
+
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            color: #333;
+        }
+
+        h3 {
+            margin-top: 30px;
+            font-size: 1.4em;
+            color: #555;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 2px 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+            color: #0056b3;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 10px;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .title {
+            font-size: 2.2em;
+            font-weight: 700;
+            font-family: 'Trebuchet MS', 'Lucida Grande', 'Segoe UI', sans-serif;
+            color: #222;
+            margin-bottom: 25px;
+        }
+
     </style>
 </head>
 <body>
+    <div class="logo">
+        <img src="{{ url_for('static', filename='Thesis_logo.png') }}" alt="Thesis Logo" height="100">
+    </div>
     <div class="container">
-        <h2>SNARE/TANNER - Log and Webhook Viewer</h2>
+        <h2 class="title">Honeypot's Activity Dashboard</h2>
+
+
         <h3>Logs and Error Logs:</h3>
-        <ul style="list-style: none; padding: 0;">
+        <ul>
             <li><a href="/logs/snare">Snare Log</a></li>
             <li><a href="/logs/snare_err">Snare Error Log</a></li>
             <li><a href="/logs/tanner">Tanner Log</a></li>
             <li><a href="/logs/tanner_err">Tanner Error Log</a></li>
             <li><a href="/logs/tanner_report">Tanner Report</a></li>
         </ul>
+
         <h3>Webhooks:</h3>
-        <ul style="list-style: none; padding: 0;">
+        <ul>
             <li><a href="/webhooks">View Received Webhooks</a></li>
         </ul>
     </div>
+
+    <footer>
+        &copy; 2025 DTU MSc Thesis Project | Enhancing Honeypots with Breadcrumbs and Honeytokens
+    </footer>
 </body>
 </html>
