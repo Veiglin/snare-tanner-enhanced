@@ -112,7 +112,7 @@ def render_log(log_name):
             # Read the log lines and reverse them
             log_lines = f.readlines()
             log_lines.reverse()
-            log_content = "<br>".join(log_lines)  # Convert to HTML-friendly format
+            log_content = "<br>".join(line.strip() for line in log_lines)  # Convert to HTML-friendly format
 
         return render_template(f"{log_name}_viewer.html", 
                                log_name=log_name, 
