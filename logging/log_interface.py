@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, render_template, send_from_directory, request
 import os
 import logging
+import json
 from webhook_storage import load_webhooks, save_webhook, clear_webhooks, download_webhook
 
 def print_color(msg, mode="INFO", end="\n"):
@@ -108,17 +109,24 @@ def render_log(log_name):
         return jsonify({"error": f"Log file '{log_name}' does not exist"}), 404
 
     try:
-        with open(log_path, "r") as f:
-            lines = [line.rstrip() for _, line in zip(range(1000), f)]
-        log_content = "<br>".join(lines)
-#             Read the log lines and reverse them
-#             log_lines = f.readlines()
-#             log_lines.reverse()
-#             log_content = "<br>".join(line.strip() for line in log_lines)  # Convert to HTML-friendly format
-        return render_template(f"{log_name}_viewer.html", 
-                               log_name=log_name, 
-                               log_content=log_content
-                               )
+        if log_name == "tanner_report":
+            import json
+            with open(log_path, "r") as f:
+                try:
+                    # NDJSON-style parsing (one JSON object per line)
+                    lines = [json.loads(line) for _, line in zip(range(50), f) if line.strip()]
+                    log_content = "<br>".join(json.dumps(entry, indent=2) for entry in lines)
+                except json.JSONDecodeError as e:
+                    log_content = f"Invalid JSON content: {e}"
+        else:
+            with open(log_path, "r") as f:
+                lines = [line.rstrip() for _, line in zip(range(500), f)]
+                log_content = "<br>".join(lines)
+
+        return render_template(f"{log_name}_viewer.html",
+                               log_name=log_name,
+                               log_content=log_content)
+
     except Exception as e:
         logger.error(f"Failed to read log '{log_name}': {e}")
         return jsonify({"error": f"Failed to read log '{log_name}': {str(e)}"}), 500
@@ -210,10 +218,11 @@ def load_log_batch(log_name, offset):
     try:
         with open(log_path, "r") as f:
             lines = f.readlines()
-            batch = lines[offset:offset + 1000]
+            batch_size = 50 if log_name == "tanner_report" else 500
+            batch = lines[offset:offset + batch_size]
             return jsonify({
                 "lines": [line.rstrip() for line in batch],
-                "next_offset": offset + 1000 if offset + 1000 < len(lines) else None
+                "next_offset": offset + batch_size if offset + batch_size < len(lines) else None
             })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
