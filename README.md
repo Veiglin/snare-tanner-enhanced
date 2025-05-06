@@ -92,16 +92,10 @@ BREADCRUMB:
 
 ### Running with Docker (with TLS-certificate required)
 
-1. Build the Docker compose file:
+1. Build and Run the Docker compose file:
      ```bash
-     docker compose -f docker/docker-compose.yml build
+     docker compose -f docker/docker-compose.yml up --build
      ```
-     
-2. Run the Docker compose file:
-     ```bash
-     docker compose -f docker/docker-compose.yml up
-     ```
-
 
 ### Logging Interface
 
