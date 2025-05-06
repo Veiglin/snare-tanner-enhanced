@@ -92,8 +92,10 @@ class HoneytokensGenerator:
         prompt = SnareConfig.get("HONEYTOKEN", "PROMPT-FILENAMES").replace("{session}", session)
         if self.api_provider == "huggingface":
             text = self._call_huggingface_api(prompt)
+            self.logger.debug(f"Hugging Face API response: {text}")
         elif self.api_provider == "gemini":
             text = self._call_gemini_api(prompt)
+            self.logger.debug(f"Gemini API response: {text}")
         filenames = self._extract_clean_filenames(text)
         print_color("Generated filenames:\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
         self.logger.debug(f"Generated filenames: {filenames}")
@@ -168,12 +170,13 @@ class HoneytokensGenerator:
         lines = text.strip().split("\n")
         cleaned = []
         for line in lines:
-            line = re.sub(r"^\*\*|\*\*$", "", line)  # Remove surrounding ** if present
-            line = re.sub(r"^[-*\s#\d\.\)]*\s*", "", line)
-            line = re.sub(r"^.*?:\s*", "", line)
-            line = line.replace(" ", "_")
-            line = re.sub(r"[^a-zA-Z0-9_\.\-]", "", line)
-            if re.match(r".+\.(pdf|docx|xlsx|db|sql|zip|bak|tar\.gz)$", line):
+            line = re.sub(r"^\d+\.\s*", "", line) # Remove numbered list prefixes (e.g., "5. ", "4. ")
+            line = re.sub(r"^\*\*|\*\*:$", "", line) # Remove surrounding ** or **: if present
+            line = re.sub(r"^[-*\s#\d\.\)]*\s*", "", line) # Remove leading symbols, numbers, or extra text before the filename
+            line = re.sub(r"^.*?:\s*", "", line) # Remove any text after a colon (":") if present
+            line = line.replace(" ", "_") # Replace spaces with underscores
+            line = re.sub(r"[^a-zA-Z0-9_\.\-]", "", line) # Remove invalid characters
+            if re.match(r".+\.(pdf|docx|xlsx|db|sql|zip|bak|tar\.gz)$", line): # Match valid filenames with specific extensions
                 cleaned.append(line)
         return cleaned
 
@@ -386,7 +389,7 @@ class HoneytokensGenerator:
         shutil.move(tmp_output, filepath)
         shutil.rmtree(temp_dir)
 
-        self.logger.debug(f"Injected the generated data {lines} into the .docx honeytoken with the hashed filenmae {filepath}")
+        self.logger.debug(f"Injected the generated data {lines} into .docx honeytoken with the hashed filename {filepath}")
 
 
     def _inject_xlsx(self, filepath, honeytoken):
@@ -448,7 +451,7 @@ class HoneytokensGenerator:
         shutil.move(tmp_output, filepath)
         shutil.rmtree(temp_dir)
 
-        self.logger.debug(f"Injected the generated data {rows} into the .xlsx honeytoken with the hashed filenmae {filepath}")
+        self.logger.debug(f"Injected the generated data {rows} into .xlsx honeytoken with the hashed filename {filepath}")
 
 
     def _generate_fake_content_from_llm(self, honeytoken: str, filetype: str):
