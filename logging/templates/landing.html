@@ -92,15 +92,19 @@
 
 
         .danger-zone {
-            margin-top: 200px; /* Add space above the Danger Zone */
+            padding-bottom:-10px;
         }
-        .danger-zone h3 {
-            color: red; /* Make the Danger Zone headline red */
-        }
+        /* .danger-zone h3 {
+            color: red; /* Make the Danger Zone headline red
+        } */
         .danger-link {
             color: red;
             text-decoration: underline;
             cursor: pointer;
+        }
+
+        .space_d {
+            padding-bottom: 60px;
         }
 
     </style>
@@ -123,11 +127,11 @@
         </ul>
 
         <h3>Webhooks:</h3>
-        <ul>
+        <ul class="space_d">
             <li><a href="/webhooks">View Received Webhooks</a></li>
         </ul>
         <div class="danger-zone">
-            <h3>Danger Zone:</h3>
+            <!-- <h3>Danger Zone:</h3> -->
             <a href="#" onclick="removeAllData()" class="danger-link">Remove All Data</a>
         </div>
     </div>
