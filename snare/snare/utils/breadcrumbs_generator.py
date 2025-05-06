@@ -5,6 +5,7 @@ import logging
 import random
 import requests
 import re
+import time
 
 from snare.utils.snare_helpers import print_color
 from snare.config import SnareConfig

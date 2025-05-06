@@ -95,7 +95,8 @@ class HoneytokensGenerator:
         elif self.api_provider == "gemini":
             text = self._call_gemini_api(prompt)
         filenames = self._extract_clean_filenames(text)
-        print_color("Cleaned Filenames:\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
+        print_color("Generated filenames:\n" + "\n".join(f" - {name}" for name in filenames), "SUCCESS")
+        self.logger.debug(f"Generated filenames: {filenames}")
         return filenames
         
     def _call_huggingface_api(self, prompt):
@@ -213,7 +214,7 @@ class HoneytokensGenerator:
         with open(self.meta_path, "w") as f:
             json.dump(meta, f, indent=4)
 
-        self.logger.debug(f"Created {len(filenames)} honeytoken files in {self.page_dir}: {self.generated_paths}")
+        self.logger.debug(f"Created {len(filenames)} bait and honeytoken files in {self.page_dir}: {self.generated_paths}")
 
     def write_trackfile(self):
         if not hasattr(self, "generated_paths"):
@@ -272,7 +273,7 @@ class HoneytokensGenerator:
                 token_type = self.canary_content_types.get((os.path.splitext(token)[1]).lower())
                 canarytoken = self._generate_token(token_type, token + " - Triggered", webhook=self.webhook_url)
                 if canarytoken:
-                    print_color(f"Generated canarytoken for {token}: {canarytoken}", "SUCCESS")
+                    print_color(f"Generated honeytoken for {token}: {canarytoken}", "SUCCESS")
 
                     # download the canarytoken file
                     canarytoken_content = self._downloaded_token_file(token_type, canarytoken['auth_token'], canarytoken['token'])
@@ -282,7 +283,8 @@ class HoneytokensGenerator:
                     hashed_filename = os.path.join(self.page_dir, hashed_filename)
                     with open(hashed_filename, "wb") as f:
                         f.write(canarytoken_content)
-                    print_color(f"Saved canarytoken file as {hashed_filename}", "SUCCESS")
+                    print_color(f"Saved honeytoken file as {hashed_filename}", "SUCCESS")
+                    self.logger.debug(f"Created honeytoken for {token} saved as the hashed filename {hashed_filename}")
 
                     # Immediately inject content into newly downloaded token
                     if token.endswith(".docx"):
@@ -384,6 +386,7 @@ class HoneytokensGenerator:
         shutil.move(tmp_output, filepath)
         shutil.rmtree(temp_dir)
 
+        self.logger.debug(f"Injected the generated data {lines} into the .docx honeytoken with the hashed filenmae {filepath}")
 
 
     def _inject_xlsx(self, filepath, honeytoken):
@@ -444,6 +447,8 @@ class HoneytokensGenerator:
 
         shutil.move(tmp_output, filepath)
         shutil.rmtree(temp_dir)
+
+        self.logger.debug(f"Injected the generated data {rows} into the .xlsx honeytoken with the hashed filenmae {filepath}")
 
 
     def _generate_fake_content_from_llm(self, honeytoken: str, filetype: str):
