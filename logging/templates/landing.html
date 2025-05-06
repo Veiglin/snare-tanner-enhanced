@@ -14,6 +14,17 @@
         .container {
             text-align: center;
         }
+        .danger-zone {
+            margin-top: 200px; /* Add space above the Danger Zone */
+        }
+        .danger-zone h3 {
+            color: red; /* Make the Danger Zone headline red */
+        }
+        .danger-link {
+            color: red;
+            text-decoration: underline;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -31,6 +42,26 @@
         <ul style="list-style: none; padding: 0;">
             <li><a href="/webhooks">View Received Webhooks</a></li>
         </ul>
+        <div class="danger-zone">
+            <h3>Danger Zone:</h3>
+            <a href="#" onclick="removeAllData()" class="danger-link">Remove All Data</a>
+        </div>
     </div>
+    <script>
+        function removeAllData() {
+            if (confirm('Are you sure you want to remove all logs, error files, and webhooks? This action cannot be undone.')) {
+                fetch('/wipe_all', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            alert(data.message);
+                        } else if (data.error) {
+                            alert(data.error);
+                        }
+                    })
+                    .catch(error => console.error('Error wiping all data:', error));
+            }
+        }
+    </script>
 </body>
 </html>

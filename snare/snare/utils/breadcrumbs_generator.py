@@ -5,6 +5,7 @@ import logging
 import random
 import requests
 import re
+import time
 
 from snare.utils.snare_helpers import print_color
 from snare.config import SnareConfig
@@ -37,7 +38,7 @@ class BreadcrumbsGenerator:
             breadcrumb_types = breadcrumb.strip()
             if breadcrumb == 'robots':
                 self.generate_robots_breadcrumb()
-            elif breadcrumb == '404_page':
+            elif breadcrumb == 'error_page':
                 self.generate_error_pages_breadcrumb()
             elif breadcrumb == 'html_comments':
                 self.generate_html_comments_breadcrumb()
@@ -179,7 +180,7 @@ class BreadcrumbsGenerator:
 
 
     def _generate_404_content_from_llm(self, honeytoken):
-        prompt = SnareConfig.get("BREADCRUMB", "PROMPT-404-ERROR").replace("{honeytoken}", honeytoken)
+        prompt = SnareConfig.get("BREADCRUMB", "PROMPT-ERROR-PAGE").replace("{honeytoken}", honeytoken)
         # Call the LLM API
         if self.api_provider == "huggingface":
             text = self._generate_huggingface_content(prompt)
@@ -253,14 +254,14 @@ class BreadcrumbsGenerator:
                     result = response.json()
                     return result["candidates"][0]["content"]["parts"][0]["text"]
                 else:
-                    print_color(f"⚠️ Gemini API attempt {attempt} failed: {response.status_code} — {response.text}", "WARNING")
+                    print_color(f"Gemini API attempt {attempt} failed: {response.status_code} — {response.text}", "WARNING")
             except Exception as e:
-                print_color(f"⚠️ Gemini API attempt {attempt} raised exception: {str(e)}", "WARNING")
+                print_color(f"Gemini API attempt {attempt} raised exception: {str(e)}", "WARNING")
 
             if attempt < max_attempts:
                 time.sleep(delay_seconds)
 
-        print_color("❌ Gemini API failed after multiple attempts.", "ERROR")
+        print_color("Gemini API failed after multiple attempts.", "ERROR")
         return None
 
     def generate_html_comments_breadcrumb(self):
