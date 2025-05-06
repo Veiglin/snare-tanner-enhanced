@@ -170,12 +170,14 @@ class HoneytokensGenerator:
         lines = text.strip().split("\n")
         cleaned = []
         for line in lines:
-            line = re.sub(r"^\d+\.\s*", "", line) # Remove numbered list prefixes (e.g., "5. ", "4. ")
-            line = re.sub(r"^\*\*|\*\*:$", "", line) # Remove surrounding ** or **: if present
-            line = re.sub(r"^[-*\s#\d\.\)]*\s*", "", line) # Remove leading symbols, numbers, or extra text before the filename
-            line = re.sub(r"^.*?:\s*", "", line) # Remove any text after a colon (":") if present
-            line = line.replace(" ", "_") # Replace spaces with underscores
-            line = re.sub(r"[^a-zA-Z0-9_\.\-]", "", line) # Remove invalid characters
+            # Remove numbered list prefixes (e.g., "5. ", "4. ")
+            line = re.sub(r"^\d+\.\s*", "", line)
+            # Extract text between ** and remove any trailing description in parentheses
+            line = re.sub(r"\*\*(.+?)\*\*.*", r"\1", line)
+            # Replace spaces with underscores
+            line = line.replace(" ", "_")
+            # Remove invalid characters
+            line = re.sub(r"[^a-zA-Z0-9_\.\-]", "", line)
             if re.match(r".+\.(pdf|docx|xlsx|db|sql|zip|bak|tar\.gz)$", line): # Match valid filenames with specific extensions
                 cleaned.append(line)
         return cleaned
