@@ -27,22 +27,22 @@ Below is an explanation of the key sections in the configuration file:
 
 For both of them:
 
-- **`API-PROVIDER`**:
-- **`API-ENDPOINT`**:
-- **`API-KEY`**:
-- **`LLM-PARAMETERS`**:
+- **API-PROVIDER**:
+- **API-ENDPOINT**:
+- **API-KEY**:
+- **LLM-PARAMETERS**:
 
 Specific for `HONEYTOKENS`:
 
-- **`PROMPT-FILENAMES`**:
-- **`PROMPT-FILECONTENT`**:
-- **`WEBHOOK-URL`**:
+- **PROMPT-FILENAMES**:
+- **PROMPT-FILECONTENT**:
+- **WEBHOOK-URL**:
 
 Within the `BREADCRUMB`:
 
-- **`TYPES`**:
-- **`PROMPT-ERROR-PAGE`**:
-- **`PROMPT-HTML-COMMENT`**:
+- **TYPES**:
+- **PROMPT-ERROR-PAGE**:
+- **PROMPT-HTML-COMMENT**:
 
 Here is an example `config.yml`:
 ```yaml
