@@ -1,28 +1,30 @@
-# Enhancing SNARE/TANNER with Breadcrumbing and Honeytokens utilizing LLMs
+# Enhancing SNARE/TANNER with Breadcrumbing and Honeytokens utilizing LLM-driven generation
 
-This honeypot framework builds upon the [SNARE](https://github.com/mushorg/snare)/[TANNER](https://github.com/mushorg/tanner/tree/main) honeypot from [T-Pot](https://github.com/telekom-security/tpotce/tree/master) which is designed attract and log interactions on web applications. Within this framework, we extend and enhance SNARE/TANNER by integrating breadcrumbing technics and honeytokens deploy utilizing LLMs for a better and deeper deceptive honeypot framework. 
+This honeypot framework builds upon the [SNARE](https://github.com/mushorg/snare)/[TANNER](https://github.com/mushorg/tanner/tree/main) honeypot from [T-Pot](https://github.com/telekom-security/tpotce/tree/master) which is designed attract and log interactions on web applications. Within this framework, we extend and enhance SNARE/TANNER by integrating breadcrumbing technics and honeytokens deploy utilizing LLMs for a better and deeper deceptive honeypot framework.
 
 ## Key Features
 
-- **Build Upon SNARE/TANNER**: This framework extends SNARE/TANNER honeypot from T-Pot by introducing more advanced deception technique features using breadcrumbing and honeytoken deployment while integrating LLM for generating them.
+- **Build Upon SNARE/TANNER**: This framework extends SNARE/TANNER honeypot from T-Pot by introducing more advanced deception technique features using breadcrumbing and honeytoken deployment with LLM-driven generation.
 
 - **Breadcrumbs**: This framework have an implemented mechanism to deploy breadcrumbs within a web application utilzing the three different strategies: `robots.txt`, `error pages`, and `html inline comments`.
 
-**Honeytokens**: This framework includes a mechanism to deploy honeytoken files utilized from Canarytoken including their content, designed to detect unauthorized access. The types of honeytokens supported includes the file types: `docx`, `xlsx`, and `pdf`.
+- **Honeytokens**: This framework includes a mechanism to deploy honeytoken files utilized from [Canarytoken](https://canarytokens.org/nest/generate) including their content, designed to detect unauthorized access. The types of honeytokens supported includes the file types: `docx`, `xlsx`, and `pdf`.
 
-- **Bait Files**: This framework supports the creation of bait files together with the honeytokens which mimic files that could be exploited. These files are strategically placed to lure the attacker.
+- **Bait Files**: This framework create bait files together with the honeytokens which mimic files that could be exploited. These files are strategically placed to lure the attacker.
 
 - **Utilizing LLMs**: The framework leverages Large Language Models (LLMs) to dynamically generate realistic honeytokens and breadcrumbs content which enhances the deception capabilities of the honeypot.
 
-- **Logging Interface**: The honeypot framework introduces a logging interface for monitoring and analyzing activities in SNARE/TANNER. It captures triggered honeytokens and provides insights into teh potential threats with detailed information.
+- **Logging Interface**: The honeypot framework introduces a logging interface for monitoring and analyzing activities in SNARE/TANNER. It captures triggered honeytokens from webhooks which provides insights into the intruders with detailed information about them.
 
 ## User Guide
 
-### Configuration
-The honeypot is configured using a `config.yml` file. Below is an explanation of the key sections in the configuration file:
+### Configuration in SNARE
+The features for the enhanced honeypot is configured using a `config.yml` file created for SNARE which can be founded at the path `/docker/snare/dist`. 
+
+Below is an explanation of the key sections in the configuration file:
 
 - **`FEATURES`**: Parameter to enable or disable the extended framework to generate honeytokens and breadcrumbs.
-- **`HONEYTOKEN`**: Specifies the honeytokens associated LLM API and prompt used for generating. Furthermore, it gives the opportunity to specific a accesible webhook endpoint when triggering a honeytoken.
+- **`HONEYTOKEN`**: Specifies the honeytokens associated LLM API and prompt used for generating. At the moment we support [Gemini AI](https://aistudio.google.com/prompts/new_chat) from Google and the [Inference API](https://huggingface.co/docs/inference-providers/index) from Hugging Face. Furthermore, it gives the opportunity to specific a accesible webhook endpoint when triggering a honeytoken.
 - **`BREADCRUMB`**: Configures the types of breadcrumbs used and the associated LLM. It furthermore provide options to configure the LLM prompt in each of the used breadcrumb strategies.
 
 Example `config.yml`:
@@ -55,11 +57,14 @@ HONEYTOKEN:
   WEBHOOK-URL: https://webhook.site/1234
 
 BREADCRUMB:
-  TYPES: # Options: robots, 404_page, html_comments
+  TYPES: # Options: robots, error_page, html_comments
+  - robots
+  - error_page
+  - html_comments
   API-PROVIDER: gemini # Options: huggingface, gemini
   API-ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash
   API-KEY: foobar123
-  PROMPT-404-ERROR: >
+  PROMPT-ERROR-PAGE: >
     Write a short HTML bait line (in a <p> tag) that subtly hints at an internal file located at /{honeytoken}. 
     It should look like something a developer accidentally left in, referencing the file path naturally.
     Your goal is to lead a potential attacker to believe that this is a legitimate file path. 
@@ -76,19 +81,16 @@ BREADCRUMB:
     return_full_text: false # Only for HuggingFace
 ```
 
-### Running Locally with Docker without a TLS-certificate
+### Running Locally with Docker (without TLS-certificate required)
 
-1. Build the Docker compose file:
+1. Build and Run the Docker compose file:
      ```bash
-     docker compose -f docker/docker-compose-local.yml build
-     ```
-     
-2. Run the Docker compose file:
-     ```bash
-     docker compose -f docker/docker-compose-local.yml up
+     docker compose -f docker/docker-compose-local.yml up --build
      ```
 
-### Running with Docker using a TLS-certificate
+### Setting up a TLS-certificate
+
+### Running with Docker (with TLS-certificate required)
 
 1. Build the Docker compose file:
      ```bash
@@ -99,6 +101,7 @@ BREADCRUMB:
      ```bash
      docker compose -f docker/docker-compose.yml up
      ```
+
 
 ### Logging Interface
 
