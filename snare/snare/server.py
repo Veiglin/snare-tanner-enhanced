@@ -11,7 +11,7 @@ from aiohttp.web import StaticResource as StaticRoute
 
 from snare.middlewares import SnareMiddleware
 from snare.tanner_handler import TannerHandler
-
+from snare.config import SnareConfig
 
 class HttpRequestHandler:
     def __init__(self, meta, run_args, snare_uuid, debug=False, keep_alive=75, **kwargs):
@@ -22,7 +22,8 @@ class HttpRequestHandler:
         self.logger = logging.getLogger(__name__)
         self.sroute = StaticRoute(name=None, prefix="/", directory=self.dir)
         self.tanner_handler = TannerHandler(run_args, meta, snare_uuid)
-        self.dynamic_routes = self.generate_dynamic_route_map("/opt/snare/honeytokens/common.txt")
+        if SnareConfig.get("FEATURES", "enabled") is True:
+            self.dynamic_routes = self.generate_dynamic_route_map("/opt/snare/honeytokens/common.txt")
 
     def generate_dynamic_route_map(self, wordlist_path):
         try:
@@ -69,20 +70,21 @@ class HttpRequestHandler:
         self.logger.info("Request path: {0}".format(request.path_qs))
         path = request.path
 
-        # Dynamic route error handling
-        if path in self.dynamic_routes:
-            status_path, status_code = self.dynamic_routes[path]
-            self.logger.info(f"Dynamic route trap triggered: {path} → {status_code}")
-            return await self.serve_error_page(status_path, status_code)
-
-        if path == "/400":
-            return await self.serve_error_page("/status_400", 400)
-        if path == "/401":
-            return await self.serve_error_page("/status_401", 401)
-        if path == "/403":
-            return await self.serve_error_page("/status_403", 403)
-        if path == "/500":
-            return await self.serve_error_page("/status_500", 500)
+        if SnareConfig.get("FEATURES", "enabled") is True:
+            # Dynamic route error handling
+            if path in self.dynamic_routes:
+                status_path, status_code = self.dynamic_routes[path]
+                self.logger.info(f"Dynamic route trap triggered: {path} → {status_code}")
+                return await self.serve_error_page(status_path, status_code)
+    
+            if path == "/400":
+                return await self.serve_error_page("/status_400", 400)
+            if path == "/401":
+                return await self.serve_error_page("/status_401", 401)
+            if path == "/403":
+                return await self.serve_error_page("/status_403", 403)
+            if path == "/500":
+                return await self.serve_error_page("/status_500", 500)
 
         data = self.tanner_handler.create_data(request, 200)
         if request.method == "POST":
@@ -123,11 +125,11 @@ class HttpRequestHandler:
         app.add_routes([web.route("*", "/{tail:.*}", self.handle_request)])
         aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(self.dir))
         middleware = SnareMiddleware(
-            error_400=self.meta["/status_400"].get("hash"),
-            error_401=self.meta["/status_401"].get("hash"),
-            error_403=self.meta["/status_403"].get("hash"),
+            error_400=self.meta["/status_400"].get("hash", None),
+            error_401=self.meta["/status_401"].get("hash", None),
+            error_403=self.meta["/status_403"].get("hash", None),
             error_404=self.meta["/status_404"].get("hash"),
-            error_500=self.meta["/status_500"].get("hash"),
+            error_500=self.meta["/status_500"].get("hash", None),
             headers=self.meta["/status_404"].get("headers", []),
             server_header=self.run_args.server_header,
         )
