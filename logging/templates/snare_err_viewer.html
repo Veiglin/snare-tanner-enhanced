@@ -3,19 +3,7 @@
 <head>
     <title>Snare Error Log</title>
     <style>
-        h1 {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            z-index: 1000;
-            margin: 0;
-            padding: 20px 0;
-            text-align: center;
-            font-size: 1.8em;
-            border-bottom: 1px solid #ccc;
-        }
+        
         pre {
             margin-top: 80px;
             padding: 20px;
@@ -89,13 +77,44 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-    </style>
+    
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            z-index: 1000;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 80px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+        .home-link {
+            position: absolute;
+            left: 20px;
+            font-size: 1em;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .home-link:hover {
+            text-decoration: underline;
+        }
+
+</style>
 </head>
 <body>
-    <h1>Snare Error Log</h1>
+    <div class="header">
+        <a href="/" class="home-link">&larr; Home</a>
+        <h1>Snare Error Log</h1>
+    </div>
     <pre>{{ log_content|safe }}</pre>
-    <a href="/" style="display:block;text-align:left;margin:10px 0;font-weight:bold;color:#007bff;">&larr; Back to Home</a>
-
     <button id="show-more" onclick="loadMoreLines()">
         <span class="label">Show More</span>
         <span class="spinner" style="display: none;"></span>
@@ -108,6 +127,7 @@
     </button>
     <script>
         let offset = 500;
+
         function loadMoreLines() {
             const spinner = document.querySelector("#show-more .spinner");
             const label = document.querySelector("#show-more .label");
@@ -118,23 +138,26 @@
                 .then(res => res.json())
                 .then(data => {
                     const pre = document.querySelector("pre");
-                    pre.innerHTML += "<br>" + data.lines.join("<br>");
-                    offset = data.next_offset || offset;
+                    const fragment = document.createDocumentFragment();
+                    data.lines.forEach(line => {
+                        const div = document.createElement("div");
+                        div.textContent = line;
+                        fragment.appendChild(div);
+                    });
+                    pre.appendChild(fragment);
 
+                    offset = data.next_offset || offset;
                     if (!data.next_offset) {
                         document.getElementById("show-more").style.display = "none";
                     }
                 })
                 .catch(err => console.error("Failed to load more lines:", err))
                 .finally(() => {
-                    if (document.getElementById("show-more")) {
-                        spinner.style.display = "none";
-                        label.textContent = "Show More";
-                    }
+                    spinner.style.display = "none";
+                    label.textContent = "Show More";
                 });
         }
-
-
+        
         function clearLog() {
             if (confirm('Are you sure you want to clear this?')) {
                 fetch('/clear/snare_err', { method: 'POST' })

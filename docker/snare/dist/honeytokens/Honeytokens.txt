@@ -1,5 +1,5 @@
-private/SGSL_customer_export_unencrypted_20240229.xlsx
-private/internal_supplier_contracts_v3.docx
-private/device_config_backup_latest.db
-private/admin_panel_user_dump_082023.sql
-private/urgent_inventory_audit_2024.pdf
+wp-admin/SmartGadgetStore_CustomerData_Export_20240726.xlsx
+wp-admin/Internal_Supplier_Pricing_Confidential_Q32024.pdf
+wp-admin/Admin_Credentials_Backup_PreMigration.docx
+wp-admin/Inventory_DB_Full_Backup_20240801.db
+wp-admin/SmartGadgetStore_DeviceConfigs_202407.zip

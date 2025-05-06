@@ -36,7 +36,40 @@
                     .catch(error => console.error('Error clearing:', error));
             }
         }
-    </script>
+    
+        let offset = 100;
+
+        function loadMoreWebhooks() {
+            const spinner = document.querySelector("#show-more .spinner");
+            const label = document.querySelector("#show-more .label");
+            spinner.style.display = "inline-block";
+            label.textContent = "Loading...";
+
+            fetch(`/webhooks/batch/${offset}`)
+                .then(res => res.json())
+                .then(data => {
+                    const ul = document.getElementById("webhook-list");
+                    data.webhooks.forEach(wh => {
+                        const li = document.createElement("li");
+                        const pre = document.createElement("pre");
+                        pre.textContent = JSON.stringify(wh, null, 2);
+                        li.appendChild(pre);
+                        ul.appendChild(li);
+                    });
+
+                    offset = data.next_offset || offset;
+                    if (!data.next_offset) {
+                        document.getElementById("show-more").style.display = "none";
+                    }
+                })
+                .catch(err => console.error("Failed to load more webhooks:", err))
+                .finally(() => {
+                    spinner.style.display = "none";
+                    label.textContent = "Show More";
+                });
+        }
+
+</script>
     <style>
         /* Style for the download button */
         .download-button {
@@ -94,74 +127,97 @@
             font-size: 24px;
         }
     
-h1 {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    z-index: 1000;
-    margin: 0;
-    padding: 20px 0;
-    text-align: center;
-    font-size: 1.8em;
-    border-bottom: 1px solid #ccc;
-}
-ul, p {
-    margin-top: 100px;
-    padding: 20px;
-}
+        ul {
+            margin-top: 100px;
+            padding: 20px;
+        }
 
-.button {
-    position: fixed;
-    right: 20px;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    border: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    color: white;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    transition: transform 0.2s ease, background-color 0.3s ease;
-    cursor: pointer;
-}
-.button:hover {
-    transform: scale(1.1);
-}
-.download-button {
-    bottom: 20px;
-    background: #007bff;
-}
-.download-button:hover {
-    background: #0056b3;
-}
-.clear-button {
-    bottom: 100px;
-    background: #dc3545;
-}
-.clear-button:hover {
-    background: #c82333;
-}
+        .button {
+            position: fixed;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease, background-color 0.3s ease;
+            cursor: pointer;
+        }
+        .button:hover {
+            transform: scale(1.1);
+        }
+        .download-button {
+            bottom: 20px;
+            background: #007bff;
+        }
+        .download-button:hover {
+            background: #0056b3;
+        }
+        .clear-button {
+            bottom: 100px;
+            background: #dc3545;
+        }
+        .clear-button:hover {
+            background: #c82333;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            z-index: 1000;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 80px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+        .home-link {
+            position: absolute;
+            left: 20px;
+            font-size: 1em;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .home-link:hover {
+            text-decoration: underline;
+        }
 
 </style>
 </head>
 <body>
-    <h1>Received Webhooks</h1>
+    <div class="header">
+        <a href="/" class="home-link">&larr; Home</a>
+        <h1>Received Webhooks</h1>
+    </div>
     {% if webhooks %}
-        <ul>
-            {% for webhook in webhooks %}
+        <ul id="webhook-list">
+            {% for webhook in webhooks[:100] %}
                 <li>
                     <pre>{{ webhook | tojson(indent=2) }}</pre>
                 </li>
             {% endfor %}
         </ul>
+
+<button id="show-more" onclick="loadMoreWebhooks()">
+    <span class="label">Show More</span>
+    <span class="spinner" style="display: none;"></span>
+</button>
     {% else %}
         <p>No webhooks received yet.</p>
     {% endif %}
-    <a href="/" style="display:block;text-align:left;margin:10px 0;font-weight:bold;color:#007bff;">&larr; Back to Home</a>
 
 
     <!-- Download button -->

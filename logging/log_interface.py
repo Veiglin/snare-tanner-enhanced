@@ -196,6 +196,7 @@ def download_webhook_route():
     except Exception as e:
         logger.error(f"Failed to download webhook storage file: {e}")
         return jsonify({"error": f"Failed to download webhook storage file: {str(e)}"}), 500
+    
 @app.route("/logs/<log_name>/batch/<int:offset>")
 def load_log_batch(log_name, offset):
     log_path = LOG_FILES.get(log_name)
@@ -210,5 +211,18 @@ def load_log_batch(log_name, offset):
                 "lines": [line.rstrip() for line in batch],
                 "next_offset": offset + 1000 if offset + 1000 < len(lines) else None
             })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/webhooks/batch/<int:offset>")
+def load_webhook_batch(offset):
+    try:
+        with open("webhooks.json", "r") as f:
+            webhooks = json.load(f)
+        batch = webhooks[offset:offset + 100]
+        return jsonify({
+            "webhooks": batch,
+            "next_offset": offset + 100 if offset + 100 < len(webhooks) else None
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500

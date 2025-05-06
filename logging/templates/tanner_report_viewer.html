@@ -3,25 +3,7 @@
 <head>
     <title>Tanner Report</title>
     <script>
-        // function fetchLog() {
-        //     // Fetch the latest log content from the server
-        //     fetch(window.location.href)
-        //         .then(response => response.text())
-        //         .then(html => {
-        //             // Parse the returned HTML and extract the updated log content
-        //             const parser = new DOMParser();
-        //             const doc = parser.parseFromString(html, 'text/html');
-        //             const newContent = doc.querySelector('pre').innerHTML;
-
-        //             // Update the log content on the current page
-        //             document.querySelector('pre').innerHTML = newContent;
-        //         })
-        //         .catch(error => console.error('Error fetching log:', error));
-        // }
-
-        // // Fetch updates every 5 seconds
-        // setInterval(fetchLog, 5000);
-
+        
         function clearLog() {
             if (confirm('Are you sure you want to clear this log?')) {
                 fetch('/clear/tanner_report', { method: 'POST' })
@@ -38,29 +20,37 @@
             }
         }
     
-let offset = 500;
-function loadMoreLines() {
-    const spinner = document.querySelector("#show-more .spinner");
-    const label = document.querySelector("#show-more .label");
-    spinner.style.display = "inline-block";
-    label.textContent = "Loading...";
+        let offset = 500;
 
-    fetch(`/logs/tanner_report/batch/${offset}`)
-        .then(res => res.json())
-        .then(data => {
-            const pre = document.querySelector("pre");
-            pre.innerHTML += "<br>" + data.lines.join("<br>");
-            offset = data.next_offset || offset;
-            if (!data.next_offset) {
-                document.getElementById("show-more").style.display = "none";
-            }
-        })
-        .catch(err => console.error("Failed to load more lines:", err))
-        .finally(() => {
-            spinner.style.display = "none";
-            label.textContent = "Show More";
-        });
-}
+        function loadMoreLines() {
+            const spinner = document.querySelector("#show-more .spinner");
+            const label = document.querySelector("#show-more .label");
+            spinner.style.display = "inline-block";
+            label.textContent = "Loading...";
+
+            fetch(`/logs/tanner_report/batch/${offset}`)
+                .then(res => res.json())
+                .then(data => {
+                    const pre = document.querySelector("pre");
+                    const fragment = document.createDocumentFragment();
+                    data.lines.forEach(line => {
+                        const div = document.createElement("div");
+                        div.textContent = line;
+                        fragment.appendChild(div);
+                    });
+                    pre.appendChild(fragment);
+
+                    offset = data.next_offset || offset;
+                    if (!data.next_offset) {
+                        document.getElementById("show-more").style.display = "none";
+                    }
+                })
+                .catch(err => console.error("Failed to load more lines:", err))
+                .finally(() => {
+                    spinner.style.display = "none";
+                    label.textContent = "Show More";
+                });
+        }
 
 </script>
     <style>
@@ -119,103 +109,120 @@ function loadMoreLines() {
             font-size: 24px;
         }
     
-h1 {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    z-index: 1000;
-    margin: 0;
-    padding: 20px 0;
-    text-align: center;
-    font-size: 1.8em;
-    border-bottom: 1px solid #ccc;
-}
-pre {
-    margin-top: 80px;
-    padding: 20px;
-}
+        pre {
+            margin-top: 80px;
+            padding: 20px;
+        }
 
-.button {
-    position: fixed;
-    right: 20px;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    border: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    color: white;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    transition: transform 0.2s ease, background-color 0.3s ease;
-    cursor: pointer;
-}
-.button:hover {
-    transform: scale(1.1);
-}
-.download-button {
-    bottom: 20px;
-    background: #007bff;
-}
-.download-button:hover {
-    background: #0056b3;
-}
-.clear-button {
-    bottom: 100px;
-    background: #dc3545;
-}
-.clear-button:hover {
-    background: #c82333;
-}
+        .button {
+            position: fixed;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease, background-color 0.3s ease;
+            cursor: pointer;
+        }
+        .button:hover {
+            transform: scale(1.1);
+        }
+        .download-button {
+            bottom: 20px;
+            background: #007bff;
+        }
+        .download-button:hover {
+            background: #0056b3;
+        }
+        .clear-button {
+            bottom: 100px;
+            background: #dc3545;
+        }
+        .clear-button:hover {
+            background: #c82333;
+        }
 
-#show-more {
-    position: relative;
-    margin: 20px auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 12px 24px;
-    font-size: 16px;
-    font-weight: 600;
-    background-color: #e0e0e0;
-    color: #333;
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-#show-more:hover {
-    background-color: #d5d5d5;
-    transform: translateY(-2px);
-}
-.spinner {
-    margin-left: 10px;
-    width: 16px;
-    height: 16px;
-    border: 2px solid #999;
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-}
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
+        #show-more {
+            position: relative;
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            background-color: #e0e0e0;
+            color: #333;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        #show-more:hover {
+            background-color: #d5d5d5;
+            transform: translateY(-2px);
+        }
+        .spinner {
+            margin-left: 10px;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #999;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            z-index: 1000;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 80px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+        .home-link {
+            position: absolute;
+            left: 20px;
+            font-size: 1em;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .home-link:hover {
+            text-decoration: underline;
+        }
 
 </style>
 </head>
 <body>
-    <h1>Tanner Report</h1>
+    <div class="header">
+        <a href="/" class="home-link">&larr; Home</a>
+        <h1>Tanner Report</h1>
+    </div>
     <pre>{{ log_content|safe }}</pre>
 <button id="show-more" onclick="loadMoreLines()">
     <span class="label">Show More</span>
     <span class="spinner" style="display: none;"></span>
 </button>
-
-    <a href="/" style="display:block;text-align:left;margin:10px 0;font-weight:bold;color:#007bff;">&larr; Back to Home</a>
 
     <!-- Download button -->
     <a href="/download/tanner_report" class="button download-button" title="Download Log">
