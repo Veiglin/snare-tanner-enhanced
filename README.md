@@ -88,7 +88,26 @@ BREADCRUMB:
      docker compose -f docker/docker-compose-local.yml up --build
      ```
 
-### Setting up a TLS-certificate
+### Setting up a TLS-certificate (domain required)
+
+Before running the web application honeypot with TLS, you need to obtain and install a valid certificate for your domain (e.g., electronicstore4u.live). This needs to be setted up from [Let’s Encrypt using Certbot](https://certbot.eff.org/):
+
+1. Install Certbot on your system that is going to host the web application honeypot:
+
+    ```bash
+    sudo apt-get update && sudo apt-get install certbot
+    ```
+    
+2. Request a certificate for your domain:
+    ```bash
+    sudo certbot certonly --standalone -d smartgadgetstore.live
+    ```
+
+3. The following certificates will be stored under `/etc/letsencrypt/live/{domain_name}/` on the host system:
+
+- `fullchain.pem`
+- `privkey.pem`
+
 
 ### Running with Docker (with TLS-certificate required)
 
@@ -96,6 +115,32 @@ BREADCRUMB:
      ```bash
      docker compose -f docker/docker-compose.yml up --build
      ```
+
+Within the application code, TLS is enabled when IS_LOCAL is not set to true. Here is a code snippet of that take part of it in the file `/snare/snare/server.py`:
+
+```python
+is_local = os.getenv("IS_LOCAL", "false").lower() == "true"
+
+if not is_local:
+    abs_domain = SnareConfig.get("DOMAIN", "ABS_DOMAIN")
+    ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    ssl_context.load_cert_chain(
+      certfile=f'/etc/letsencrypt/live/{abs_domain}/fullchain.pem',
+      keyfile=f'/etc/letsencrypt/live/{abs_domain}/privkey.pem'
+    )
+    site = web.TCPSite(
+        self.runner,
+        self.run_args.host_ip,
+        self.run_args.port,
+        ssl_context=ssl_context
+    )
+else:
+    site = web.TCPSite(
+        self.runner,
+        self.run_args.host_ip,
+        self.run_args.port
+    )
+```
 
 ### Logging Interface
 
