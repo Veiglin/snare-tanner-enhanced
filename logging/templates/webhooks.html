@@ -132,6 +132,11 @@
             padding: 20px;
         }
 
+        .empty-message {
+            margin-top: 100px;
+            padding: 20px;
+        }
+
         .button {
             position: fixed;
             right: 20px;
@@ -210,13 +215,12 @@
                 </li>
             {% endfor %}
         </ul>
-
-<button id="show-more" onclick="loadMoreWebhooks()">
-    <span class="label">Show More</span>
-    <span class="spinner" style="display: none;"></span>
-</button>
+        <button id="show-more" onclick="loadMoreWebhooks()">
+            <span class="label">Show More</span>
+            <span class="spinner" style="display: none;"></span>
+        </button>
     {% else %}
-        <p>No webhooks received yet.</p>
+        <p class="empty-message">No webhooks received yet.</p>
     {% endif %}
 
 
