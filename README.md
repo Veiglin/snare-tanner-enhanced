@@ -104,6 +104,7 @@ BREADCRUMB:
 ### Running Locally with Docker (without TLS-certificate required)
 
 1. Build and Run the local Docker compose file `docker-compose-local.yml`:
+   
      ```bash
      docker compose -f docker/docker-compose-local.yml up --build
      ```
@@ -119,11 +120,12 @@ Before running the web application honeypot with TLS, you need to obtain and ins
     ```
     
 2. Request a certificate for your domain:
+   
     ```bash
     sudo certbot certonly --standalone -d electronicstore.live
     ```
 
-3. The following certificates will be stored under `/etc/letsencrypt/live/{domain_name}/` on the host system:
+4. The following certificates will be stored under `/etc/letsencrypt/live/{domain_name}/` on the host system:
 
 - `fullchain.pem`
 - `privkey.pem`
@@ -132,6 +134,7 @@ Before running the web application honeypot with TLS, you need to obtain and ins
 ### Running with Docker (with TLS-certificate required)
 
 1. Build and Run the Docker compose file `docker-compose.yml`:
+   
      ```bash
      docker compose -f docker/docker-compose.yml up --build
      ```
