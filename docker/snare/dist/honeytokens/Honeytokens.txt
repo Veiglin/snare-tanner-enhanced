@@ -1,5 +1,5 @@
-wp-admin/urgent_inventory_backup_20240726.db
-wp-admin/customer_export_june2024_PII.xlsx
-wp-admin/confidential_supplier_agreement_terms.pdf
-wp-admin/admin_panel_security_audit_notes.docx
-wp-admin/device_config_dump_v3.sql
+wp-admin/SmartGadgetStore_CustomerData_Export_20240726.xlsx
+wp-admin/Internal_Supplier_Pricing_Confidential_Q32024.pdf
+wp-admin/Admin_Credentials_Backup_PreMigration.docx
+wp-admin/Inventory_DB_Full_Backup_20240801.db
+wp-admin/SmartGadgetStore_DeviceConfigs_202407.zip
