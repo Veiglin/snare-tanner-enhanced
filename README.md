@@ -2,7 +2,7 @@
 
 This honeypot framework builds upon the [SNARE](https://github.com/mushorg/snare)/[TANNER](https://github.com/mushorg/tanner/tree/main) honeypot from [T-Pot](https://github.com/telekom-security/tpotce/tree/master) which is designed attract and log interactions on web applications. Within this framework, we extend and enhance SNARE/TANNER by integrating breadcrumbing technics and honeytokens deploy utilizing LLMs for a better and deeper deceptive honeypot framework.
 
-## Key Features
+## Overall Features
 
 - **Build Upon SNARE/TANNER**: This framework extends SNARE/TANNER honeypot from T-Pot by introducing more advanced deception technique features using breadcrumbing and honeytoken deployment with LLM-driven generation.
 - **Breadcrumbs**: This framework have an implemented mechanism to deploy breadcrumbs within a web application utilzing the three different strategies: `robots.txt`, `error pages`, and `html inline comments`.
@@ -21,10 +21,30 @@ The features for the enhanced honeypot is configured using a `config.yml` file c
 Below is an explanation of the key sections in the configuration file:
 
 - **`FEATURES`**: Parameter to enable or disable the extended framework to generate honeytokens and breadcrumbs.
+- **`DOMAIN`**: Variable specifying the absolute domain used for running the framework with TLS.
 - **`HONEYTOKEN`**: Specifies the honeytokens associated LLM API and prompt used for generating. At the moment we support [Gemini AI](https://aistudio.google.com/prompts/new_chat) from Google and the [Inference API](https://huggingface.co/docs/inference-providers/index) from Hugging Face. Furthermore, it gives the opportunity to specific a accesible webhook endpoint when triggering a honeytoken.
 - **`BREADCRUMB`**: Configures the types of breadcrumbs used and the associated LLM. It furthermore provide options to configure the LLM prompt in each of the used breadcrumb strategies.
 
-Example `config.yml`:
+For both of them:
+
+- **`API-PROVIDER`**:
+- **`API-ENDPOINT`**:
+- **`API-KEY`**:
+- **`LLM-PARAMETERS`**:
+
+Specific for `HONEYTOKENS`:
+
+- **`PROMPT-FILENAMES`**:
+- **`PROMPT-FILECONTENT`**:
+- **`WEBHOOK-URL`**:
+
+Within the `BREADCRUMB`:
+
+- **`TYPES`**:
+- **`PROMPT-ERROR-PAGE`**:
+- **`PROMPT-HTML-COMMENT`**:
+
+Here is an example `config.yml`:
 ```yaml
 FEATURES:
   enabled: True
