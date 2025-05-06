@@ -46,7 +46,7 @@ class HttpRequestHandler:
             route_map[full_path] = (f"/status_{choice}", int(choice))
         
         for path, (status_path, status_code) in route_map.items():
-            self.logger.info(f"[HONEYPOT ROUTE] {path} → {status_code} ({status_path})")
+            self.logger.debug(f"Adding Route {path} → {status_code} ({status_path})")
 
         return route_map
 
@@ -72,7 +72,7 @@ class HttpRequestHandler:
         # Dynamic route error handling
         if path in self.dynamic_routes:
             status_path, status_code = self.dynamic_routes[path]
-            self.logger.info(f"[HONEYPOT] dynamic trap triggered: {path} → {status_code}")
+            self.logger.info(f"Dynamic route trap triggered: {path} → {status_code}")
             return await self.serve_error_page(status_path, status_code)
 
         if path == "/400":
