@@ -1,6 +1,9 @@
 FEATURES:
   enabled: True
 
+DOMAIN:
+  ABS_DOMAIN: smartgadgetstore.live
+
 HONEYTOKEN:
   API-PROVIDER: gemini # Options: huggingface, gemini
   API-ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash
@@ -22,20 +25,23 @@ HONEYTOKEN:
     The content should be for a smart gadget store. Make it {dynamic}.
     Do not explain your answer, just return the raw spreadsheet data.
   LLM-PARAMETERS:
-    temperature: 1
-    top_p: 0.98
+    temperature: 1.5
+    top_p: 0.95
     top_k: 50
     max_new_tokens: 400
-    do_sample: true # Only supported for HuggingFace
-    return_full_text: false # Only supported for HuggingFace
-  WEBHOOK-URL: https://webhook.site/3352f88c-51cb-4cda-9548-009fd3aead6f
+    do_sample: true # Only for HuggingFace
+    return_full_text: false # Only for HuggingFace
+  WEBHOOK-URL: https://webhook.site/4d6e3677-af67-427f-ac4f-56f5d905af31
 
 BREADCRUMB:
-  TYPES: # Options: robots, 404_page, html_comments
+  TYPES: # Options: robots, error_page, html_comments
+  - robots
+  - error_page
+  - html_comments
   API-PROVIDER: gemini # Options: huggingface, gemini
   API-ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash
   API-KEY: AIzaSyC-QsN2PPv9CBFgRSLRnJq5l4CynuBioVM
-  PROMPT-404-ERROR: >
+  PROMPT-ERROR-PAGE: >
     Generate a single-line HTML <p> element that appears to be a leftover developer note or debug message.
     It should subtly mention a file path at /{honeytoken}.
     Keep it realistic and brief — like a developer accidentally left a comment in the HTML.
@@ -49,5 +55,5 @@ BREADCRUMB:
     top_p: 0.98
     top_k: 40
     max_new_tokens: 50
-    do_sample: true # Only supported for HuggingFace
-    return_full_text: false # Only supported for HuggingFace
+    do_sample: true # Only for HuggingFace
+    return_full_text: false # Only for HuggingFace

@@ -109,11 +109,6 @@
         .clear-button i {
             font-size: 24px;
         }
-    
-        pre {
-            margin-top: 80px;
-            padding: 20px;
-        }
 
         .button {
             position: fixed;
@@ -211,8 +206,13 @@
         .home-link:hover {
             text-decoration: underline;
         }
-
-</style>
+        pre {
+            margin-top: 80px;
+            padding: 20px;
+            white-space: pre-wrap; /* Preserve whitespace but allow wrapping */
+            word-wrap: break-word; /* Break long words onto the next line */
+        }
+    </style>
 </head>
 <body>
     <div class="header">

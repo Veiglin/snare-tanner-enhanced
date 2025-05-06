@@ -111,6 +111,10 @@ def render_log(log_name):
         with open(log_path, "r") as f:
             lines = [line.rstrip() for _, line in zip(range(1000), f)]
         log_content = "<br>".join(lines)
+#             Read the log lines and reverse them
+#             log_lines = f.readlines()
+#             log_lines.reverse()
+#             log_content = "<br>".join(line.strip() for line in log_lines)  # Convert to HTML-friendly format
         return render_template(f"{log_name}_viewer.html", 
                                log_name=log_name, 
                                log_content=log_content
@@ -226,3 +230,23 @@ def load_webhook_batch(offset):
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/wipe_all", methods=["POST"])
+def wipe_all():
+    """Wipe all logs and webhooks."""
+    try:
+        # Clear all log files
+        for log_name, log_path in LOG_FILES.items():
+            if os.path.exists(log_path):
+                open(log_path, "w").close()
+                logger.info(f"Cleared log file: {log_name}")
+
+        # Clear all webhooks
+        clear_webhooks()
+        logger.info("Cleared all webhooks")
+
+        return jsonify({"message": "All logs and webhooks wiped successfully"}), 200
+    except Exception as e:
+        logger.error(f"Failed to wipe all data: {e}")
+        return jsonify({"error": f"Failed to wipe all data: {str(e)}"}), 500
+
