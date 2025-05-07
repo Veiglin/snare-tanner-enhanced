@@ -51,7 +51,7 @@ BREADCRUMB:
     It should mention /{honeytoken} as if it's a config file or temporary log.
     Do NOT include HTML tags or '--'. Make it look like leftover debug info."
   LLM-PARAMETERS:
-    temperature: 1
+    temperature: 1.2
     top_p: 0.98
     top_k: 40
     max_new_tokens: 50
