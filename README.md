@@ -142,7 +142,7 @@ Before running the web application honeypot with TLS, you need to obtain and ins
     sudo certbot certonly --standalone -d electronicstore.live
     ```
 
-4. The following certificates will be stored under `/etc/letsencrypt/live/{domain_name}/` on the host system:
+3. The following certificates will be stored under `/etc/letsencrypt/live/{domain_name}/` on the host system:
 
 - `fullchain.pem`
 - `privkey.pem`
