@@ -1,4 +1,4 @@
-# Enhancing SNARE/TANNER with LLM-driven Breadcrumb and Honeytoken Generation
+# Enhancing SNARE/TANNER with LLM-driven Breadcrumbs and Honeytokens
 
 <img src="docs/images/logo.jpeg" alt="SNARE/TANNER Enhanced Logo" width="500" style="float: center;">
 
