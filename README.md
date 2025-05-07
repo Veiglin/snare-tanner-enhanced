@@ -30,7 +30,7 @@ The features for the enhanced honeypot is configured using a `config.yml` file c
 
 Below is an explanation of the key sections in the configuration file:
 
-- **`FEATURES`**: Parameter to enable or disable the extended framework to generate honeytokens and breadcrumbs.
+- **`FEATURES`**: Parameter to enable or disable the extended framework to generate both honeytokens and breadcrumbs.
 - **`DOMAIN`**: Variable specifying the domain name used for running the framework with TLS.
 - **`HONEYTOKEN`**: Specifies the honeytokens associated LLM API and prompt used for generating. At the moment we support [Gemini AI](https://aistudio.google.com/prompts/new_chat) from Google and the [Inference API](https://huggingface.co/docs/inference-providers/index) from Hugging Face. Furthermore, it gives the opportunity to specific a accesible webhook endpoint when triggering a honeytoken.
 - **`BREADCRUMB`**: Configures the types of breadcrumbs used and the associated LLM. It furthermore provide options to configure the LLM prompt in each of the used breadcrumb strategies.
