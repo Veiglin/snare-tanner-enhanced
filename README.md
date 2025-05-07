@@ -210,8 +210,10 @@ To open the logging interface, open your browser at `http://localhost:5003` or `
 
 When opening one of the sections, logs are displayed in reserve chronological order for easier access to the newest and most recent entries. The specific log can be downloaded clicking the blue button in the below corner to the right. In the same corner, the user is able to clean the log, error log or saved webhooks when browsing the specific section by clicking the red button in the below right corner.
 
-## Third-Party Code
+## Licenses
 
-This project incorporates the SNARE/TANNER honeypot framework from T-Pot:
-- Source: https://github.com/mushorg/snare and https://github.com/mushorg/tanner :contentReference[oaicite:2]{index=2}
-- License: MIT (see `third_party/snare-tanner/LICENSE`)  
+This project incorporates the SNARE/TANNER honeypot code and the docker deployment code from T-Pot and is therefore built on using the following GPLv3 licenses:
+
+- ![SNARE](https://github.com/mushorg/snare/blob/main/LICENSE)
+- ![TANNER](https://github.com/mushorg/snare/blob/main/LICENSE)
+- ![T-Pot](https://github.com/telekom-security/tpotce/blob/master/LICENSE)
