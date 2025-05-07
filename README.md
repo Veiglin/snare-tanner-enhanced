@@ -21,28 +21,38 @@ The features for the enhanced honeypot is configured using a `config.yml` file c
 Below is an explanation of the key sections in the configuration file:
 
 - **`FEATURES`**: Parameter to enable or disable the extended framework to generate honeytokens and breadcrumbs.
-- **`DOMAIN`**: Variable specifying the absolute domain used for running the framework with TLS.
+- **`DOMAIN`**: Variable specifying the domain name used for running the framework with TLS.
 - **`HONEYTOKEN`**: Specifies the honeytokens associated LLM API and prompt used for generating. At the moment we support [Gemini AI](https://aistudio.google.com/prompts/new_chat) from Google and the [Inference API](https://huggingface.co/docs/inference-providers/index) from Hugging Face. Furthermore, it gives the opportunity to specific a accesible webhook endpoint when triggering a honeytoken.
 - **`BREADCRUMB`**: Configures the types of breadcrumbs used and the associated LLM. It furthermore provide options to configure the LLM prompt in each of the used breadcrumb strategies.
 
-For both of them:
+Configurable fields for both the **HONEYTOKEN** and **BREADCRUMB** components:
 
-- **API-PROVIDER**:
-- **API-ENDPOINT**:
-- **API-KEY**:
-- **LLM-PARAMETERS**:
+- **API-PROVIDER**: The provider of the LLM-API which can be used with `gemini` or `huggingface`
+- **API-ENDPOINT**: The endpoint where the API-request to the LLM provider is sent. 
+- **API-KEY**: The API-key to the LLM-API from the API-provider.
+- **LLM-PARAMETERS**: A set of parameters that control the behavior of the LLM:
+  - `temperature`: Controls the randomness of the output where higher values (e.g., 1.5) produce more diverse results.
+  - `top_p`: Specifies the model sampling from where the model considers the smallest set of tokens with a cumulative probability above this threshold (e.g., 0.95 is 95%).
+  - `top_k`: Limits the sampling to the top number of tokens (e.g., 50 top tokens).
+  - `max_new_tokens`: The maximum number of tokens to generate in the response (e.g., 400 tokens).
+  - `do_sample`: Boolean value indicating whether sampling is used instead of greedy decoding (specific to HuggingFace only).
+  - `return_full_text`: Boolean value indicating whether the full text, including the prompt, should be returned (specific to HuggingFace only).
 
-Specific for `HONEYTOKENS`:
+Component-specific configuration for **HONEYTOKENS**:
 
-- **PROMPT-FILENAMES**:
-- **PROMPT-FILECONTENT**:
-- **WEBHOOK-URL**:
+- **PROMPT-FILENAMES**: The prompt instructing the LLM to generate filenames that seems realistic for a web application which is used for both bait and honeytoken files.
+- **PROMPT-DOCX**: The prompt for generating realistic document content if a `.docx` file is generated.
+- **PROMPT-XLSX**: The prompt for generating realistic spreadsheet data if a `.xlsx` file is generated.
+- **WEBHOOK-URL**: The webhook-URL used when running the honeypot locally where webhook data is sent when honeytokens are triggered. The webhook-URL need to be accessible from the IP address of Canarytoken `52.18.63.80`.
 
-Within the `BREADCRUMB`:
+Component-specific configuration for **BREADCRUMB**:
 
-- **TYPES**:
-- **PROMPT-ERROR-PAGE**:
-- **PROMPT-HTML-COMMENT**:
+- **TYPES**: Specifies the types of breadcrumbs to generate:
+  - `robots`: Adding a robots.txt file with placed breadcrumbs.
+  - `error_page`: Adding generated breadcrumbs in an error page.
+  - `html_comments`: Adding generated breadcrumbs as dev-note comments embedded in HTML code of the index-page.
+- **PROMPT-ERROR-PAGE**: The prompt for generating a breadcrumb in the error-page looking as a leftover developer comment.
+- **PROMPT-HTML-COMMENT**: The prompt for generating a realistic breadcrumb as a one-line HTML comment that will appears to be a dev-note.
 
 Here is an example `config.yml`:
 ```yaml
@@ -50,7 +60,7 @@ FEATURES:
   enabled: True
 
 DOMAIN:
-  ABS_DOMAIN: electronicstore.live
+  BASE_DOMAIN: electronicstore.live
 
 HONEYTOKEN:
   API-PROVIDER: gemini # Options: huggingface, gemini
@@ -60,13 +70,18 @@ HONEYTOKEN:
     You are generating bait filenames for a website called electronicstore.live, which sells smart gadgets and electronics online.
     Generate in total 5 files. The generated files should be realistic, code-friendly filenames (no spaces or special characters) that might contain sensitive internal data.
     Examples include inventory backups, customer exports, admin data, supplier lists, or device configuration dumps.
+    {session}
     Use only the file types .docx, .xlsx, .pdf, .db, .sql or .zip and ensure there is minumum one .docx, one .xlsx and one .pdf file.
-    Ensure all filenames look authentic and vary slightly each time.
-    # Session ID: {session_id}
-  PROMPT-FILECONTENT: >
-    You are generating bait file content for a website called electronicstore.live, which sells smart gadgets and electronics online.
-    For each of the filenames {honeytoken} generated, create realistic and believable content that might be found in a file.
-    Examples of this could be inventory backups, customer exports, admin data, supplier lists, or device configuration dumps.
+  PROMPT-DOCX: >
+    Given the file name {honeytoken}, generate content for a realistic-looking internal document that would plausibly appear in a document with that name.
+    The tone should match the filename — e.g., meeting notes, credentials, export summaries, or sensitive business context.
+    The content should be for a smart gadget store. Make it {dynamic}.
+    Do not explain your answer, just return the document's content.
+  PROMPT-XLSX: >
+    Your task is to generate realistic-looking Excel spreadsheet data for a file named {honeytoken}, need between 10 to 20 rows of data.
+    Format each row as a comma-separated line, using appropriate column headers based on the filename.
+    The content should be for a smart gadget store. Make it {dynamic}.
+    Do not explain your answer, just return the raw spreadsheet data.
   LLM-PARAMETERS:
     temperature: 1.3
     top_p: 0.95
