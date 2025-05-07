@@ -8,7 +8,7 @@ This honeypot framework builds upon the [SNARE](https://github.com/mushorg/snare
 
 - **Build Upon SNARE/TANNER**: This framework extends SNARE/TANNER honeypot from T-Pot by introducing more advanced deception technique features using breadcrumbing and honeytoken deployment with LLM-driven generation.
 - **Breadcrumbs**: This framework have an implemented mechanism to deploy breadcrumbs within a web application utilzing the three different strategies: `robots.txt`, `error pages`, and `html inline comments`.
-- **Honeytokens**: This framework includes a mechanism to deploy honeytoken files utilized from [Canarytoken](https://canarytokens.org/nest/generate) including their content, designed to detect unauthorized access. The types of honeytokens supported includes the file types: `docx`, `xlsx`, and `pdf`.
+- **Honeytokens**: This framework includes a mechanism to deploy honeytoken files utilized from [Canarytoken](https://canarytokens.org/nest/generate) including injecting content generated with an LLM prompt. The honeytokens is designed to detect unauthorized access when someone opens the file. The types of honeytokens supported includes the file types: `docx`, `xlsx`, and `pdf`.
 - **Bait Files**: This framework create bait files together with the honeytokens which mimic files that could be exploited. These files are strategically placed to lure the attacker.
 - **Utilizing LLMs**: The framework leverages Large Language Models (LLMs) to dynamically generate realistic honeytokens and breadcrumbs content which enhances the deception capabilities of the honeypot.
 - **Logging Interface**: The honeypot framework introduces a logging interface for monitoring and analyzing activities in SNARE/TANNER. It captures triggered honeytokens from webhooks which provides insights into the intruders with detailed information about them.
@@ -223,6 +223,14 @@ To open the logging interface, open your browser at `http://localhost:5003` or `
 ![Logging Interface Index Page](docs/images/logging_interface.png)
 
 When opening one of the sections, logs are displayed in reserve chronological order for easier access to the newest and most recent entries. The specific log can be downloaded clicking the blue button in the below corner to the right. In the same corner, the user is able to clean the log, error log or saved webhooks when browsing the specific section by clicking the red button in the below right corner.
+
+### SNARE Log
+
+When starting up, SNARE provides debug logs in the SNARE Log section that informs about which honeytokens and breadcrumbs that has been generated. 
+
+Here is an example of how SNARE did inject honeytokens and breadcrumbs on the arbitrary web application called smartgadgetstore:
+
+![SNARE Log](docs/images/snare_log.jpeg)
 
 ## Licenses
 
