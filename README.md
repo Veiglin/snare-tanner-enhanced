@@ -128,7 +128,7 @@ BREADCRUMB:
 
 ### Setting up a TLS-certificate (domain required)
 
-Before running the web application honeypot with TLS, you need to obtain and install a valid certificate for your domain (e.g., electronicstore.live). This needs to be setted up from [Let’s Encrypt using Certbot](https://certbot.eff.org/):
+Before running the web application honeypot with TLS, you need to obtain and install a valid certificate for your domain (e.g., electronicstore.live). This needs to be set up from [Let’s Encrypt using Certbot](https://certbot.eff.org/):
 
 1. Install Certbot on your system that is going to host the web application honeypot:
 
