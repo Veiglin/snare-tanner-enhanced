@@ -1,4 +1,4 @@
-# Enhancing SNARE/TANNER with Breadcrumbing and Honeytokens utilizing LLM-driven generation
+# Enhancing SNARE/TANNER with LLM-driven Breadcrumbing and Honeytokens Generation
 
 <img src="docs/images/logo.jpeg" alt="SNARE/TANNER Enhanced Logo" width="500" style="float: center;">
 
@@ -15,7 +15,7 @@ This honeypot framework builds upon the [SNARE](https://github.com/mushorg/snare
 
 ## User Guide
 
-Here describe how to set up and run the honeypot framework.
+In this section, we describe how to set up and run the enhanced honeypot framework for LLM-driven honeytoken and breadcrumb generation.
 
 ### Configuration in SNARE
 The features for the enhanced honeypot is configured using a `config.yml` file created for SNARE which can be founded at the path `/docker/snare/dist`. 
