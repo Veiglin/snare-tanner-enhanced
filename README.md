@@ -189,7 +189,7 @@ The logging interface provides real-time insights into honeypot activity of the 
 
 The key functionalities include:
 - **Browse Logs & Errors**: The logging interface enables the user to view and navigate through system logs and error logs for both SNARE & TANNER. Every log and error log entry is saved until the data is removed.
-- **Browse Received Webhooks**: The logging interface enables the user to view received webhooks for the triggered honeytokens - which is data sent from canarytoken. All webhooks is keept infinitely until data is removed. 
+- **Browse Received Webhooks**: The logging interface enables the user to view received webhooks for the triggered honeytokens - which is data sent from canarytoken. All webhooks is kept infinitely until data is removed. 
 - **Export Logs, Errors & Webhook Data**: The interface gives the options to download all logs and error logs in their respective formats for further analysis.
 - **Clear Logs & Webhooks**: The interface allows the user to reset the captured logs by clearing either individual logs or all logs and webhooks.
 - **Real-Time Updates**: The interface dynamically updates the logs and webhook data when new data is received which provides real-time insights into honeypot activity without having to refresh the page.
