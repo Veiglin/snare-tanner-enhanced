@@ -18,7 +18,7 @@ This honeypot framework builds upon the [SNARE](https://github.com/mushorg/snare
 In this section, we describe how to set up and run the enhanced honeypot framework for LLM-driven honeytoken and breadcrumb generation.
 
 ### Configuration in SNARE
-The features for the enhanced honeypot is configured using a `config.yml` file created for SNARE which can be founded at the path `/docker/snare/dist`. 
+The features for the enhanced honeypot is configured using a `config.yml` file created for SNARE which can be found at the path `/docker/snare/dist`. 
 
 Below is an explanation of the key sections in the configuration file:
 
