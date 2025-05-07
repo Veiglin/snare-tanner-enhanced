@@ -3,11 +3,13 @@
 <head>
     <title>Snare Error Log</title>
     <style>
-        
         pre {
             margin-top: 80px;
             padding: 20px;
+            white-space: pre-wrap; /* Preserve whitespace but allow wrapping */
+            word-wrap: break-word;  /* Break long words onto the next line */
         }
+
         .button {
             position: fixed;
             right: 20px;
@@ -24,23 +26,29 @@
             transition: transform 0.2s ease, background-color 0.3s ease;
             cursor: pointer;
         }
+
         .button:hover {
             transform: scale(1.1);
         }
+
         .download-button {
             bottom: 20px;
-            background: #007bff;
+            background-color: #007bff;
         }
+
         .download-button:hover {
-            background: #0056b3;
+            background-color: #0056b3;
         }
+
         .clear-button {
             bottom: 100px;
-            background: #dc3545;
+            background-color: #dc3545;
         }
+
         .clear-button:hover {
-            background: #c82333;
+            background-color: #c82333;
         }
+
         #show-more {
             position: relative;
             margin: 20px auto;
@@ -77,7 +85,7 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-    
+
         .header {
             position: fixed;
             top: 0;
@@ -91,10 +99,12 @@
             justify-content: center;
             height: 80px;
         }
+
         .header h1 {
             margin: 0;
             font-size: 1.8em;
         }
+
         .home-link {
             position: absolute;
             left: 20px;
@@ -103,28 +113,33 @@
             text-decoration: none;
             font-weight: bold;
         }
+
         .home-link:hover {
             text-decoration: underline;
         }
-
-</style>
+    </style>
 </head>
 <body>
     <div class="header">
         <a href="/" class="home-link">&larr; Home</a>
         <h1>Snare Error Log</h1>
     </div>
+
     <pre>{{ log_content|safe }}</pre>
+
     <button id="show-more" onclick="loadMoreLines()">
         <span class="label">Show More</span>
         <span class="spinner" style="display: none;"></span>
     </button>
+
     <a href="/" class="button download-button" title="Download Log">
         <p>&#x2B07;</p>
     </a>
+
     <button class="button clear-button" title="Clear Log" onclick="clearLog()">
         <p>&#x1F5D1;</p>
     </button>
+
     <script>
         let offset = 500;
 
@@ -157,7 +172,7 @@
                     label.textContent = "Show More";
                 });
         }
-        
+
         function clearLog() {
             if (confirm('Are you sure you want to clear this?')) {
                 fetch('/clear/snare_err', { method: 'POST' })
@@ -174,76 +189,5 @@
             }
         }
     </script>
-    <style>
-    /* Style for the download button */
-    .download-button {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        cursor: pointer;
-        text-decoration: none;
-    }
-    .download-button:hover {
-        background-color: #0056b3;
-    }
-    /* Icon inside the button */
-    .download-button i {
-        font-size: 24px;
-    }
-    /* Style for the clear button */
-    .clear-button {
-        position: fixed;
-        bottom: 100px; /* Adjust to hover above the download button */
-        right: 20px;
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        cursor: pointer;
-        text-decoration: none;
-    }
-
-    .clear-button:hover {
-        background-color: #c82333;
-    }
-
-    /* Icon inside the button */
-    .clear-button i {
-        font-size: 24px;
-    }
-    pre {
-        white-space: pre-wrap; /* Preserve whitespace but allow wrapping */
-        word-wrap: break-word; /* Break long words onto the next line */
-    }
-    </style>
-</head>
-<body>
-    <h1>Snare Error Log</h1>
-    <pre>{{ log_content|safe }}</pre>
-    <!-- Download button -->
-    <a href="/download/snare_err" class="download-button" title="Download Log">
-        <i>&#x2B07;</i>
-    </a>
-
-    <!-- Clear button -->
-    <button class="clear-button" title="Clear Log" onclick="clearLog()">
-        <i>&#x1F5D1;</i> <!-- Unicode for trash icon -->
-    </button>
 </body>
 </html>
