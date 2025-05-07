@@ -91,7 +91,7 @@ HONEYTOKEN:
     max_new_tokens: 400
     do_sample: true # Only for HuggingFace
     return_full_text: false # Only for HuggingFace
-  WEBHOOK-URL:   
+  WEBHOOK-URL:    # Only for local deployment
 
 BREADCRUMB:
   TYPES: # Options: robots, error_page, html_comments
@@ -197,6 +197,8 @@ The key functionalities include:
 ### Navigating the Interface
 
 To open the logging interface, open your browser at `http://localhost:5003` or `http://0.0.0.0:5003` from where the index-page will get showed. Each log and error log types (e.g., snare.log, tanner.err) together with the webhooks is accessible via dedicated sections showed on the index-page, and users can seamlessly switch between them using the navigation menu. In the danger-zone, the user can delete all logs and by then reset the whole logging interface.
+
+![Logging Interface Index Page](docs/images/logging_interface.png)
 
 When opening one of the sections, logs are displayed in reserve chronological order for easier access to the newest and most recent entries. The specific log can be downloaded clicking the blue button in the below corner to the right. In the same corner, the user is able to clean the log, error log or saved webhooks when browsing the specific section by clicking the red buttom in the below right corner.
 
