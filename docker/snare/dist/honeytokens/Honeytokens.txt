@@ -1,5 +1,5 @@
-comment/reply/supplier_price_list_Q3_2024.xlsx
-comment/reply/website_backup_08152024.zip
-comment/reply/customer_support_ticket_log.db
-comment/reply/smartgadgetstore_admin_credentials.pdf
-comment/reply/new_employee_onboarding_checklist.docx
+cgi-bin/q3_cust_promos_review.docx
+cgi-bin/inventory_levels_20241027.xlsx
+cgi-bin/supplier_list_active_2024.pdf
+cgi-bin/user_activity_log.db
+cgi-bin/device_configs_backup.zip
