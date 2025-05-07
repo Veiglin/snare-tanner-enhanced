@@ -31,7 +31,7 @@ HONEYTOKEN:
     max_new_tokens: 400
     do_sample: true # Only for HuggingFace
     return_full_text: false # Only for HuggingFace
-  WEBHOOK-URL: https://webhook.site/4d6e3677-af67-427f-ac4f-56f5d905af31 # Only for Local Deployment
+  WEBHOOK-URL: https://webhook.site/2fffef4b-72f6-4cb3-a410-1f671527174a # Only for Local Deployment
 
 BREADCRUMB:
   TYPES: # Options: robots, error_page, html_comments
@@ -51,7 +51,7 @@ BREADCRUMB:
     It should mention /{honeytoken} as if it's a config file or temporary log.
     Do NOT include HTML tags or '--'. Make it look like leftover debug info."
   LLM-PARAMETERS:
-    temperature: 1
+    temperature: 1.2
     top_p: 0.98
     top_k: 40
     max_new_tokens: 50
