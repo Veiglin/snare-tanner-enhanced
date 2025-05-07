@@ -17,6 +17,14 @@ This honeypot framework builds upon the [SNARE](https://github.com/mushorg/snare
 
 In this section, we describe how to set up and run the enhanced honeypot framework for LLM-driven honeytoken and breadcrumb generation.
 
+## Prerequirements
+
+In order to run the enhanced SNARE/TANNER honeypot framework, ensure the following are installed on the host system:
+
+- Docker & Docker Compose (it is **recommended** to install docker desktop which includes both)
+- Certbot (for running with TLS on own domain)
+- Python (v. 3.10 or later)
+
 ### Configuration in SNARE
 The features for the enhanced honeypot is configured using a `config.yml` file created for SNARE which can be found at the path `/docker/snare/dist`. 
 
