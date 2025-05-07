@@ -200,6 +200,6 @@ To open the logging interface, open your browser at `http://localhost:5003` or `
 
 ![Logging Interface Index Page](docs/images/logging_interface.png)
 
-When opening one of the sections, logs are displayed in reserve chronological order for easier access to the newest and most recent entries. The specific log can be downloaded clicking the blue button in the below corner to the right. In the same corner, the user is able to clean the log, error log or saved webhooks when browsing the specific section by clicking the red buttom in the below right corner.
+When opening one of the sections, logs are displayed in reserve chronological order for easier access to the newest and most recent entries. The specific log can be downloaded clicking the blue button in the below corner to the right. In the same corner, the user is able to clean the log, error log or saved webhooks when browsing the specific section by clicking the red button in the below right corner.
 
 
