@@ -176,7 +176,7 @@ class BreadcrumbsGenerator:
         with open(html_path, "w") as f:
             f.write(html_content)
 
-        self.logger.error(f"Updated {abs_url} with breadcrumb referencing '/{chosen_token}'")
+        self.logger.debug(f"Updated {abs_url} with breadcrumb referencing '/{chosen_token}'")
 
 
     def _generate_error_page_content_from_llm(self, honeytoken):
