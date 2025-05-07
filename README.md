@@ -230,7 +230,7 @@ When starting up, SNARE provides debug logs in the SNARE Log section that inform
 
 Here is an example of how SNARE did inject honeytokens and breadcrumbs on the arbitrary web application called smartgadgetstore:
 
-![SNARE Log](docs/images/snare_log.jpeg)
+![SNARE Log](docs/images/snare_log.jpg)
 
 ## Licenses
 
