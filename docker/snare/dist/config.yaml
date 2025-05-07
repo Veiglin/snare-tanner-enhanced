@@ -2,7 +2,7 @@ FEATURES:
   enabled: True
 
 DOMAIN:
-  ABS_DOMAIN: smartgadgetstore.live
+  BASE_DOMAIN: smartgadgetstore.live
 
 HONEYTOKEN:
   API-PROVIDER: gemini # Options: huggingface, gemini

@@ -141,11 +141,11 @@ class HttpRequestHandler:
         is_local = os.getenv("IS_LOCAL", "false").lower() == "true"
 
         if not is_local:
-            abs_domain = SnareConfig.get("DOMAIN", "ABS_DOMAIN")
+            base_domain = SnareConfig.get("DOMAIN", "BASE_DOMAIN")
             ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
             ssl_context.load_cert_chain(
-                certfile=f'/etc/letsencrypt/live/{abs_domain}/fullchain.pem',
-                keyfile=f'/etc/letsencrypt/live/{abs_domain}/privkey.pem'
+                certfile=f'/etc/letsencrypt/live/{base_domain}/fullchain.pem',
+                keyfile=f'/etc/letsencrypt/live/{base_domain}/privkey.pem'
             )
             site = web.TCPSite(self.runner, self.run_args.host_ip, self.run_args.port, ssl_context=ssl_context)
         else:
