@@ -128,7 +128,14 @@ BREADCRUMB:
 
 ### Running Locally with Docker (without TLS-certificate required)
 
-1. Build and Run the local Docker compose file `docker-compose-local.yml`:
+1. Clone and Navigate to the Repository from GitHub:
+
+   ```bash
+   git clone https://github.com/Veiglin/snare-tanner-enhanced.git
+   cd ./snare-tanner-enhanced
+   ```
+
+2. Build and Run the local Docker compose file `docker-compose-local.yml`:
    
      ```bash
      docker compose -f docker/docker-compose-local.yml up --build
@@ -156,9 +163,16 @@ Before running the web application honeypot with TLS, you need to obtain and ins
 - `privkey.pem`
 
 
-### Running with Docker (with TLS-certificate required)
+### Running with Docker (with TLS-certificate and domain required)
 
-1. Build and Run the Docker compose file `docker-compose.yml`:
+1. Clone and Navigate to the Repository from GitHub:
+
+   ```bash
+   git clone https://github.com/Veiglin/snare-tanner-enhanced.git
+   cd ./snare-tanner-enhanced
+   ```
+
+2. Build and Run the Docker compose file `docker-compose.yml`:
    
      ```bash
      docker compose -f docker/docker-compose.yml up --build
