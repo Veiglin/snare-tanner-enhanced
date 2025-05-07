@@ -214,6 +214,6 @@ When opening one of the sections, logs are displayed in reserve chronological or
 
 This project incorporates the SNARE/TANNER honeypot code and the docker deployment code from T-Pot and is therefore built on using the following GPLv3 licenses:
 
-- ![SNARE](https://github.com/mushorg/snare/blob/main/LICENSE)
-- ![TANNER](https://github.com/mushorg/snare/blob/main/LICENSE)
-- ![T-Pot](https://github.com/telekom-security/tpotce/blob/master/LICENSE)
+- [SNARE](https://github.com/mushorg/snare/blob/main/LICENSE)
+- [TANNER](https://github.com/mushorg/snare/blob/main/LICENSE)
+- [T-Pot](https://github.com/telekom-security/tpotce/blob/master/LICENSE)
