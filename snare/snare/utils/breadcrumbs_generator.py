@@ -165,7 +165,7 @@ class BreadcrumbsGenerator:
         chosen_token = random.choice(available_tokens)
         self.used_canarytoken.append(chosen_token)
 
-        breadcrumb_line = self._generate_404_content_from_llm(chosen_token)
+        breadcrumb_line = self._generate_error_page_content_from_llm(chosen_token)
 
         html_content = html_content.replace("<p>This is a breadcrumb.</p>", "")
         if "</body>" in html_content:
@@ -179,7 +179,7 @@ class BreadcrumbsGenerator:
         self.logger.error(f"Updated {abs_url} with breadcrumb referencing '/{chosen_token}'")
 
 
-    def _generate_404_content_from_llm(self, honeytoken):
+    def _generate_error_page_content_from_llm(self, honeytoken):
         prompt = SnareConfig.get("BREADCRUMB", "PROMPT-ERROR-PAGE").replace("{honeytoken}", honeytoken)
         # Call the LLM API
         if self.api_provider == "huggingface":
