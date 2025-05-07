@@ -126,7 +126,7 @@ BREADCRUMB:
     return_full_text: false # Only for HuggingFace
 ```
 
-### Running Locally with Docker (without TLS-certificate required)
+### Running Locally with Docker Compose (without TLS-certificate required)
 
 1. Clone and Navigate to the Repository from GitHub:
 
@@ -163,7 +163,7 @@ Before running the web application honeypot with TLS, you need to obtain and ins
 - `privkey.pem`
 
 
-### Running with Docker (with TLS-certificate and domain required)
+### Running with Docker Compose (with TLS-certificate and domain required)
 
 1. Clone and Navigate to the Repository from GitHub:
 
