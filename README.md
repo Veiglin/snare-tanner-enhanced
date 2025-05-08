@@ -102,7 +102,6 @@ To use a custom webpage:
 3. Add a `meta.json` in that folder with original paths, hashes, and MIME types.
 
 
-
 ### Configuration in SNARE
 The features for the enhanced honeypot is configured using a `config.yml` file created for SNARE which can be found at the path `/docker/snare/dist`. 
 
