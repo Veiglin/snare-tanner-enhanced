@@ -72,12 +72,6 @@ services:
       - PYTHONPATH=/app  # Add this line to set the Python module search path
     command: >
       sh -c "pip install flask requests gunicorn && gunicorn -w 4 -b 0.0.0.0:5003 log_interface:app"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://0.0.0.0:5003/"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 20s
 
 # Snare Service
   snare:
