@@ -27,10 +27,18 @@ In order to run the enhanced SNARE/TANNER honeypot framework, ensure the followi
 
 ### Start SNARE
 
-The parameters to start SNARE are defined in a Python file located here: `\docker\snare\dist\start_snare.py`
+The startup parameters are defined in `start_snare.py`, located at: `\docker\snare\dist\start_snare.py`
 
-On start, SNARE picks a random folder from `/docker/snare/dist/pages/`.
-To include your custom page set, add the name of your `<page_folder>` to the `dirs` list in `start_snare.py`.
+On execution, SNARE:
+
+1. Randomly selects a folder from the `dirs` list (each representing a different fake site under `/docker/snare/dist/pages/`).
+2. Waits for the Tanner service to become available.
+3. Launches SNARE with the listed parameters and the selected page directory.
+
+To list the random fake websites you want SNARE to select from:
+
+- Add their folder name to the `dirs` list in `start_snare.py`.
+- Ensure your folder structure and `meta.json` match the required format described below.
 
 ### Front Page Setup
 
