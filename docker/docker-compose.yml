@@ -95,6 +95,7 @@ services:
     image: "dtagdevsec/snare:24.04"
     depends_on:
      - tanner
+     - log-interface
     volumes:
      - shared_logs:/var/log/snare
      - /home/azureuser/credentials.xlsx:/opt/snare/files/credentials.xlsx
