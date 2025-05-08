@@ -93,7 +93,7 @@ Required `meta.json` entries for proper operation:
 }
 ```
 After it is confirmed that the entries above are included, a manual adjustment of the HTML code to redirect to the correct endpoints is necessary. For example main page should be index.html, login should be login.php, etc.
-These static files (except index.html) are ready to be used and included folder templates for your use, located here: `\docker\snare\dist\templates`
+These static files (except index.html) are ready to be used and included in the folder `templates` for your use, located here: `\docker\snare\dist\templates`
 
 To use a custom webpage:
 
