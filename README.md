@@ -50,9 +50,9 @@ Configurable fields for both the **HONEYTOKEN** and **BREADCRUMB** components:
 
 Component-specific configuration for **HONEYTOKENS**:
 
-- **PROMPT-FILENAMES**: The prompt instructing the LLM to generate filenames that seems realistic for a web application which is used for both bait and honeytoken files.
-- **PROMPT-DOCX**: The prompt for generating realistic document content if a `.docx` file is generated.
-- **PROMPT-XLSX**: The prompt for generating realistic spreadsheet data if a `.xlsx` file is generated.
+- **PROMPT-FILENAMES**: The prompt instructing the LLM to generate filenames that seems realistic for a web application which is used for both bait and honeytoken files. It **must include the `session` variable** to ensure that filename generation are dynamic and not the same at each session by randomly selecting between a list of options.
+- **PROMPT-DOCX**: The prompt for generating realistic document content if a `.docx` file is generated. It **must include the `honeytoken` and `dynamic` variable**. The `honeytoken` variable represents the filename of the token generated in the **PROMPT-FILENAMES** output. The `dynamic` variable ensure that the generation are dynamic and not the same at each session by randomly selecting between a list of options.
+- **PROMPT-XLSX**: The prompt for generating realistic spreadsheet data if a `.xlsx` file is generated. It **must include the `honeytoken` and `dynamic` variable**. The `honeytoken` variable represents the filename of the token generated in the **PROMPT-FILENAMES** output. The `dynamic` variable ensure that the generation are dynamic and not the same at each session by randomly selecting between a list of options.
 - **WEBHOOK-URL**: The webhook-URL used when running the honeypot locally where webhook data is sent when honeytokens are triggered. The webhook-URL need to be accessible from the IP address of Canarytoken `52.18.63.80`.
 
 Component-specific configuration for **BREADCRUMB**:
@@ -61,8 +61,8 @@ Component-specific configuration for **BREADCRUMB**:
   - `robots`: Adding a robots.txt file with placed breadcrumbs.
   - `error_page`: Adding generated breadcrumbs in an error page.
   - `html_comments`: Adding generated breadcrumbs as dev-note comments embedded in HTML code of the index-page.
-- **PROMPT-ERROR-PAGE**: The prompt for generating a breadcrumb in the error-page looking as a leftover developer comment.
-- **PROMPT-HTML-COMMENT**: The prompt for generating a realistic breadcrumb as a one-line HTML comment that will appears to be a dev-note.
+- **PROMPT-ERROR-PAGE**: The prompt for generating a breadcrumb in the error-page looking as a leftover developer comment. It **must include the `honeytoken` variable** which represents the filename of the token generated in the **PROMPT-FILENAMES** output.
+- **PROMPT-HTML-COMMENT**: The prompt for generating a realistic breadcrumb as a one-line HTML comment that will appears to be a dev-note. It **must include the `honeytoken` variable** which represents the filename of the token generated in the **PROMPT-FILENAMES** output.
 
 Here is an example `config.yml`:
 ```yaml
@@ -76,18 +76,18 @@ HONEYTOKEN:
   API-PROVIDER: gemini # Options: huggingface, gemini
   API-ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash
   API-KEY: foobar123
-  PROMPT-FILENAMES: >
+  PROMPT-FILENAMES: > # Need to include "session" variable
     You are generating bait filenames for a website called electronicstore.live, which sells smart gadgets and electronics online.
     Generate in total 5 files. The generated files should be realistic, code-friendly filenames (no spaces or special characters) that might contain sensitive internal data.
     Examples include inventory backups, customer exports, admin data, supplier lists, or device configuration dumps.
     {session}
     Use only the file types .docx, .xlsx, .pdf, .db, .sql or .zip and ensure there is minumum one .docx, one .xlsx and one .pdf file.
-  PROMPT-DOCX: >
+  PROMPT-DOCX: > # Need to include "honeytoken" and "dynamic" variable
     Given the file name {honeytoken}, generate content for a realistic-looking internal document that would plausibly appear in a document with that name.
     The tone should match the filename — e.g., meeting notes, credentials, export summaries, or sensitive business context.
     The content should be for a smart gadget store. Make it {dynamic}.
     Do not explain your answer, just return the document's content.
-  PROMPT-XLSX: >
+  PROMPT-XLSX: > # Need to include "honeytoken" and "dynamic" variable
     Your task is to generate realistic-looking Excel spreadsheet data for a file named {honeytoken}, need between 10 to 20 rows of data.
     Format each row as a comma-separated line, using appropriate column headers based on the filename.
     The content should be for a smart gadget store. Make it {dynamic}.
@@ -109,11 +109,11 @@ BREADCRUMB:
   API-PROVIDER: gemini # Options: huggingface, gemini
   API-ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash
   API-KEY: foobar123
-  PROMPT-ERROR-PAGE: >
+  PROMPT-ERROR-PAGE: > # Need to include "honeytoken" variable
     Write a short HTML bait line (in a <p> tag) that subtly hints at an internal file located at /{honeytoken}. 
     It should look like something a developer accidentally left in, referencing the file path naturally.
     Your goal is to lead a potential attacker to believe that this is a legitimate file path. 
-  PROMPT-HTML-COMMENT: >
+  PROMPT-HTML-COMMENT: > # Need to include "honeytoken" variable
     Write a realistic one-line HTML comment like a developer's note.
     It should mention /{honeytoken} as if it's a config file or temporary log.
     Do NOT include HTML tags or '--'. Make it look like leftover debug info."
