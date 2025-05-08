@@ -8,24 +8,24 @@ HONEYTOKEN:
   API-PROVIDER: gemini # Options: huggingface, gemini
   API-ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash
   API-KEY:   
-  PROMPT-FILENAMES: >
+  PROMPT-FILENAMES: > # Need to include "session" variable
     You are generating bait filenames for a website called SmartGadgetStore.live, which sells smart gadgets and electronics online.
     Generate in total 5 files. The generated files should be realistic, code-friendly filenames (no spaces or special characters) that might contain sensitive internal data.
     Examples include inventory backups, customer exports, admin data, supplier lists, or device configuration dumps.
     {session}
     Use only the file types .docx, .xlsx, .pdf, .db, .sql or .zip and ensure there is minumum one .docx, one .xlsx and one .pdf file.
-  PROMPT-DOCX: >
+  PROMPT-DOCX: > # Need to include "honeytoken" and "dynamic" variable
     Given the file name {honeytoken}, generate content for a realistic-looking internal document that would plausibly appear in a document with that name.
     The tone should match the filename — e.g., meeting notes, credentials, export summaries, or sensitive business context.
     The content should be for a smart gadget store. Make it {dynamic}.
     Do not explain your answer, just return the document's content.
-  PROMPT-XLSX: >
+  PROMPT-XLSX: > # Need to include "honeytoken" and "dynamic" variable
     Your task is to generate realistic-looking Excel spreadsheet data for a file named {honeytoken}, need between 10 to 20 rows of data.
     Format each row as a comma-separated line, using appropriate column headers based on the filename.
     The content should be for a smart gadget store. Make it {dynamic}.
     Do not explain your answer, just return the raw spreadsheet data.
   LLM-PARAMETERS:
-    temperature: 1.5
+    temperature: 1.8
     top_p: 0.95
     top_k: 50
     max_new_tokens: 400
@@ -35,18 +35,18 @@ HONEYTOKEN:
 
 BREADCRUMB:
   TYPES: # Options: robots, error_page, html_comments
-  - robots
-  - error_page
-  - html_comments
+  #- robots
+  #- error_page
+  #- html_comments
   API-PROVIDER: gemini # Options: huggingface, gemini
   API-ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash
   API-KEY:   
-  PROMPT-ERROR-PAGE: >
+  PROMPT-ERROR-PAGE: > # Need to include "honeytoken" variable
     Generate a single-line HTML <p> element that appears to be a leftover developer note or debug message.
     It should subtly mention a file path at /{honeytoken}.
     Keep it realistic and brief — like a developer accidentally left a comment in the HTML.
     Do not explain the line, just return the raw <p> tag.
-  PROMPT-HTML-COMMENT: >
+  PROMPT-HTML-COMMENT: > # Need to include "honeytoken" variable
     Write a realistic one-line HTML comment like a developer's note.
     It should mention /{honeytoken} as if it's a config file or temporary log.
     Do NOT include HTML tags or '--'. Make it look like leftover debug info."
