@@ -141,6 +141,10 @@ BREADCRUMB:
      docker compose -f docker/docker-compose-local.yml up --build
      ```
 
+In the example below, we show the terminal of SNARE when we run docker compose which injects honeytokens and breadcrumbs on the web application called smartgadgetstore which we have created a template for:
+
+![SNARE Terminal](docs/images/snare_terminal.jpg)
+
 ### Setting up a TLS-certificate (domain required)
 
 Before running the web application honeypot with TLS, you need to obtain and install a valid certificate for your domain (e.g., electronicstore.live). This needs to be set up from [Let’s Encrypt using Certbot](https://certbot.eff.org/):
@@ -228,7 +232,7 @@ When opening one of the sections, logs are displayed in reserve chronological or
 
 When starting up, SNARE provides debug logs in the SNARE Log section that informs about which honeytokens and breadcrumbs that has been generated. 
 
-Here is an example of how SNARE did inject honeytokens and breadcrumbs on the arbitrary web application called smartgadgetstore:
+In the example below, we show how SNARE did inject honeytokens and breadcrumbs on the web application called smartgadgetstore:
 
 ![SNARE Log](docs/images/snare_log.jpg)
 
