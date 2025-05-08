@@ -35,9 +35,9 @@ HONEYTOKEN:
 
 BREADCRUMB:
   TYPES: # Options: robots, error_page, html_comments
-  #- robots
-  #- error_page
-  #- html_comments
+  - robots
+  - error_page
+  - html_comments
   API-PROVIDER: gemini # Options: huggingface, gemini
   API-ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash
   API-KEY: AIzaSyC-QsN2PPv9CBFgRSLRnJq5l4CynuBioVM
