@@ -270,8 +270,8 @@ class HoneytokensGenerator:
         with open(self.track_path, "r") as f:
             honeytokens = f.read().splitlines()
         
-        # wait for 15 second before generating canarytokens to let the webhook be ready
-        time.sleep(15)
+        # wait for 10 second before generating canarytokens to let the webhook be ready
+        time.sleep(10)
 
         # go through the honeytokens and generate a canarytoken for those that are pdf, xlsx, docx
         for token in honeytokens:
