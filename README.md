@@ -25,6 +25,83 @@ In order to run the enhanced SNARE/TANNER honeypot framework, ensure the followi
 - Certbot (for running with TLS on own domain)
 - Python (v. 3.10 or later)
 
+### Start SNARE
+
+The startup parameters are defined in `start_snare.py`, located at: `\docker\snare\dist\start_snare.py`
+
+On execution, SNARE:
+
+1. Randomly selects a folder from the `dirs` list (each representing a different fake site under `/docker/snare/dist/pages/`).
+2. Waits for the Tanner service to become available.
+3. Launches SNARE with the listed parameters and the selected page directory.
+
+To list the random fake websites you want SNARE to select from:
+
+- Add their folder name to the `dirs` list in `start_snare.py`.
+- Ensure your folder structure and `meta.json` match the required format described below.
+
+### Front Page Setup
+
+SNARE/TANNER serves decoy web pages with all components renamed to their MD5 hash (excluding file extension) and stored under:
+`/docker/snare/dist/pages/<page_folder>/`
+
+Although, the `SNARE CLONER` tool handles this automatically, some tweaks are required to match our enhanced features.
+Required `meta.json` entries for proper operation:
+
+```json
+{
+    "/index.html": {
+        "content_type": "text/html",
+        "hash": "44098cc2ee0b1f7dec52e148e28ad706"
+    },
+    "/wp-admin/load-styles.php?c=0&dir=ltr&load[]=dashicons,buttons,forms,l10n,login&ver=4.9.8": {
+        "hash": "71a104cd63ee955a811d73613d691c83",
+        "content_type": "text/css"
+    },
+    "/login.php": {
+        "hash": "73dce75d92181ca956e737b3cb66db98",
+        "content_type": "text/html"
+    },
+    "/login.php?action=lostpassword": {
+        "hash": "e3ba3fe8e612824a73add7dd724c5a0f",
+        "content_type": "text/html"
+    },
+    "/status_400": {
+        "hash": "5d7e7652b9cfb8d8d9fa9602f2ed0efe",
+        "content_type": "text/html"
+    },
+    "/status_401": {
+        "hash": "a75ed9a62c8e44bc58f32d10551b3855",
+        "content_type": "text/html"
+    },
+    "/status_403": {
+        "hash": "05a190c1ac225372f0c0c0c74b07a687",
+        "content_type": "text/html"
+    },
+    "/status_404": {
+        "hash": "5a2bce9d53f443761357fef4f5674ca7",
+        "content_type": "text/html"
+    },
+    "/status_500": {
+        "hash": "c6e0e90edba7b3d7d91dc07d9e10fc34",
+        "content_type": "text/html"
+    },
+    "/admin/login.php": {
+        "hash": "5f404c514b42b2b2fa588f4c56a6e54b",
+        "content_type": "text/html"
+    }
+}
+```
+After it is confirmed that the entries above are included, a manual adjustment of the HTML code to redirect to the correct endpoints is necessary. For example main page should be index.html, login should be login.php, etc.
+These static files (except index.html) are ready to be used and included folder templates for your use, located here: `\docker\snare\dist\templates`
+
+To use a custom webpage:
+
+1. MD5-hash each file and rename it (no extension).
+2. Place files in a folder under `/docker/snare/dist/pages/`.
+3. Add a `meta.json` in that folder with original paths, hashes, and MIME types.
+
+
 ### Configuration in SNARE
 The features for the enhanced honeypot is configured using a `config.yml` file created for SNARE which can be found at the path `/docker/snare/dist`. 
 
