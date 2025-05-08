@@ -55,6 +55,21 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.ref }}
 
+      - name: Fix Permissions on Azure VM
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.AZURE_VM_IP }}
+          username: ${{ secrets.AZURE_VM_USERNAME }}
+          key: ${{ secrets.AZURE_VM_SSH_PRIVATE_KEY }}
+          script: |
+              sudo mkdir -p /home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}
+              sudo mkdir -p /home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/docker/snare/dist/honeytokens
+              sudo mkdir -p /home/azureuser/thesis_honeypot/${{ env.TAG_NAME }}/logging/__pycache__
+  
+              # Set ownership and permissions for the directories
+              sudo chown -R azureuser:azureuser /home/azureuser/thesis_honeypot
+              sudo chmod -R 755 /home/azureuser/thesis_honeypot
+
       - name: Transfer Files to Azure VM via SCP
         run: |
           # Create a temporary private key file for the SCP command
