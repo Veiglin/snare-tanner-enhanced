@@ -12,7 +12,7 @@ from aiohttp.web import StaticResource as StaticRoute
 from snare.middlewares import SnareMiddleware
 from snare.tanner_handler import TannerHandler
 from snare.config import SnareConfig
-from snare.utils.honeylinks_generator import HoneylinksGenerator
+from snare.generators.honeylinks import HoneylinksGenerator
 from snare.utils.snare_helpers import print_color
 
 class HttpRequestHandler:
