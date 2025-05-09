@@ -56,7 +56,6 @@ class HoneylinksGenerator:
             response = requests.get(url)
             if response.status_code == 200:
                 info = response.json()
-                self.logger.info(f"Got location info for IP address: {ip} with response json: {info}")
                 if info.get('status') == 'success':
                     return {
                         "loc": f"{info.get('lat')},{info.get('lon')}",
