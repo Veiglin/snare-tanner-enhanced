@@ -108,9 +108,10 @@ class HttpRequestHandler:
                 return await self.serve_error_page("/status_500", 500)
 
         data = self.tanner_handler.create_data(request, 200)
-        if (SnareConfig.get("FEATURES", "enabled") is True) and (path in self.honeylink_paths):
-            self.logger.info(f"Honeylink path triggered: {path}")
-            self.hl.trigger_honeylink_alert(data=data)
+        if (SnareConfig.get("FEATURES", "enabled") is True):
+            if (self.honeylink_paths) and (path in self.honeylink_paths):
+                self.logger.info(f"Honeylink path triggered: {path}")
+                self.hl.trigger_honeylink_alert(data=data)
 
         # Submit the event to the TANNER service
         event_result = await self.tanner_handler.submit_data(data)
