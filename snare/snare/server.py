@@ -12,6 +12,8 @@ from aiohttp.web import StaticResource as StaticRoute
 from snare.middlewares import SnareMiddleware
 from snare.tanner_handler import TannerHandler
 from snare.config import SnareConfig
+from snare.utils.honeylinks_generator import HoneylinksGenerator
+from snare.utils.snare_helpers import print_color
 
 class HttpRequestHandler:
     def __init__(self, meta, run_args, snare_uuid, debug=False, keep_alive=75, **kwargs):
@@ -24,6 +26,10 @@ class HttpRequestHandler:
         self.tanner_handler = TannerHandler(run_args, meta, snare_uuid)
         if SnareConfig.get("FEATURES", "enabled") is True:
             self.dynamic_routes = self.generate_dynamic_route_map("/opt/snare/honeytokens/common.txt")
+            self.track_dir = os.path.join("/opt/snare", "honeytokens")
+            self.track_path = os.path.join(self.track_dir, "Honeytokens.txt")
+            self.honeylink_paths = self.get_honeylink_paths()
+            self.hl = HoneylinksGenerator()
 
     def generate_dynamic_route_map(self, wordlist_path):
         try:
@@ -50,6 +56,21 @@ class HttpRequestHandler:
             self.logger.debug(f"Adding Route {path} → {status_code} ({status_path})")
 
         return route_map
+    
+    def get_honeylink_paths(self):
+        # load Honeytokens.txt
+        if not os.path.exists(self.track_path):
+            print_color("Honeytokens.txt not found. Can not get honeylink paths", "WARNING")
+            return 
+        with open(self.track_path, "r") as f:
+            honeytokens = f.read().splitlines()
+        
+        # filter out honeylink paths
+        honeylink_paths = []
+        for path in honeytokens:
+            if not (path.lower()).endswith(".xlsx") or not (path.lower()).endswith(".pdf") or not (path.lower()).endswith(".docx"):
+                honeylink_paths.append(path)
+        return honeylink_paths
 
     async def submit_slurp(self, data):
         try:
@@ -87,12 +108,9 @@ class HttpRequestHandler:
                 return await self.serve_error_page("/status_500", 500)
 
         data = self.tanner_handler.create_data(request, 200)
-        if request.method == "POST":
-            post_data = await request.post()
-            self.logger.info("POST data:")
-            for key, val in post_data.items():
-                self.logger.info("\t- {0}: {1}".format(key, val))
-            data["post_data"] = dict(post_data)
+        if (SnareConfig.get("FEATURES", "enabled") is True) and (path in self.honeylink_paths):
+            self.logger.info(f"Honeylink path triggered: {path}")
+            self.hl.trigger_honeylink_alert(data=data)
 
         # Submit the event to the TANNER service
         event_result = await self.tanner_handler.submit_data(data)
