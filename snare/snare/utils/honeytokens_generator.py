@@ -31,7 +31,7 @@ class HoneytokensGenerator:
         self.api_key = SnareConfig.get("HONEYTOKEN", "API-KEY")
         self.llm_parameters = SnareConfig.get("HONEYTOKEN", "LLM-PARAMETERS")
         if os.getenv("IS_LOCAL") == "true":
-            self.webhook_url = SnareConfig.get("HONEYTOKEN", "WEBHOOK-URL")
+            self.webhook_url = SnareConfig.get("FEATURES", "WEBHOOK-URL")
         else:
             self.webhook_url = "http:// :5003/webhook"
         self.marker = "__honeypot_honeytokens_marker__"
