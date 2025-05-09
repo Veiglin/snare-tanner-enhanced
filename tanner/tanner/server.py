@@ -13,7 +13,6 @@ from tanner.reporting.log_local import Reporting as local_report
 from tanner.reporting.log_mongodb import Reporting as mongo_report
 from tanner.reporting.log_hpfeeds import Reporting as hpfeeds_report
 from tanner import __version__ as tanner_version
-from tanner.alerting import honeytoken
 
 class TannerServer:
     def __init__(self):
@@ -27,14 +26,6 @@ class TannerServer:
         self.base_handler = base.BaseHandler(base_dir, db_name)
         self.logger = logging.getLogger(__name__)
         self.redis_client = None
-
-        if TannerConfig.get("HONEYTOKEN", "enabled") is True:
-            # Start with paths from config
-            self.honeytoken_paths = TannerConfig.get("HONEYTOKEN", "absolute_path")
-            # Retrieve weak credentials as a dictionary
-            weak_credentials = TannerConfig.get("HONEYTOKEN", "weak_credentials")
-            self.weak_username = weak_credentials.get("username", "")
-            self.weak_password = weak_credentials.get("password", "")
 
         if TannerConfig.get("HPFEEDS", "enabled") is True:
             self.hpf = hpfeeds_report()
@@ -65,25 +56,6 @@ class TannerServer:
             session, _ = await self.session_manager.add_or_update_session(data, self.redis_client)
             self.logger.info("Requested path %s", path)
             await self.dorks.extract_path(path, self.redis_client)
-            # check honeytoken detection
-            if (TannerConfig.get("HONEYTOKEN", "enabled") is True) and (path in self.honeytoken_paths):
-                # trigger honeytoken detection by sending a mail to the configured mail reciepient with ip address and geo location
-                ht = honeytoken.HoneyToken(data=data)
-                await ht.trigger_token_alert()
-
-            # Honeytoken weak credentials detection
-            post_data = data.get("post_data", {})
-            attempted_username = post_data.get("log", "")
-            attempted_password = post_data.get("pwd", "")
-
-            if TannerConfig.get("HONEYTOKEN", "enabled") is True:
-                if attempted_username == self.weak_username and attempted_password == self.weak_password:
-                    self.logger.warning("Honeytoken triggered due to weak credentials attempt")
-                    # Add reason and credentials used to the data before passing to HoneyToken
-                    data["honeytoken_trigger_reason"] = "Weak credential login attempt"
-                    data["used_credentials"] = f"Username: {attempted_username}, Password: {attempted_password}"
-                    ht = honeytoken.HoneyToken(data=data)
-                    await ht.trigger_token_alert()
 
             detection = await self.base_handler.handle(data, session)
             session.set_attack_type(path, detection["name"])
