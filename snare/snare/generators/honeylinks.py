@@ -10,9 +10,9 @@ class HoneylinksGenerator:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         if os.getenv("IS_LOCAL") == "true":
-            self.webhook_url = SnareConfig.get("FEATURES", "WEBHOOK-URL")
+            self.webhook_url = SnareConfig.get("FEATURES", "WEBHOOK-URL-LOCAL")
         else:
-            self.webhook_url = "http:// :5003/webhook"
+            self.webhook_url = SnareConfig.get("FEATURES", "WEBHOOK-URL-DEPLOYMENT")
 
     def trigger_honeylink_alert(self, data):
         """
