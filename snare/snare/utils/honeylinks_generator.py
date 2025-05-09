@@ -7,12 +7,8 @@ import requests
 from snare.config import SnareConfig
 
 class HoneylinksGenerator:
-    def __init__(self, 
-                 page_dir, 
-                 meta):
+    def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.page_dir = page_dir
-        self.meta = meta
         if os.getenv("IS_LOCAL") == "true":
             self.webhook_url = SnareConfig.get("FEATURES", "WEBHOOK-URL")
         else:
