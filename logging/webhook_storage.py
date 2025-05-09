@@ -1,8 +1,12 @@
 import json
 import os
+import logging
 
 # Define the path for the persistent storage file
 WEBHOOK_STORAGE_FILE = "/app/webhooks.json"
+
+logger = logging.getLogger("log_app_logger")
+logger.setLevel(logging.INFO)
 
 def load_webhooks():
     """Load webhooks from the persistent storage file."""
@@ -15,7 +19,7 @@ def load_webhooks():
         with open(WEBHOOK_STORAGE_FILE, "r") as f:
             return json.load(f)
     except (json.JSONDecodeError, IOError) as e:
-        print(f"Error loading webhooks: {e}")
+        logger.error(f"Error loading webhooks: {e}")
         return []
 
 def save_webhook(webhook):
@@ -26,21 +30,21 @@ def save_webhook(webhook):
         with open(WEBHOOK_STORAGE_FILE, "w") as f:
             json.dump(webhooks, f, indent=4)
     except IOError as e:
-        print(f"Error saving webhook: {e}")
+        logger.error(f"Error saving webhook: {e}")
 
 def clear_webhooks():
     """Clear all webhooks from the persistent storage file."""
     try:
         open(WEBHOOK_STORAGE_FILE, "w").close()
     except IOError as e:
-        print(f"Error clearing webhooks: {e}")
+        logger.error(f"Error clearing webhooks: {e}")
 
 def download_webhook():
     """Download the webhook storage file."""
     if os.path.exists(WEBHOOK_STORAGE_FILE):
         return WEBHOOK_STORAGE_FILE
     else:
-        print(f"Webhook storage file does not exist: {WEBHOOK_STORAGE_FILE}")
+        logger.error(f"Webhook storage file does not exist: {WEBHOOK_STORAGE_FILE}")
         return None
     
 
