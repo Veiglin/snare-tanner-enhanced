@@ -16,8 +16,9 @@ def print_color(msg, mode="INFO", end="\n"):
         color = colors["INFO"]
     print(color + str(msg) + "\033[0m", end=end)
 
-
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("log_app_logger")
+logger.setLevel(logging.INFO)
 
 # Environment and log directory setup
 Docker_ENV = os.getenv("Docker_ENV", "false")
@@ -68,8 +69,6 @@ def tanner_report_log():
 def webhook():
     """Webhook endpoint to receive POST requests."""
     try:
-        print_color(f"Incoming webhook request: {request.data.decode('utf-8')}", "INFO")
-
         # Ensure the request has a JSON body
         if not request.is_json:
             return jsonify({"error": "Invalid Content-Type. Expected application/json"}), 400
@@ -77,9 +76,6 @@ def webhook():
         data = request.get_json()  # Safely parse JSON payload
         if not data:
             return jsonify({"error": "Invalid or missing JSON payload"}), 400
-
-        # Log the received data
-        print_color(f"Webhook triggered with data: {data}", "INFO")
 
         # Save the webhook data to persistent storage
         save_webhook(data)
@@ -94,7 +90,8 @@ def view_webhooks():
     """View all received webhooks."""
     try:
         webhooks = load_webhooks()  # Load webhooks from persistent storage
-        return render_template("webhooks.html", webhooks=webhooks)
+        formatted_webhooks = [" ".join(f"{key}: {value}" for key, value in webhook.items()) for webhook in webhooks]
+        return render_template("webhooks.html", webhooks=formatted_webhooks)
     except Exception as e:
         logger.error(f"Error rendering webhooks: {e}")
         return jsonify({"error": "Failed to load webhooks"}), 500
