@@ -19,7 +19,7 @@ class HoneylinksGenerator:
         Trigger an alert by sending a request to the webhook endpoint.
         """
         ip = data["peer"]["ip"]
-        user_agent = data["headers"]["user-agent"]
+        user_agent = data["headers"]["User-Agent"]
         path = data["path"]
         now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
@@ -56,7 +56,7 @@ class HoneylinksGenerator:
             response = requests.get(url)
             if response.status_code == 200:
                 info = response.json()
-                self.logger.info(f"Got location info for IP address: {ip}")
+                self.logger.info(f"Got location info for IP address: {ip} with response json: {info}")
                 if info.get('status') == 'success':
                     return {
                         "loc": f"{info.get('lat')},{info.get('lon')}",
