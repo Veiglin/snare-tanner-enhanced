@@ -68,8 +68,21 @@ class HttpRequestHandler:
         # filter out honeylink paths
         honeylink_paths = []
         for path in honeytokens:
-            if not (path.lower()).endswith(".xlsx") or not (path.lower()).endswith(".pdf") or not (path.lower()).endswith(".docx"):
+            if not (path.lower()).endswith(".xlsx") and not (path.lower()).endswith(".pdf") and not (path.lower()).endswith(".docx"):
+                # there is not an / in the start of the path, add it
+                if not path.startswith("/"):
+                    path = "/" + path
                 honeylink_paths.append(path)
+
+        # add honeylink paths from config if any
+        static_paths = SnareConfig.get("HONEYLINK", "STATIC-PATHS")
+        if static_paths:
+            for path in static_paths:
+                path = path.strip()
+                if not path.startswith("/"):
+                    path = "/" + path
+                honeylink_paths.append(path)
+        print_color(f"Adding the honeylink paths: {honeylink_paths}", "INFO")
         return honeylink_paths
 
     async def submit_slurp(self, data):
