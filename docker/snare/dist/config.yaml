@@ -1,6 +1,7 @@
 FEATURES:
   enabled: True
-  WEBHOOK-URL: https://webhook.site/60bd5f82-bfbc-44cf-bcba-ae5131c165ea # Only for Local Deployment
+  WEBHOOK-URL-LOCAL: https://webhook.site/60bd5f82-bfbc-44cf-bcba-ae5131c165ea # Only for Local Deployment using docker-compose-local.yml
+  WEBHOOK-URL-DEPLOYMENT: http://128.251.49.251:5003/webhook # Only for Deployment using docker-compose.yml
 
 DOMAIN:
   BASE_DOMAIN: smartgadgetstore.live
