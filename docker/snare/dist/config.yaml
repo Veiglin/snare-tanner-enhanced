@@ -1,6 +1,6 @@
 FEATURES:
   enabled: True
-  WEBHOOK-URL: # Only for Local Deployment
+  WEBHOOK-URL:    # Only for Local Deployment
 
 DOMAIN:
   BASE_DOMAIN: smartgadgetstore.live
@@ -32,6 +32,15 @@ HONEYTOKEN:
     max_new_tokens: 400
     do_sample: true # Only for HuggingFace
     return_full_text: false # Only for HuggingFace
+
+HONEYLINK:
+  STATIC-PATHS: # Set static path to trigger honeylink
+    - /400
+    - /401
+    - /403
+    - /404
+    - /500
+    - /robots.txt
   
 BREADCRUMB:
   TYPES: # Options: robots, error_page, html_comments
