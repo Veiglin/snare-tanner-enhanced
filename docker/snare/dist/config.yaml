@@ -1,5 +1,6 @@
 FEATURES:
   enabled: True
+  WEBHOOK-URL: # Only for Local Deployment
 
 DOMAIN:
   BASE_DOMAIN: smartgadgetstore.live
@@ -31,8 +32,7 @@ HONEYTOKEN:
     max_new_tokens: 400
     do_sample: true # Only for HuggingFace
     return_full_text: false # Only for HuggingFace
-  WEBHOOK-URL: # Only for Local Deployment
-
+  
 BREADCRUMB:
   TYPES: # Options: robots, error_page, html_comments
   - robots
