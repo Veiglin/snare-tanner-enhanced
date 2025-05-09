@@ -22,7 +22,8 @@ class BreadcrumbsGenerator:
         self.api_endpoint = SnareConfig.get("BREADCRUMB", "API-ENDPOINT")
         self.api_key = SnareConfig.get("BREADCRUMB", "API-KEY")
         self.llm_parameters = SnareConfig.get("BREADCRUMB", "LLM-PARAMETERS")
-        self.honeytoken_path = "/opt/snare/honeytokens/Honeytokens.txt"
+        self.track_dir = os.path.join("/opt/snare", "honeytokens")
+        self.track_path = os.path.join(self.track_dir, "Honeytokens.txt")
 
     def generate_breadcrumbs(self):
         """
@@ -66,10 +67,9 @@ class BreadcrumbsGenerator:
                 f.write("")
 
         # load bait from honeytokens
-        honeytoken_path = "/opt/snare/honeytokens/Honeytokens.txt"
         bait_lines = []
-        if os.path.exists(honeytoken_path):
-            with open(honeytoken_path, "r") as f:
+        if os.path.exists(self.track_path):
+            with open(self.track_path, "r") as f:
                 tokens = [line.strip() for line in f if line.strip()]
                 canarytokens = [token for token in tokens if (token.lower()).endswith(('.pdf', '.xlsx', '.docx'))]
                 non_canarytokens = [token for token in tokens if token not in canarytokens]
@@ -150,11 +150,11 @@ class BreadcrumbsGenerator:
         with open(html_path, "r") as f:
             html_content = f.read()
 
-        if not os.path.exists(self.honeytoken_path):
+        if not os.path.exists(self.track_path):
             self.logger.info("No Honeytokens.txt found. Cannot generate breadcrumb.", "WARNING")
             return
 
-        with open(self.honeytoken_path, "r") as f:
+        with open(self.track_path, "r") as f:
             tokens = [line.strip() for line in f if line.strip()]
 
         available_tokens = [token for token in tokens if token not in self.used_canarytoken]
@@ -292,11 +292,11 @@ class BreadcrumbsGenerator:
         # Pick a random comment to inject after
         anchor_comment = random.choice(all_comments)
 
-        if not os.path.exists(self.honeytoken_path):
+        if not os.path.exists(self.track_path):
             self.logger.info("Honeytokens.txt not found.", "WARNING")
             return
 
-        with open(self.honeytoken_path, "r") as f:
+        with open(self.track_path, "r") as f:
             tokens = [line.strip() for line in f if line.strip()]
             
         # Filter out already used tokens
