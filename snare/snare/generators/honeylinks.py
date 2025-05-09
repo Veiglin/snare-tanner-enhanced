@@ -30,19 +30,14 @@ class HoneylinksGenerator:
             "src_ip": ip,
             "time": now,
             "memo": f"{path} - Triggered",
-            "additional_data": {
-                "geo_info": self._find_location(ip),
-                "user_agent": user_agent
-            },
+            "additional_info": self._find_location(ip),
             "known_tor_exit_node": self._is_tor_exit_node(ip)
         }
 
         # Send the request to the webhook
         try:
             response = requests.post(self.webhook_url, json=payload)
-            if response.status_code == 200:
-                self.logger.info(f"Honeylink alert successfully sent to webhook: {self.webhook_url} for file {path}")
-            else:
+            if response.status_code != 200:
                 self.logger.error(f"Failed to send honeylink alert. Status code: {response.status_code}, Response: {response.text}")
         except requests.RequestException as e:
             self.logger.error(f"Error sending honeylink alert to webhook: {e}")
@@ -51,7 +46,7 @@ class HoneylinksGenerator:
         """
         Find the geographic location of an IP address.
         """
-        url = f"http://ip-api.com/json/{ip}?fields=status,countryCode,continent,regionName,timezone,city,zip,lat,lon,org,as"
+        url = f"http://ip-api.com/json/{ip}?fields=status,countryCode,continent,regionName,timezone,city,zip,lat,lon,org,as,mobile,proxy"
         try:
             response = requests.get(url)
             if response.status_code == 200:
@@ -63,11 +58,12 @@ class HoneylinksGenerator:
                         "city": info.get('city'),
                         "country": info.get('countryCode'),
                         "region": info.get('regionName'),
-                        "ip": ip,
                         "timezone": info.get('timezone'),
                         "postal": info.get('zip'),
                         "as": info.get('as'),
-                        "continent": info.get('continent')
+                        "continent": info.get('continent'),
+                        "mobile": info.get('mobile'),
+                        "proxy": info.get('proxy')
                     }
             else:
                 self.logger.error(f"Error retrieving location for IP {ip}: {response.status_code}")
