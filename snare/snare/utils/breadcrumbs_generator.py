@@ -71,7 +71,7 @@ class BreadcrumbsGenerator:
         if os.path.exists(honeytoken_path):
             with open(honeytoken_path, "r") as f:
                 tokens = [line.strip() for line in f if line.strip()]
-                canarytokens = [token for token in tokens if token.endswith(('.pdf', '.xlsx', '.docx'))]
+                canarytokens = [token for token in tokens if (token.lower()).endswith(('.pdf', '.xlsx', '.docx'))]
                 non_canarytokens = [token for token in tokens if token not in canarytokens]
                 
                 # Select one canarytoken and mark it as used
@@ -160,7 +160,7 @@ class BreadcrumbsGenerator:
         available_tokens = [token for token in tokens if token not in self.used_canarytoken]
         if not available_tokens:
             self.logger.info("No available honeytokens for error page breadcrumbs. Choosing a random bait file")
-            available_tokens = [token for token in tokens if token not in self.used_canarytoken and not token.endswith(('.pdf', '.xlsx', '.docx'))]
+            available_tokens = [token for token in tokens if token not in self.used_canarytoken and not (token.lower()).endswith(('.pdf', '.xlsx', '.docx'))]
 
         chosen_token = random.choice(available_tokens)
         self.used_canarytoken.append(chosen_token)
@@ -302,9 +302,9 @@ class BreadcrumbsGenerator:
         # Filter out already used tokens
         available_tokens = [token for token in tokens if token not in self.used_canarytoken]
         if not available_tokens:
-            self.logger.warning("No available honeytokens for HTML comments breadcrumbs. Choosing a random bait file")
+            self.logger.info("No available honeytokens for HTML comments breadcrumbs. Choosing a random bait file")
             # use non-canarytokens if no canarytokens are available
-            available_tokens = [token for token in tokens if token not in self.used_canarytoken and not token.endswith(('.pdf', '.xlsx', '.docx'))]
+            available_tokens = [token for token in tokens if token not in self.used_canarytoken and not (token.lower()).endswith(('.pdf', '.xlsx', '.docx'))]
 
         # Select a unique token for the HTML comment
         chosen_token = random.choice(available_tokens)
