@@ -104,22 +104,6 @@ class HttpRequestHandler:
         self.logger.info("Request path: {0}".format(request.path_qs))
         path = request.path
 
-        if SnareConfig.get("FEATURES", "enabled") is True:
-            # Dynamic route error handling
-            if path in self.dynamic_routes:
-                status_path, status_code = self.dynamic_routes[path]
-                self.logger.info(f"Dynamic route trap triggered: {path} → {status_code}")
-                return await self.serve_error_page(status_path, status_code)
-    
-            if path == "/400":
-                return await self.serve_error_page("/status_400", 400)
-            if path == "/401":
-                return await self.serve_error_page("/status_401", 401)
-            if path == "/403":
-                return await self.serve_error_page("/status_403", 403)
-            if path == "/500":
-                return await self.serve_error_page("/status_500", 500)
-
         data = self.tanner_handler.create_data(request, 200)
         if (SnareConfig.get("FEATURES", "enabled") is True):
             if (self.honeylink_paths) and (path in self.honeylink_paths):
@@ -150,6 +134,26 @@ class HttpRequestHandler:
             if previous_sess_uuid is None or not previous_sess_uuid.strip() or previous_sess_uuid != cur_sess_id:
                 headers.add("Set-Cookie", "sess_uuid=" + cur_sess_id)
 
+        if SnareConfig.get("FEATURES", "enabled") is True:
+            # Dynamic route error handling
+            if path in self.dynamic_routes:
+                status_path, status_code = self.dynamic_routes[path]
+                self.logger.info(f"Dynamic route trap triggered: {path} → {status_code}")
+                directed_error_page = "/"+str(status_code)
+                if (self.honeylink_paths) and (directed_error_page in self.honeylink_paths):
+                    self.logger.info(f"Honeylink path triggered: {directed_error_page}")
+                    self.hl.trigger_honeylink_alert(data=data)
+                return await self.serve_error_page(status_path, status_code)
+    
+            if path == "/400":
+                return await self.serve_error_page("/status_400", 400)
+            if path == "/401":
+                return await self.serve_error_page("/status_401", 401)
+            if path == "/403":
+                return await self.serve_error_page("/status_403", 403)
+            if path == "/500":
+                return await self.serve_error_page("/status_500", 500)
+            
         return web.Response(body=content, status=status_code, headers=headers)
 
     async def start(self):
