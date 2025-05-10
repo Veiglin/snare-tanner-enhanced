@@ -1,6 +1,6 @@
 FEATURES:
   enabled: True
-  WEBHOOK-URL-LOCAL: https://webhook.site/60bd5f82-bfbc-44cf-bcba-ae5131c165ea # Only for Local Deployment using docker-compose-local.yml
+  WEBHOOK-URL-LOCAL: https://webhook.site/35a8cc31-8815-462a-831b-c1a1d3973a80 # Only for Local Deployment using docker-compose-local.yml
   WEBHOOK-URL-DEPLOYMENT: http://128.251.49.251:5003/webhook # Only for Deployment using docker-compose.yml
 
 DOMAIN:
@@ -27,7 +27,7 @@ HONEYTOKEN:
     The content should be for a smart gadget store. Make it {dynamic}.
     Do not explain your answer, just return the raw spreadsheet data.
   LLM-PARAMETERS:
-    temperature: 1.5
+    temperature: 1.1
     top_p: 0.95
     top_k: 50
     max_new_tokens: 400
@@ -61,7 +61,7 @@ BREADCRUMB:
     It should mention /{honeytoken} as if it's a config file or temporary log.
     Do NOT include HTML tags or '--'. Make it look like leftover debug info."
   LLM-PARAMETERS:
-    temperature: 1.2
+    temperature: 1.1
     top_p: 0.98
     top_k: 40
     max_new_tokens: 50
