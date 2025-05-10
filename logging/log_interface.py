@@ -118,12 +118,10 @@ def render_log(log_name):
 
     try:
         if log_name == "tanner_report":
-            import json
             with open(log_path, "r") as f:
                 try:
-                    # NDJSON-style parsing (one JSON object per line)
                     lines = [json.loads(line) for _, line in zip(range(50), f) if line.strip()]
-                    log_content = "<br>".join(json.dumps(entry, indent=2) for entry in lines)
+                    log_content = "<br>".join(json.dumps(entry, separators=(",", ":")) for entry in lines)
                 except json.JSONDecodeError as e:
                     log_content = f"Invalid JSON content: {e}"
         else:
@@ -132,8 +130,8 @@ def render_log(log_name):
                 log_content = "<br>".join(lines)
 
         return render_template(f"{log_name}_viewer.html",
-                               log_name=log_name,
-                               log_content=log_content)
+                            log_name=log_name,
+                            log_content=log_content)
 
     except Exception as e:
         logger.error(f"Failed to read log '{log_name}': {e}")
