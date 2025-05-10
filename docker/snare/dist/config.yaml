@@ -27,7 +27,7 @@ HONEYTOKEN:
     The content should be for a smart gadget store. Make it {dynamic}.
     Do not explain your answer, just return the raw spreadsheet data.
   LLM-PARAMETERS:
-    temperature: 1.5
+    temperature: 1.1
     top_p: 0.95
     top_k: 50
     max_new_tokens: 400
@@ -61,7 +61,7 @@ BREADCRUMB:
     It should mention /{honeytoken} as if it's a config file or temporary log.
     Do NOT include HTML tags or '--'. Make it look like leftover debug info."
   LLM-PARAMETERS:
-    temperature: 1.2
+    temperature: 1.1
     top_p: 0.98
     top_k: 40
     max_new_tokens: 50
