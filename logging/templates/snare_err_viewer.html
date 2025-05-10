@@ -124,7 +124,6 @@
         <a href="/" class="home-link">&larr; Home</a>
         <h1>Snare Error Log</h1>
     </div>
-
     <pre>{{ log_content|safe }}</pre>
 
     <button id="show-more" onclick="loadMoreLines()">
@@ -188,6 +187,7 @@
                     .catch(error => console.error('Error clearing:', error));
             }
         }
+
     </script>
 </body>
 </html>
