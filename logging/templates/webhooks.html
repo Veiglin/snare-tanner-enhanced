@@ -234,7 +234,7 @@
         <ul id="webhook-list">
             {% for webhook in webhooks[:100] %}
                 <li>
-                    <pre>{{ webhook | tojson(indent=2) }}</pre>
+                    <pre>{{ webhook }}</pre>
                 </li>
             {% endfor %}
         </ul>
