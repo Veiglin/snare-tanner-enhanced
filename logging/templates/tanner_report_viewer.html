@@ -214,11 +214,13 @@
         .home-link:hover {
             text-decoration: underline;
         }
-        pre {
-            margin-top: 80px;
+        ul {
+            margin-top: 100px;
             padding: 20px;
-            white-space: pre-wrap; /* Preserve whitespace but allow wrapping */
-            word-wrap: break-word; /* Break long words onto the next line */
+        }
+        .empty-message {
+            margin-top: 100px;
+            padding: 20px;
         }
     </style>
 </head>
@@ -227,11 +229,24 @@
         <a href="/" class="home-link">&larr; Home</a>
         <h1>Tanner Report</h1>
     </div>
-    <pre>{{ log_content|safe }}</pre>
-    <button id="show-more" onclick="loadMoreLines()">
-        <span class="label">Show More</span>
-        <span class="spinner" style="display: none;"></span>
-    </button>
+    {% if log_content %}
+        <ul id="tanner-report-list">
+            {% for entry in log_content[:100] %}
+                <li>
+                    <pre>{{ entry }}</pre>
+                </li>
+            {% endfor %}
+        </ul>
+
+        {% if log_content|length > 100 %}
+            <button id="show-more" onclick="loadMoreLines()">
+                <span class="label">Show More</span>
+                <span class="spinner" style="display: none;"></span>
+            </button>
+        {% endif %}
+    {% else %}
+        <p class="empty-message">No Tanner Report entries found.</p>
+    {% endif %}
 
     <!-- Download button -->
     <a href="/download/tanner_report" class="button download-button" title="Download Log">
