@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, render_template, send_from_directory, request
 import os
+from markupsafe import Markup  # Update this import
 import logging
 import json
 from webhook_storage import load_webhooks, save_webhook, clear_webhooks, download_webhook
@@ -89,9 +90,19 @@ def webhook():
 def view_webhooks():
     """View all received webhooks."""
     try:
-        webhooks = load_webhooks()  # Load webhooks from persistent storage
-        formatted_webhooks = [" ".join(f"{key}: {value}" for key, value in webhook.items()) for webhook in webhooks]
-        return render_template("webhooks.html", webhooks=formatted_webhooks)
+        raw_webhooks = load_webhooks()  # Load webhooks from persistent storage
+        # Convert each dict → single-line JSON string, with literal < and >
+        single_line = [
+            Markup(
+                json.dumps(
+                    wh,
+                    ensure_ascii=False,
+                    separators=(',', ': ')
+                )
+            )
+            for wh in raw_webhooks
+        ]
+        return render_template("webhooks.html", webhooks=single_line)
     except Exception as e:
         logger.error(f"Error rendering webhooks: {e}")
         return jsonify({"error": "Failed to load webhooks"}), 500
