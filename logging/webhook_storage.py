@@ -15,6 +15,8 @@ def load_webhooks():
         with open(WEBHOOK_STORAGE_FILE, "w") as f:
             json.dump([], f)
         return []
+    if os.path.getsize(WEBHOOK_STORAGE_FILE) == 0:
+        return []
     try:
         with open(WEBHOOK_STORAGE_FILE, "r") as f:
             return json.load(f)

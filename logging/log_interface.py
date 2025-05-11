@@ -120,8 +120,9 @@ def render_log(log_name):
         if log_name == "tanner_report":
             with open(log_path, "r") as f:
                 try:
-                    lines = [json.loads(line) for _, line in zip(range(50), f) if line.strip()]
-                    log_content = "<br>".join(json.dumps(entry, separators=(",", ":")) for entry in lines)
+                    # Process each line as a single-line JSON string
+                    lines = [json.loads(line) for _, line in zip(range(500), f) if line.strip()]
+                    log_content = [json.dumps(entry, separators=(',', ':')) for entry in lines]
                 except json.JSONDecodeError as e:
                     log_content = f"Invalid JSON content: {e}"
         else:
