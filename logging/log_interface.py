@@ -119,12 +119,26 @@ def render_log(log_name):
     try:
         if log_name == "tanner_report":
             with open(log_path, "r") as f:
+                raw = [line.strip() for line in f if line.strip()]
+
+            parsed = []
+            for line in raw:
                 try:
-                    # Process each line as a single-line JSON string
-                    lines = [json.loads(line) for _, line in zip(range(500), f) if line.strip()]
-                    log_content = [json.dumps(entry, separators=(',', ':')) for entry in lines]
-                except json.JSONDecodeError as e:
-                    log_content = f"Invalid JSON content: {e}"
+                    obj = json.loads(line)
+                    parsed.append(json.dumps(obj, separators=(",", ":")))
+                except json.JSONDecodeError:
+                    parsed.append(line)
+                    
+            page_size   = 50
+            first_page  = parsed[:page_size]
+            next_offset = page_size if page_size < len(parsed) else None
+
+            return render_template(
+                f"{log_name}_viewer.html",
+                log_name=log_name,
+                log_content=first_page,
+                next_offset=next_offset
+            )
         else:
             with open(log_path, "r") as f:
                 lines = [line.rstrip() for _, line in zip(range(500), f)]
