@@ -2,66 +2,6 @@
 <html>
 <head>
     <title>Tanner Report</title>
-    <script>
-        
-        function clearLog() {
-            if (confirm('Are you sure you want to clear this log?')) {
-                fetch('/clear/tanner_report', { method: 'POST' })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.message) {
-                            alert(data.message);
-                            document.querySelector('pre').innerHTML = ''; // Clear the log content on the page
-                        } else if (data.error) {
-                            alert(data.error);
-                        }
-                    })
-                    .catch(error => console.error('Error clearing:', error));
-            }
-        }
-    
-        let offset = 500;
-
-        function loadMoreLines() {
-            const spinner = document.querySelector("#show-more .spinner");
-            const label = document.querySelector("#show-more .label");
-            spinner.style.display = "inline-block";
-            label.textContent = "Loading...";
-
-            fetch(`/logs/tanner_report/batch/${offset}`)
-                .then(res => res.json())
-                .then(data => {
-                    const pre = document.querySelector("pre");
-                    const fragment = document.createDocumentFragment();
-                    data.lines.forEach(line => {
-                        try {
-                            const jsonObj = JSON.parse(line);
-                            const formatted = JSON.stringify(jsonObj, null, 2); // Pretty-print
-                            const preBlock = document.createElement("pre");
-                            preBlock.textContent = formatted;
-                            fragment.appendChild(preBlock);
-                        } catch (e) {
-                            const fallback = document.createElement("div");
-                            fallback.textContent = line;
-                            fragment.appendChild(fallback);
-                        }
-                    });
-                    pre.appendChild(fragment);
-
-
-                    offset = data.next_offset || offset;
-                    if (!data.next_offset) {
-                        document.getElementById("show-more").style.display = "none";
-                    }
-                })
-                .catch(err => console.error("Failed to load more lines:", err))
-                .finally(() => {
-                    spinner.style.display = "none";
-                    label.textContent = "Show More";
-                });
-        }
-
-</script>
     <style>
         /* Style for the download button */
         .download-button {
@@ -230,13 +170,18 @@
         <h1>Tanner Report</h1>
     </div>
     {% if log_content %}
-        <ul id="tanner-report-list">
-            {% for entry in log_content %}
-                <li>
-                    <pre>{{ entry }}</pre>
-                </li>
-            {% endfor %}
-        </ul>
+      <ul id="tanner-report-list">
+        {% for entry in log_content %}
+          <li><pre>{{ entry }}</pre></li>
+        {% endfor %}
+      </ul>
+
+      {% if next_offset %}
+        <button id="show-more" onclick="loadMoreLines()">
+          <span class="label">Show More</span>
+          <span class="spinner" style="display:none;"></span>
+        </button>
+      {% endif %}
     {% else %}
         <p class="empty-message">No Tanner Report entries found.</p>
     {% endif %}
@@ -250,5 +195,63 @@
     <button class="button clear-button" title="Clear" onclick="clearLog()">
         <p>&#x1F5D1;</p> <!-- Unicode for trash icon -->
     </button>
+
+  <!-- ─── HERE’S THE CRUCIAL SCRIPT BLOCK ───────────────────────────── -->
+  <script>
+    // Initialize offset to exactly the next batch, or 0 if there is none
+    let offset = {{ next_offset or 0 }};
+
+    function loadMoreLines() {
+      const btn     = document.getElementById("show-more");
+      const spinner = btn.querySelector(".spinner");
+      const label   = btn.querySelector(".label");
+
+      spinner.style.display = "inline-block";
+      label.textContent     = "Loading…";
+
+      fetch(`/logs/tanner_report/batch/${offset}`)
+        .then(r => r.json())
+        .then(data => {
+          const ul = document.getElementById("tanner-report-list");
+
+          data.lines.forEach(line => {
+            const li  = document.createElement("li");
+            const pre = document.createElement("pre");
+
+            pre.textContent = line;
+            
+            li.appendChild(pre);
+            ul.appendChild(li);
+          });
+
+          offset = data.next_offset || offset;
+          if (!data.next_offset) {
+            btn.style.display = "none";
+          }
+        })
+        .catch(console.error)
+        .finally(() => {
+          spinner.style.display = "none";
+          label.textContent     = "Show More";
+        });
+    }
+
+    function clearLog() {
+      if (!confirm("Are you sure you want to clear this log?")) return;
+      fetch("/clear/tanner_report", { method: "POST" })
+        .then(r => r.json())
+        .then(j => {
+          if (j.message) {
+            alert(j.message);
+            document.getElementById("tanner-report-list").innerHTML = "";
+            document.getElementById("show-more")?.remove();
+          } else {
+            alert(j.error);
+          }
+        })
+        .catch(console.error);
+    }
+  </script>
+
 </body>
 </html>
