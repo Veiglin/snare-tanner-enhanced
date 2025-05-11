@@ -231,19 +231,12 @@
     </div>
     {% if log_content %}
         <ul id="tanner-report-list">
-            {% for entry in log_content[:100] %}
+            {% for entry in log_content %}
                 <li>
                     <pre>{{ entry }}</pre>
                 </li>
             {% endfor %}
         </ul>
-
-        {% if log_content|length > 100 %}
-            <button id="show-more" onclick="loadMoreLines()">
-                <span class="label">Show More</span>
-                <span class="spinner" style="display: none;"></span>
-            </button>
-        {% endif %}
     {% else %}
         <p class="empty-message">No Tanner Report entries found.</p>
     {% endif %}
