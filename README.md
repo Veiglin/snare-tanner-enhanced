@@ -2,13 +2,13 @@
 
 <img src="docs/images/logo.jpeg" alt="SNARE/TANNER Enhanced Logo" width="500" style="float: center;">
 
-This honeypot framework builds upon the [SNARE](https://github.com/mushorg/snare)/[TANNER](https://github.com/mushorg/tanner/tree/main) honeypot implementation from [T-Pot](https://github.com/telekom-security/tpotce/tree/master), which is designed to attract and log interactions on web applications. We extend and enhance SNARE/TANNER within this framework by integrating breadcrumbing techniques and honeytokens deployment utilizing LLMs for a better and deeper deceptive honeypot framework. 
+This honeypot framework builds upon the [SNARE](https://github.com/mushorg/snare)/[TANNER](https://github.com/mushorg/tanner/tree/main) honeypot implementation from [T-Pot](https://github.com/telekom-security/tpotce/tree/master), which is designed to attract and log interactions on web applications. We extend and enhance SNARE/TANNER within this framework by integrating breadcrumbing techniques and honeytokens/honeylinks deployment utilizing LLMs for a better and deeper deceptive honeypot framework. 
 
 ## Features
 
 - **Build Upon SNARE/TANNER**: This framework extends SNARE/TANNER honeypot from T-Pot by introducing more advanced deception technique features using breadcrumbing and honeytoken deployment with LLM-driven generation.
 - **Honeytokens**: This framework includes a mechanism to deploy honeytoken files utilized from [Canarytoken](https://canarytokens.org/nest/generate), including injecting content generated with an LLM prompt. The honeytokens are designed to detect unauthorized access when someone opens the file. The types of honeytokens supported include the file types: `docx`, `xlsx`, and `pdf`.
-- **Honeylinks**: This framework includes a feature to configure and generate honeylinks for those files which is not supported as honeytokens. When a honeylink is accessed, it triggers an alert by sending a webhook request containing detailed information, such as the source IP, geographic location, and whether the IP is a known Tor exit node.
+- **Honeylinks**: This framework includes a feature to configure and generate honeylinks for those file types which is not supported as honeytokens. When a honeylink is accessed, it triggers an alert by sending a webhook request containing detailed information, such as the source IP, geographic location, and whether the IP is a known Tor exit node.
 - **Breadcrumbs**: This framework implements a mechanism to deploy breadcrumbs within a web application utilizing three different strategies: `robots.txt`, `error pages`, and `HTML inline comments`.
 - **Utilizing LLMs**: The framework leverages Large Language Models (LLMs) to dynamically generate realistic honeytokens and breadcrumbs file entries and content, which enhances the deception capabilities of the honeypot and helps us to avoid getting fingerprinted.
 - **Logging Interface**: The honeypot framework introduces a logging interface for monitoring and analyzing activities in SNARE/TANNER. It captures triggered honeytokens from webhooks, which provides insights into the intruders with detailed information about them. [See this section below](#logging-interface).
@@ -238,7 +238,6 @@ Required `meta.json` entries for proper operation:
 After it is confirmed that the entries above are included, a manual adjustment of the HTML code to redirect to the correct endpoints is necessary. For example main page should be index.html, the login should be login.php, etc.
 These static files (except index.html) are ready to be used and included in the folder `templates`, located here: `\docker\snare\dist\templates`
 
-
 To use a custom webpage:
 
 1. MD5-hash each file and rename it (no extension).
@@ -251,12 +250,13 @@ The features for the enhanced honeypot are configured using a `config.yml` file 
 
 Below is an explanation of the key sections in the configuration file:
 
-- **`FEATURES`**: Parameter to enable or disable the extended framework to generate both honeytokens and breadcrumbs.
-- **`DOMAIN`**: Variable specifying the domain name used for running the framework with TLS.
+- **`FEATURES`**: Specify a parameter to enable or disable the extended framework to generate honeytokens, honeylinks, and breadcrumbs. Furthermore, it specifies the webhook URL used when running the honeypot locally and when fully deployed. The URL is where webhook data is sent to when honeytokens and honeylinks are triggered. The webhook URL always needs to be accessible from the IP address of Canarytoken `52.18.63.80`.
+- **`DOMAIN`**: Variable specifying the base domain name used for running the framework with TLS.
 - **`HONEYTOKEN`**: Specifies the honeytokens associated LLM API and prompt used for generating. At the moment, we support [Gemini AI](https://aistudio.google.com/prompts/new_chat) from Google and the [Inference API](https://huggingface.co/docs/inference-providers/index) from Hugging Face. Furthermore, it gives the opportunity to specify an accessible webhook endpoint when triggering a honeytoken.
+- **`HONEYLINK`**: Specifies the fixed honeylink paths to trigger on. The static paths will be added together with the dynamic paths from the generated filenames of those file types for which we do not support the honeytoken generation.
 - **`BREADCRUMB`**: Configures the types of breadcrumbs used and the associated LLM. It furthermore provides options to configure the LLM prompt in each of the used breadcrumb strategies.
 
-Configurable fields for both the **HONEYTOKEN** and **BREADCRUMB** components:
+Configurable fields for the **HONEYTOKEN** and **BREADCRUMB** components:
 
 - **API-PROVIDER**: The provider of the LLM-API, which can be used with `gemini` or `huggingface`
 - **API-ENDPOINT**: The endpoint where the API request to the LLM provider is sent. 
@@ -274,7 +274,6 @@ Component-specific configuration for **HONEYTOKENS**:
 - **PROMPT-FILENAMES**: The prompt instructing the LLM to generate filenames that seem realistic for a web application, which is used for both bait and honeytoken files. It **must include the `session` variable** to ensure that filename generation is dynamic and not the same at each session by randomly selecting between a list of options.
 - **PROMPT-DOCX**: The prompt for generating realistic document content if a `.docx` file is generated. It **must include the `honeytoken` and `dynamic` variable**. The `honeytoken` variable represents the filename of the token generated in the **PROMPT-FILENAMES** output. The `dynamic` variable ensures that generation is dynamic and not the same at each session by randomly selecting from a list of options.
 - **PROMPT-XLSX**: The prompt for generating realistic spreadsheet data if a `.xlsx` file is generated. It **must include the `honeytoken` and `dynamic` variable**. The `honeytoken` variable represents the filename of the token generated in the **PROMPT-FILENAMES** output. The `dynamic` variable ensures that generation is dynamic and not the same at each session by randomly selecting from a list of options.
-- **WEBHOOK-URL**: The webhook-URL used when running the honeypot locally, where webhook data is sent when honeytokens are triggered. The webhook-URL needs to be accessible from the IP address of Canarytoken `52.18.63.80`.
 
 Component-specific configuration for **BREADCRUMB**:
 
@@ -289,6 +288,8 @@ Here is an example `config.yml`:
 ```yaml
 FEATURES:
   enabled: True
+  WEBHOOK-URL-LOCAL:    # Only for local deployment
+  WEBHOOK-URL-DEPLOYMENT: http://{public_ip}:5003/webhook # Only for Deployment using docker-compose.yml
 
 DOMAIN:
   BASE_DOMAIN: electronicstore.live
@@ -314,13 +315,21 @@ HONEYTOKEN:
     The content should be for a smart gadget store. Make it {dynamic}.
     Do not explain your answer, just return the raw spreadsheet data.
   LLM-PARAMETERS:
-    temperature: 1.3
+    temperature: 1.1
     top_p: 0.95
     top_k: 50
     max_new_tokens: 400
     do_sample: true # Only for HuggingFace
     return_full_text: false # Only for HuggingFace
-  WEBHOOK-URL:    # Only for local deployment
+
+HONEYLINK:
+  STATIC-PATHS: # Set static path to trigger honeylink
+    - /400
+    - /401
+    - /403
+    - /404
+    - /500
+    - /robots.txt
 
 BREADCRUMB:
   TYPES: # Options: robots, error_page, html_comments
@@ -339,7 +348,7 @@ BREADCRUMB:
     It should mention /{honeytoken} as if it's a config file or temporary log.
     Do NOT include HTML tags or '--'. Make it look like leftover debug info."
   LLM-PARAMETERS:
-    temperature: 0.9
+    temperature: 1.1
     top_p: 0.95
     top_k: 50
     max_new_tokens: 50
