@@ -112,7 +112,18 @@ When a honeytoken is opened, it triggers a webhook alert, providing detailed inf
 
 ### Honeylinks
 
-Honeylinks are deceptive URLs designed to lure attackers into interacting with them. These links are particularly useful for files or scenarios where honeytokens are not applicable. When a honeylink is accessed, it triggers an alert by sending a webhook request. The alert includes detailed information such as the attacker's source IP, geographic location (retrieved via IP geolocation services), and whether the IP is a known Tor exit node. This feature provides valuable insights into the attacker's behavior and origin, enabling better threat analysis and response.
+Our feature deploys honeylinks, which are implemented in `snare/snare/generators/honeylinks.py`, for generated filenames that are not supported for being honeytokens, along with the files in the `config.yml`. When a honeylink is accessed, it triggers an alert by sending a webhook request.
+
+The webhook includes detailed information about the attacker's source IP, the geographic location, which is retrieved from [IP-API](http://ip-api.com), and information about whether the IP is a known TOR exit node retrieved from [the TOR project](https://check.torproject.org/exit-addresses). It is intended to capture data that is not already captured by SNARE/TANNER about who accessed the honeylink.
+
+In the `server.py` of SNARE, we check if the incoming requested path is a part of the list of honeylinks and trigger the webhook if the honeylink has been accessed:
+
+```python
+if (SnareConfig.get("FEATURES", "enabled") is True):
+    if (self.honeylink_paths) and (path in self.honeylink_paths):
+        self.logger.info(f"Honeylink path triggered: {path}")
+        self.hl.trigger_honeylink_alert(data=data)
+```
 
 ### Breadcrumbs
 
