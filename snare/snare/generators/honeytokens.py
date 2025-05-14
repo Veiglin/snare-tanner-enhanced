@@ -316,10 +316,14 @@ class HoneytokensGenerator:
             'webhook_url': webhook
         }
         res = requests.post(TOKENS_URL + '/generate', data=req_data)
-        if res.status_code != 200:
-            self.logger.error(f"Error: {res.status_code} - {res.text}")
+        try:
+            if res.status_code != 200:
+                self.logger.error(f"Error: {res.status_code} - {res.text}")
+                return None
+            return res.json()
+        except json.JSONDecodeError as e:
+            print_color(f"Failed to generate honeytokens from canarytoken: {e}", "ERROR")
             return None
-        return res.json()
 
     def _downloaded_token_file(self, type: str, auth: str, token: str) -> bytes:
         # map the file type to the correct fmt
