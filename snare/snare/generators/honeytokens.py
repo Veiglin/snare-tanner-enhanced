@@ -200,8 +200,8 @@ class HoneytokensGenerator:
         # insert marker if missing
         if self.marker not in meta:
             meta[self.marker] = {
-                "hash": "-",
-                "content_type": "-"
+                "content_type": "-",
+                "hash": "-"
             }
 
         # pick a session path prefix once
