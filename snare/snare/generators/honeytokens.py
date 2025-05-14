@@ -252,6 +252,10 @@ class HoneytokensGenerator:
                 updated_meta[key] = entry
             if key == self.marker:
                 deleting = True
+                
+        # Remove the marker if it still exists in updated_meta
+        if self.marker in updated_meta:
+            del updated_meta[self.marker]
 
         with open(self.meta_path, "w") as f:
             json.dump(updated_meta, f, indent=4)
