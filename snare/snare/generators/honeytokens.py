@@ -199,7 +199,10 @@ class HoneytokensGenerator:
 
         # insert marker if missing
         if self.marker not in meta:
-            meta[self.marker] = "DO NOT REMOVE — all entries after this are auto-generated honeytokens"
+            meta[self.marker] = {
+                "hash": "-",
+                "content_type": "-"
+            }
 
         # pick a session path prefix once
         prefix = random.choice(["wp-admin", "admin", "includes", "cgi-bin", "private", "search", "action", "modules", "filter/tips", "comment/reply", "node/add"])
