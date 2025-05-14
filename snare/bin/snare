@@ -159,6 +159,7 @@ if __name__ == '__main__':
     else:
         base_page_path = os.path.dirname(args.page_dir)
         full_page_path = args.page_dir
+    print_color('Snare will be served from {0}'.format(full_page_path), 'INFO')
     snare_uuid = snare_setup(base_path)
     config = configparser.ConfigParser()
     config.read(os.path.join(base_path, args.config))
