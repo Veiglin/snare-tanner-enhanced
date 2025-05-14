@@ -144,17 +144,33 @@ lines = [
 ]
 ```
 
-2. **Error Page**: We add generated content in one of the statically created error pages, randomly selecting a custom error page as `400`, `401`, `403`, or `500` pages. The content is generated using an LLM API (e.g., HuggingFace or Gemini), and the content of the selected error page is updated to include a breadcrumb referencing one of the generated honeytokens. We ensure a fallback if the generated content is not generated, which populates it with the static error page breadcrumb:
+In the example below, we show how an injected `robots.txt` breadcrumb looks on a web application called smartgadgetstore, referencing the honeytoken `/admin/customer_export_pre_gdpr.pdf` and honeylinks `/admin/device_config_dump_07152019.zip` and `/admin/smartgadgetstore_admin_users.db`:
+
+![Example Robots Breadcrumb](docs/images/robots_breadcrumb.png)
+
+2. **Error Page**: We add generated content in one of the statically created error pages, randomly selecting a custom error page as `400`, `401`, `403`, or `500` pages. The content is generated using an LLM API (e.g., HuggingFace or Gemini), and the content of the selected error page is updated to include a breadcrumb referencing one of the generated honeytokens.
+
+We ensure a fallback if the generated content is not generated, which populates it with the static error page breadcrumb:
 
 ```html
 <p>Access /{honeytoken} for diagnostics.</p>
 ```
 
-3. **HTML Embedded Comment**: We place embedded dev-note comments breadcrumb referencing one of the generated honeytokens within the HTML source code of the index page if it exists. The code randomly selects an anchor comment from all the comments already there to place the comment breadcrumb after it. The HTML comment is generated using an LLM API (e.g., HuggingFace or Gemini). We ensure a fallback if the generated content is not generated, which populates it with the static HTML comments breadcrumb:
+In the example below, we show how an injected error page breadcrumb looks on a web application called smartgadgetstore, referencing the honeytoken `/admin/supplier_list_Q3_2020_confidential.docx`:
+
+![Example Error Page Breadcrumb](docs/images/error_page_breadcrumb.png)
+
+3. **HTML Embedded Comment**: We place embedded dev-note comments breadcrumb referencing one of the generated honeytokens within the HTML source code of the index page if it exists. The code randomly selects an anchor comment from all the comments already there to place the comment breadcrumb after it. The HTML comment is generated using an LLM API (e.g., HuggingFace or Gemini).
+
+We ensure a fallback if the generated content is not generated, which populates it with the static HTML comments breadcrumb:
 
 ```html
 <!-- dev ref /{honeytoken} -->
 ```
+
+In the example below, we show how an injected HTML comment breadcrumb looks on a web application called smartgadgetstore, referencing the honeylink `/admin/smartgadgetstore_admin_users.db`:
+
+![Example HTML Comment Breadcrumb](docs/images/html_comment_breadcrumb.png)
 
 ## User Guide
 
@@ -250,7 +266,7 @@ The features for the enhanced honeypot are configured using a `config.yml` file 
 
 Below is an explanation of the key sections in the configuration file:
 
-- **`FEATURES`**: Specify a parameter to enable or disable the extended framework to generate honeytokens, honeylinks, and breadcrumbs. Furthermore, it specifies the webhook URL used when running the honeypot locally and when fully deployed. The URL is where webhook data is sent to when honeytokens and honeylinks are triggered. The webhook URL always needs to be accessible from the IP address of Canarytoken `52.18.63.80`.
+- **`FEATURES`**: Specify a parameter to enable or disable the extended framework to generate honeytokens, honeylinks, and breadcrumbs. Furthermore, it specifies the webhook URL used when running the honeypot locally and when fully deployed (which requires the public IP of the hosting server). The URL is where webhook data is sent to when honeytokens and honeylinks are triggered. The webhook URL always needs to be accessible from the IP address of Canarytoken `52.18.63.80`.
 - **`DOMAIN`**: Variable specifying the base domain name used for running the framework with TLS.
 - **`HONEYTOKEN`**: Specifies the honeytokens associated LLM API and prompt used for generating. At the moment, we support [Gemini AI](https://aistudio.google.com/prompts/new_chat) from Google and the [Inference API](https://huggingface.co/docs/inference-providers/index) from Hugging Face. Furthermore, it gives the opportunity to specify an accessible webhook endpoint when triggering a honeytoken.
 - **`HONEYLINK`**: Specifies the fixed honeylink paths to trigger on. The static paths will be added together with the dynamic paths from the generated filenames of those file types for which we do not support the honeytoken generation.
