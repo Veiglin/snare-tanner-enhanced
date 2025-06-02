@@ -7,6 +7,11 @@ import requests
 from snare.config import SnareConfig
 
 class HoneylinksGenerator:
+    """
+    Generates and manages honeylinks for the honeypot system.
+    Responsible for triggering alerts when honeylinks are accessed
+    """
+
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         if os.getenv("IS_LOCAL") == "true":
@@ -43,7 +48,7 @@ class HoneylinksGenerator:
 
     def _find_location(self, ip):
         """
-        Find the geographic location of an IP address.
+        Find the geographic location and other metadata of an IP address.
         """
         url = f"http://ip-api.com/json/{ip}?fields=status,countryCode,continent,regionName,timezone,city,zip,lat,lon,org,as,mobile,proxy"
         try:

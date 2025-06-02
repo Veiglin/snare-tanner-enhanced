@@ -13,6 +13,11 @@ This honeypot framework builds upon the [SNARE](https://github.com/mushorg/snare
 - **Utilizing LLMs**: The framework leverages Large Language Models (LLMs) to dynamically generate realistic honeytokens and breadcrumbs file entries and content, which enhances the deception capabilities of the honeypot and helps us to avoid getting fingerprinted.
 - **Logging Interface**: The honeypot framework introduces a logging interface for monitoring and analyzing activities in SNARE/TANNER. It captures triggered honeytokens from webhooks, which provides insights into the intruders with detailed information about them. [See this section below](#logging-interface).
 
+### Architecture Diagram
+
+We present an overview of the architecture for the enhanced SNARE/TANNER with the implemented enhanced extension marked in red:
+![Enhanced SNARE/TANNER Architecture](docs/images/overall_architecture.png)
+
 ### Honeytokens
 
 We generate honeytokens designed to detect access to the file implemented in `snare/snare/generators/honeytokens.py`. First, the filenames of the honeytokens are generated with the LLM API, which randomly selects a session variant from the following list, making the prompt dynamic to avoid generating the same filenames:

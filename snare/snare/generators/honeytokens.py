@@ -20,6 +20,11 @@ TOKENS_URL = 'https://canarytokens.org'
 TOKENS_DOWNLOAD_URL = 'https://canarytokens.org/d3aece8093b71007b5ccfedad91ebb11/download'
 
 class HoneytokensGenerator:
+    """
+    Generates, manages, and injects honeytokens (bait files) for the honeypot system.
+    Supports generating filenames, creating and tracking honeytokens, generating canarytokens,
+    and injecting realistic content into .docx and .xlsx files using LLM APIs.
+    """
     def __init__(self, 
                  page_dir, 
                  meta):
@@ -58,7 +63,7 @@ class HoneytokensGenerator:
 
     def generate_filenames(self):
         """
-        Generate filenames using the HuggingFace API.
+        Generate a list of filenames using an LLM-API.
         The filenames are generated using the prompt defined in the config file.
         """
         session_variants = [
@@ -167,6 +172,10 @@ class HoneytokensGenerator:
 
     
     def _extract_clean_filenames(self, text):
+        """
+        Extract and clean filenames from LLM-generated text.
+        """
+        
         lines = text.strip().split("\n")
         cleaned = []
         for line in lines:
@@ -183,6 +192,9 @@ class HoneytokensGenerator:
         return cleaned
 
     def _md5_hash(self, text):
+        """
+        Compute the MD5 hash of a string.
+        """
         return hashlib.md5(text.encode("utf-8")).hexdigest()
 
     def create_honeytokens(self, filenames):
@@ -225,6 +237,9 @@ class HoneytokensGenerator:
         self.logger.debug(f"Created {len(filenames)} bait and honeytoken files in {self.page_dir}: {self.generated_paths}")
 
     def write_trackfile(self):
+        """
+        Write the generated honeytoken paths to Honeytokens.txt for tracking.
+        """
         if not hasattr(self, "generated_paths"):
             print_color("No honeytokens generated in this session. Skipping log update.", "WARNING")
             return
@@ -235,6 +250,10 @@ class HoneytokensGenerator:
         print_color(f"Honeytokens.txt updated with {len(self.generated_paths)} filenames at {self.track_path}", "INFO")
 
     def cleanup_honeytokens(self):
+        """
+        Remove all honeytoken files and clean up meta.json.
+        Deletes files after the marker and removes the marker entry.
+        """
         if not os.path.exists(self.meta_path):
             print_color("meta.json not found. Nothing to clean.", "WARNING")
             return
@@ -267,8 +286,9 @@ class HoneytokensGenerator:
 
     def generate_canarytokens(self):
         """
-        Generate canarytokens for the honeytokens in Honeytokens.txt
-        The canarytokens are generated using the generate_token function and saved in the page_dir
+        Generate canarytokens for the honeytokens in Honeytokens.txt.
+        The canarytokens are generated using the generate_token function and saved in the page_dir.
+        Only .pdf, .xlsx, and .docx files are supported.
         """
         # load Honeytokens.txt
         if not os.path.exists(self.track_path):
@@ -313,6 +333,9 @@ class HoneytokensGenerator:
                 print_color(f"Skipping non-supported file type: {token}", "WARNING")
 
     def _generate_token(self, type: str, memo : str, webhook: str = '') -> Optional[str]:
+        """
+        Generate a canarytoken using the Canarytokens API.
+        """
         req_data = {
             'type': type,
             'memo': memo,
@@ -329,6 +352,9 @@ class HoneytokensGenerator:
             return None
 
     def _downloaded_token_file(self, type: str, auth: str, token: str) -> bytes:
+        """
+        Download the canarytoken file from the Canarytokens.
+        """
         # map the file type to the correct fmt
         file_extensions = {
             'adobe_pdf': 'pdf',
@@ -359,6 +385,9 @@ class HoneytokensGenerator:
             self.logger.error(f"Failed to download content: {response.status_code} - {response.text}")
 
     def _inject_docx(self, filepath, honeytoken):
+        """
+        Injects generated fake content into a .docx honeytoken file.
+        """
         temp_dir = filepath + "_tmp"
 
         with zipfile.ZipFile(filepath, 'r') as zip_ref:
@@ -409,6 +438,9 @@ class HoneytokensGenerator:
 
 
     def _inject_xlsx(self, filepath, honeytoken):
+        """
+        Injects generated fake content into a .xlsx honeytoken file.
+        """
         temp_dir = filepath + "_tmp"
 
         with zipfile.ZipFile(filepath, 'r') as zip_ref:
