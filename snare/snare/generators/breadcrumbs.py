@@ -11,6 +11,11 @@ from snare.utils.snare_helpers import print_color
 from snare.config import SnareConfig
 
 class BreadcrumbsGenerator:
+    """
+    Generates various types of breadcrumbs (leading to honeytokens or honeylinks).
+    Supports robots.txt, error pages, and HTML comment breadcrumbs.
+    Uses LLM APIs to generate realistic content.
+    """
     def __init__(self, 
                  page_dir, 
                  meta):
@@ -27,8 +32,7 @@ class BreadcrumbsGenerator:
 
     def generate_breadcrumbs(self):
         """
-        Generates breadcrumbs for the given types.
-        Always cleans up the 404 and robots.txt files regardless of generation flag.
+        Generates breadcrumbs for the types specified in the configuration.
         """
         breadcrumb_types = SnareConfig.get("BREADCRUMB", "TYPES")
         if not breadcrumb_types:
@@ -48,7 +52,7 @@ class BreadcrumbsGenerator:
 
     def generate_robots_breadcrumb(self):
         """
-        Generates or refreshes robots.txt with realistic bait paths.
+        Generates robots.txt breadcrumbs with realistic bait paths.
         """
         file_name = "robots.txt"
         hash_name = self._make_filename(file_name)
@@ -110,8 +114,7 @@ class BreadcrumbsGenerator:
 
     def generate_error_pages_breadcrumb(self):
         """
-        Rewrites the 404 page and one other random error page (400, 401, 403, 500)
-        with a breadcrumb line generated using an LLM and one random honeytoken.
+        Rewrites the 404 page and one other random error page (400, 401, 403, 500) with a breadcrumb line generated using an LLM.
         Creates entries and files if they don't exist.
         """
         self._generate_status_breadcrumb("/status_404")
@@ -123,9 +126,6 @@ class BreadcrumbsGenerator:
         print_color(f"Breadcrumbs generated for {random_status}", "INFO")
 
     def _generate_status_breadcrumb(self, abs_url):
-        """
-        Shared logic to generate a breadcrumb for a given status page (e.g., /status_404, /status_401).
-        """
         hash_name = self.meta.get(abs_url, {}).get("hash")
 
         # If not found in meta, create it
@@ -266,7 +266,7 @@ class BreadcrumbsGenerator:
 
     def generate_html_comments_breadcrumb(self):
         """
-        Safely injects a breadcrumb HTML comment below a randomly selected existing HTML comment in the file.
+        Generates and adds a breadcrumb HTML comment below a randomly selected existing HTML comment in the file.
         """
         abs_url = "/index.html"
         hash_name = self.meta.get(abs_url, {}).get("hash")
