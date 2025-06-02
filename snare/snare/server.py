@@ -58,6 +58,9 @@ class HttpRequestHandler:
         return route_map
     
     def get_honeylink_paths(self):
+        """
+        Get the honeylink paths from Honeytokens.txt and static paths in config.
+        """
         # load Honeytokens.txt
         if not os.path.exists(self.track_path):
             print_color("Honeytokens.txt not found. Can not get honeylink paths", "WARNING")
