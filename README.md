@@ -195,7 +195,7 @@ Required `meta.json` entries for proper operation:
 }
 ```
 After it is confirmed that the entries above are included, a manual adjustment of the HTML code to redirect to the correct endpoints is necessary. For example main page should be index.html, the login should be login.php, etc.
-These static files (except index.html) are ready to be used and included in the folder `templates`, located here: `\docker\snare\dist\templates`
+These static files (except index.html) are ready to be used and included in the folder `templates`, located here: `/docker/snare/dist/templates`.
 
 To use a custom webpage:
 
@@ -427,7 +427,7 @@ In the example below, we show how SNARE injected honeytokens and breadcrumbs on 
 
 ## Licenses
 
-This project incorporates the SNARE/TANNER honeypot code and the Docker deployment code from T-Pot and is therefore built on using the following GPLv3 licenses:
+This project is licensed under the GNU General Public License version 3 (GPLv3), as it incorporates code from the SNARE and TANNER honeypots as well as Docker deployment code from T-Pot, all of which are licensed under GPLv3:
 
 - [SNARE](https://github.com/mushorg/snare/blob/main/LICENSE)
 - [TANNER](https://github.com/mushorg/snare/blob/main/LICENSE)
