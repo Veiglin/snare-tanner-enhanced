@@ -2,16 +2,16 @@
 
 <img src="docs/images/logo.jpeg" alt="SNARE/TANNER Enhanced Logo" width="500" style="float: center;">
 
-This honeypot framework builds upon the [SNARE](https://github.com/mushorg/snare)/[TANNER](https://github.com/mushorg/tanner/tree/main) honeypot implementation from [T-Pot](https://github.com/telekom-security/tpotce/tree/master), which is designed to attract and log interactions on web applications. We extend and enhance SNARE/TANNER within this framework by integrating breadcrumbing techniques and honeytokens/honeylinks deployment utilizing LLMs for a better and deeper deceptive honeypot framework. 
+This honeypot framework builds on the [SNARE](https://github.com/mushorg/snare)/[TANNER](https://github.com/mushorg/tanner/tree/main) honeypot implementation from [T-Pot](https://github.com/telekom-security/tpotce/tree/master), which is designed to attract and log interactions on web applications. We extend and enhance SNARE/TANNER within this framework by integrating breadcrumbing techniques and honeytokens/honeylinks deployment utilizing LLMs to create a more sophisticated and effective deceptive honeypot. 
 
 ## Features
 
 - **Build Upon SNARE/TANNER**: This framework extends SNARE/TANNER honeypot from T-Pot by introducing more advanced deception technique features using breadcrumbing and honeytoken deployment with LLM-driven generation.
 - **Honeytokens**: This framework includes a mechanism to deploy honeytoken files utilized from [Canarytoken](https://canarytokens.org/nest/generate), including injecting content generated with an LLM prompt. The honeytokens are designed to detect unauthorized access when someone opens the file. The types of honeytokens supported include the file types: `docx`, `xlsx`, and `pdf`.
-- **Honeylinks**: This framework includes a feature to configure and generate honeylinks for those file types which is not supported as honeytokens. When a honeylink is accessed, it triggers an alert by sending a webhook request containing detailed information, such as the source IP, geographic location, and whether the IP is a known Tor exit node.
+- **Honeylinks**: This framework includes a feature to configure and generate honeylinks for those file types that are not supported as honeytokens. When a honeylink is accessed, it triggers an alert by sending a webhook request containing detailed information, such as the source IP, geographic location, and whether the IP is a known Tor exit node.
 - **Breadcrumbs**: This framework implements a mechanism to deploy breadcrumbs within a web application utilizing three different strategies: `robots.txt`, `error pages`, and `HTML inline comments`.
 - **Utilizing LLMs**: The framework leverages Large Language Models (LLMs) to dynamically generate realistic honeytokens and breadcrumbs file entries and content, which enhances the deception capabilities of the honeypot and helps us to avoid getting fingerprinted.
-- **Logging Interface**: The honeypot framework introduces a logging interface for monitoring and analyzing activities in SNARE/TANNER. It captures triggered honeytokens from webhooks, which provides insights into the intruders with detailed information about them. [See this section below](#logging-interface).
+- **Logging Interface**: The honeypot framework introduces a logging interface for monitoring and analyzing activities in SNARE/TANNER. It captures triggered honeytokens from webhooks, providing detailed insights into intruders. [See this section below](#logging-interface).
 
 ### Architecture Diagram
 
@@ -20,7 +20,7 @@ We present an overview of the architecture for the enhanced SNARE/TANNER with th
 
 ### Honeytokens
 
-We generate honeytokens designed to detect access to the file implemented in `snare/snare/generators/honeytokens.py`. First, the filenames of the honeytokens are generated with the LLM API, which randomly selects a session variant from the following list, making the prompt dynamic to avoid generating the same filenames:
+We generate honeytokens designed to detect access to the file implemented in `snare/snare/generators/honeytokens.py`. First, the filenames of the honeytokens are generated with the LLM API, which randomly selects a session variant from the following list, making each prompt dynamic to ensure varied filename generation:
 
 ```python
 [
@@ -32,7 +32,7 @@ We generate honeytokens designed to detect access to the file implemented in `sn
     ...
 ]
 ```
-After generating the filenames, we add a randomly selected prefix from the following list, which we join with the filename and add as entries in our web application:
+After generating the filenames, we add a randomly selected prefix from the following list, which are joined with the filenames and added as entries in our web application:
 
 ```python
 ["wp-admin", "admin", "includes", "cgi-bin", "private", "search", "action", "modules", "filter/tips", "comment/reply", "node/add"]
@@ -55,9 +55,9 @@ When a honeytoken is opened, it triggers a webhook alert, providing detailed inf
 
 ### Honeylinks
 
-Our feature deploys honeylinks, which are implemented in `snare/snare/generators/honeylinks.py`, for generated filenames that are not supported for being honeytokens, along with the files in the `config.yml`. When a honeylink is accessed, it triggers an alert by sending a webhook request.
+Our feature deploys honeylinks, which are implemented in `snare/snare/generators/honeylinks.py`, for generated files that are not supported for being honeytokens, along with the files in the `config.yml`. When a honeylink is accessed, it triggers an alert by sending a webhook request.
 
-The webhook includes detailed information about the attacker's source IP, the geographic location, which is retrieved from [IP-API](http://ip-api.com), and information about whether the IP is a known TOR exit node retrieved from [the TOR project](https://check.torproject.org/exit-addresses). It is intended to capture data that is not already captured by SNARE/TANNER about who accessed the honeylink.
+The webhook includes detailed information about the attacker's source IP, the geographic location, which is retrieved from [IP-API](http://ip-api.com), and information about whether the IP is a known TOR exit node retrieved from [the TOR project](https://check.torproject.org/exit-addresses). This captures data not already logged by SNARE/TANNER about who accessed the honeylink.
 
 In the `server.py` of SNARE, we check if the incoming requested path is a part of the list of honeylinks and trigger the webhook if the honeylink has been accessed:
 
@@ -72,7 +72,7 @@ if (SnareConfig.get("FEATURES", "enabled") is True):
 
 With our feature, we deploy breadcrumbs to lure an attacker into triggering our honeytokens and honeylinks, implemented in `snare/snare/generators/breadcrumbs.py`. Based on the user's configuration, we are using the three strategies:
 
-1. **`robots.txt`**: We add a `robots.txt` file which includes entries pointing to fake directories, honeytokens, and honeytlinks. These entries are dynamically generated by selecting honeytokens or honeylinks from the tracking file (`Honeytokens.txt`). `robots.txt` is updated to include the disallowed paths with a minimum of one randomly selected honeytoken file, together with all the honeylink files and the fake paths `/private/`, `/admin/`, `/admin/login.php`, and the sitemap `https://smartgadgetstore.live/sitemap.xml`:
+1. **`robots.txt`**: We add a `robots.txt` file containing entries pointing to fake directories, honeytokens, and honeylinks. These entries are dynamically generated by selecting honeytokens or honeylinks from the tracking file (`Honeytokens.txt`). `robots.txt` is updated to include the disallowed paths with a minimum of one randomly selected honeytoken file, together with all the honeylink files and the fake paths `/private/`, `/admin/`, `/admin/login.php`, and the sitemap `https://smartgadgetstore.live/sitemap.xml`:
 
 ```python
 lines = [
@@ -91,7 +91,7 @@ In the example below, we show how an injected `robots.txt` breadcrumb looks on a
 
 ![Example Robots Breadcrumb](docs/images/robots_breadcrumb.png)
 
-2. **Error Page**: We add generated content in one of the statically created error pages, randomly selecting a custom error page as `400`, `401`, `403`, or `500` pages. The content is generated using an LLM API (e.g., HuggingFace or Gemini), and the content of the selected error page is updated to include a breadcrumb referencing one of the generated honeytokens.
+2. **Error Page**: We inject generated content into one of the statically created error pages, randomly selecting a custom error page as `400`, `401`, `403`, or `500` pages. The content is generated using an LLM API (e.g., HuggingFace or Gemini), and the content of the selected error page is updated to include a breadcrumb referencing one of the generated honeytokens.
 
 We ensure a fallback if the generated content is not generated, which populates it with the static error page breadcrumb:
 
@@ -119,7 +119,7 @@ In the example below, we show how an injected HTML comment breadcrumb looks on a
 
 In this section, we describe how to set up and run the enhanced honeypot framework for LLM-driven honeytoken and breadcrumb generation.
 
-### Prerequirements
+### Prerequisites
 
 To run the enhanced SNARE/TANNER honeypot framework, ensure the following are installed on the host system:
 
@@ -127,7 +127,7 @@ To run the enhanced SNARE/TANNER honeypot framework, ensure the following are in
 - Certbot (for running with TLS on your own domain)
 - Python (v. 3.9 or later)
 
-### Start SNARE
+### SNARE Setup
 
 The startup parameters are defined in `start_snare.py`, located at: `/docker/snare/dist/start_snare.py`.
 
@@ -262,7 +262,7 @@ HONEYTOKEN:
     Generate in total 5 files. The generated files should be realistic, code-friendly filenames (no spaces or special characters) that might contain sensitive internal data.
     Examples include inventory backups, customer exports, admin data, supplier lists, or device configuration dumps.
     {session}
-    Use only the file types .docx, .xlsx, .pdf, .db, .sql or .zip and ensure there is minumum one .docx, one .xlsx and one .pdf file.
+    Use only the file types .docx, .xlsx, .pdf, .db, .sql or .zip and ensure there is minimum one .docx, one .xlsx and one .pdf file.
   PROMPT-DOCX: > # Need to include "honeytoken" and "dynamic" variable
     Given the file name {honeytoken}, generate content for a realistic-looking internal document that would plausibly appear in a document with that name.
     The tone should match the filename — e.g., meeting notes, credentials, export summaries, or sensitive business context.
@@ -315,7 +315,7 @@ BREADCRUMB:
     return_full_text: false # Only for HuggingFace
 ```
 
-### Running Locally with Docker Compose (without TLS certificate required)
+### Running Locally with Docker Compose (without TLS certificate)
 
 1. Clone and Navigate to the Repository from GitHub:
 
@@ -324,7 +324,18 @@ BREADCRUMB:
    cd ./snare-tanner-enhanced
    ```
 
-2. Build and run the local Docker compose file `docker-compose-local.yml`:
+2. Configure SNARE:
+
+   Open the `config.yml` file located at `/docker/snare/dist/config.yml` and update the `WEBHOOK-URL-LOCAL` field under the `FEATURES` section to include your personal [webhook.site](https://webhook.site) URL. This ensures that alerts from triggered honeytokens and honeylinks are sent to your endpoint.
+
+   Example:
+   ```yaml
+   FEATURES:
+     enabled: True
+     WEBHOOK-URL-LOCAL: https://webhook.site/your-custom-id
+     WEBHOOK-URL-DEPLOYMENT: http://{public_ip}:5003/webhook
+
+3. Build and run the local Docker compose file `docker-compose-local.yml`:
    
      ```bash
      docker compose -f docker/docker-compose-local.yml up --build
