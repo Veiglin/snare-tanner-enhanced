@@ -129,7 +129,7 @@ To run the enhanced SNARE/TANNER honeypot framework, ensure the following are in
 
 ### Start SNARE
 
-The startup parameters are defined in `start_snare.py`, located at: `\docker\snare\dist\start_snare.py`
+The startup parameters are defined in `start_snare.py`, located at: `/docker/snare/dist/start_snare.py`.
 
 On execution, SNARE:
 
