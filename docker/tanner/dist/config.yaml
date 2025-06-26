@@ -90,15 +90,3 @@ REMOTE_DOCKERFILE:
 
 SESSIONS: 
   delete_timeout: 300
-
-HONEYTOKEN:
-  enabled: False
-  absolute_path: []
-  weak_credentials: 
-    username: ""
-    password: ""
-  mail_recipient: 
-    - ""
-  mail_sender:
-  connection_string:
-  maps_subscription_key:
